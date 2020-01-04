@@ -6,7 +6,7 @@ import 'common.dart';
 import 'widgets.dart';
 
 Future main() async {
-  init();
+  await init();
   await FlutterDownloader.initialize();
   runApp(MyApp());
   FlutterDownloader.registerCallback(handleDownloads);

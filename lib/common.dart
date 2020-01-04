@@ -20,7 +20,7 @@ AndroidDeviceInfo deviceInfo;
 bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
-bool _canLaunchUrl = false;
+bool canLaunchUrl = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -35,6 +35,7 @@ String defZeroNetUrl = 'http://127.0.0.1:43110/';
 String downloading = 'Downloading Files';
 String installing = 'Installing ZeroNet';
 String sesionKey = '';
+String browserUrl = 'https://google.com';
 
 List<Color> colors = [
   Colors.cyan,
@@ -401,97 +402,6 @@ void _unzipBytesAsync(UnzipParams params) async {
   File(installedMetaDir(metaDir.path, params.item)).createSync(recursive: true);
 }
 
-List<Widget> zeroNetSites() {
-  List<Widget> zeroSites = [];
-  for (var key in Utils.initialSites.keys) {
-    var name = key;
-    var description = Utils.initialSites[key]['description'];
-    var url = Utils.initialSites[key]['url'];
-    var i = Utils.initialSites.keys.toList().indexOf(key);
-    zeroSites.add(
-      Container(
-        height: 185,
-        width: 185,
-        margin: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colors[i],
-              colors[i + 1],
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Stack(
-            children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 24.0,
-                      left: 15.0,
-                    ),
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28.0,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 15.0,
-                    ),
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 8.0,
-                  right: 12.0,
-                ),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: OutlineButton(
-                    borderSide: BorderSide(color: Colors.white),
-                    child: Text(
-                      'Open',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onPressed: () {
-                      if (_canLaunchUrl) {
-                        launch(zeroNetUrl + url);
-                      } else {
-                        testUrl();
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  return zeroSites;
-}
-
 _unzipBytes(String name, List<int> bytes, {String dest = ''}) async {
   printOut("UnZippingFiles.......");
   var out = dataDir + '/' + dest;
@@ -530,7 +440,7 @@ makeExec(String path) => Process.runSync('chmod', ['744', path]);
 testUrl() {
   if (zeroNetUrl.isNotEmpty) {
     canLaunch(zeroNetUrl).then((onValue) {
-      _canLaunchUrl = onValue;
+      canLaunchUrl = onValue;
     });
   }
 }

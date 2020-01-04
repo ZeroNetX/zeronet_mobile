@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:http/http.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zeronet/zeronet/zeronet.dart';
 
 import 'common.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
 
 class Loading extends StatelessWidget {
   // String data = 'Loading';
-  String warning = """
+  final String warning = """
         Please Wait! This may take a while, 
         happens only first time, 
         Don't Press Back button.
@@ -84,36 +85,14 @@ class Loading extends StatelessWidget {
   }
 }
 
-class ZeroNetSites extends StatefulWidget {
-  @override
-  _ZeroNetSitesState createState() => _ZeroNetSitesState();
-}
-
-class _ZeroNetSitesState extends State<ZeroNetSites> {
-  @override
-  initState() {
-    testUrl();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      // constraints: BoxConstraints.expand(),
-      child: GridView(
-        shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 250,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-          childAspectRatio: 1,
-        ),
-        children: zeroNetSites(),
-      ),
-    );
-  }
-}
+// class ZeroNetSites extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Wrap(
+//       children: zeroNetSites(),
+//     );
+//   }
+// }
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -131,6 +110,119 @@ class _MyHomePageState extends State<MyHomePage> {
   initState() {
     checkInitStatus();
     super.initState();
+  }
+
+  _reload() => this.mounted ? setState(() {}) : null;
+
+  Widget zeroNetSites() {
+    List<Widget> zeroSites = [];
+    for (var key in Utils.initialSites.keys) {
+      var name = key;
+      var description = Utils.initialSites[key]['description'];
+      var url = Utils.initialSites[key]['url'];
+      var i = Utils.initialSites.keys.toList().indexOf(key);
+      zeroSites.add(
+        Container(
+          height: 185,
+          width: 185,
+          margin: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                colors[i],
+                colors[i + 1],
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Stack(
+              children: <Widget>[
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 24.0,
+                        left: 15.0,
+                      ),
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28.0,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 15.0,
+                      ),
+                      child: Text(
+                        description,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 8.0,
+                    right: 12.0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: OutlineButton(
+                      borderSide: BorderSide(color: Colors.white),
+                      child: Text(
+                        'Open',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (canLaunchUrl) {
+                          launch(zeroNetUrl + url);
+                        } else {
+                          testUrl();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'Popular Sites',
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+        ),
+        Wrap(
+          children: []..addAll(zeroSites),
+        )
+      ]..add(
+          Padding(
+            padding: EdgeInsets.all(40.0),
+          ),
+        ),
+    );
   }
 
   checkInitStatus() async {
@@ -174,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (value != null) {
                   ZeroNet.wrapperKey = value;
                   varStore.zeroNetWrapperKey = value;
+                  browserUrl = zeroNetUrl;
                   varStore.setZeroNetStatus('Running');
                 }
               });
@@ -189,7 +282,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Process zero;
   _runZeroNet() {
-    if (varStore.zeroNetStatus != 'Running') {
+    if (varStore.zeroNetStatus == 'Not Running') {
+      varStore.setZeroNetStatus('Initialising...');
       log = '';
       printOut(logRunning);
       printOut(startZeroNetLog + '\n');
@@ -215,87 +309,174 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // unZipinBg();
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('ZeroNet Mobile'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.content_paste),
-            onPressed: () {
-              showLog = !showLog;
-              setState(() {});
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-          child: showLog
-              ? Text(log)
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'ZeroNet Status',
-                            style: TextStyle(
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Observer(
-                            builder: (c) {
-                              return Chip(
-                                backgroundColor:
-                                    varStore.zeroNetStatus == 'Running'
-                                        ? Colors.greenAccent
-                                        : Colors.yellowAccent,
-                                padding: EdgeInsets.all(8.0),
-                                label: Text(
-                                  varStore.zeroNetStatus,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Popular Sites',
-                        style: TextStyle(
-                          fontSize: 24,
-                        ),
-                      ),
-                    ),
-                    Wrap(
-                      children: <Widget>[]..addAll(zeroNetSites()),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(40.0),
-                    )
-                  ],
-                )),
-      floatingActionButton: FloatingActionButton(
-        child: Observer(
-          builder: (c) {
-            if (varStore.zeroNetStatus == 'Running') return Icon(Icons.stop);
-            return Icon(Icons.play_arrow);
+  bool viewBrowser = true;
+
+// ignore: prefer_collection_literals
+  final Set<JavascriptChannel> jsChannels = [
+    JavascriptChannel(
+        name: 'Print',
+        onMessageReceived: (JavascriptMessage message) {
+          print(message.message);
+        }),
+  ].toSet();
+  final flutterWebViewPlugin = FlutterWebviewPlugin();
+
+  AppBar appBar() {
+    return AppBar(
+      title: const Text('ZeroNet Mobile'),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.home),
+          onPressed: () {
+            viewBrowser = !viewBrowser;
+            _reload();
           },
         ),
-        onPressed: _runZeroNet,
-      ),
+      ],
     );
+  }
+
+  Widget webView() => Stack(
+        children: <Widget>[
+          // appBar(),
+          Padding(
+            padding: const EdgeInsets.only(top: 0.0), //80.0
+            child: WebviewScaffold(
+              url: browserUrl,
+              // javascriptChannels: jsChannels,
+              mediaPlaybackRequiresUserGesture: false,
+              appCacheEnabled: true,
+              appBar: appBar(),
+              withZoom: true,
+              withLocalStorage: true,
+              hidden: true,
+              initialChild: Container(
+                // color: Colors.white,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                      Text('Loading.....'),
+                    ],
+                  ),
+                ),
+              ),
+              bottomNavigationBar: BottomAppBar(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios),
+                      onPressed: () {
+                        flutterWebViewPlugin.goBack();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios),
+                      onPressed: () {
+                        flutterWebViewPlugin.goForward();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.autorenew),
+                      onPressed: () {
+                        flutterWebViewPlugin.reload();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    if (viewBrowser)
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    else
+      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    return viewBrowser
+        ? webView()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text('ZeroNet Mobile'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.content_paste),
+                  onPressed: () {
+                    showLog = !showLog;
+                    _reload();
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.open_in_browser),
+                  onPressed: () {
+                    viewBrowser = !viewBrowser;
+                    _reload();
+                  },
+                ),
+              ],
+            ),
+            body: SingleChildScrollView(
+                child: showLog
+                    ? Text(log)
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'ZeroNet Status',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Observer(
+                                  builder: (c) {
+                                    return Chip(
+                                      backgroundColor:
+                                          varStore.zeroNetStatus == 'Running'
+                                              ? Colors.greenAccent
+                                              : (varStore.zeroNetStatus ==
+                                                      'Not Running')
+                                                  ? Colors.grey
+                                                  : Colors.orange,
+                                      padding: EdgeInsets.all(8.0),
+                                      label: Text(
+                                        varStore.zeroNetStatus,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          zeroNetSites(),
+                        ],
+                      )),
+            floatingActionButton: FloatingActionButton(
+              child: Observer(
+                builder: (c) {
+                  if (varStore.zeroNetStatus == 'Not Running')
+                    return Icon(Icons.play_arrow);
+                  return Icon(Icons.stop);
+                },
+              ),
+              onPressed: _runZeroNet,
+            ),
+          );
   }
 }
