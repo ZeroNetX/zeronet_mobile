@@ -85,15 +85,6 @@ class Loading extends StatelessWidget {
   }
 }
 
-// class ZeroNetSites extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Wrap(
-//       children: zeroNetSites(),
-//     );
-//   }
-// }
-
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -187,11 +178,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       onPressed: () {
-                        if (canLaunchUrl) {
-                          launch(zeroNetUrl + url);
-                        } else {
-                          testUrl();
+                        if (varStore.zeroNetStatus == 'Running') {
+                          browserUrl = zeroNetUrl + url;
+                          viewBrowser = true;
+                          setState(() {});
                         }
+                        // if (canLaunchUrl) {
+                        //   launch(zeroNetUrl + url);
+                        // } else {
+                        //   testUrl();
+                        // }
                       },
                     ),
                   ),
@@ -234,7 +230,11 @@ class _MyHomePageState extends State<MyHomePage> {
       varStore.setZeroNetStatus('Running');
       testUrl();
     } catch (e) {
-      print(e);
+      if (e is OSError) {
+        if (e.errorCode == 111) {
+          printOut('Zeronet Not Running');
+        }
+      }
     }
   }
 
@@ -268,6 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   varStore.zeroNetWrapperKey = value;
                   browserUrl = zeroNetUrl;
                   varStore.setZeroNetStatus('Running');
+                  showZeroNetRunningNotification();
                 }
               });
             }
@@ -309,7 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  bool viewBrowser = true;
+  bool viewBrowser = false;
 
 // ignore: prefer_collection_literals
   final Set<JavascriptChannel> jsChannels = [
@@ -402,7 +403,14 @@ class _MyHomePageState extends State<MyHomePage> {
     else
       SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     return viewBrowser
-        ? webView()
+        ? WillPopScope(
+            onWillPop: () {
+              viewBrowser = false;
+              _reload();
+              return Future.value(false);
+            },
+            child: webView(),
+          )
         : Scaffold(
             appBar: AppBar(
               title: Text('ZeroNet Mobile'),

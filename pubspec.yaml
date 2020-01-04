@@ -22,7 +22,7 @@ dependencies:
   flutter_webview_plugin: 0.3.10+1
   flutter_local_notifications:
     git:
-      url: https://github.com/noinskit/flutter_local_notifications
+      url: https://github.com/canewsin/flutter_local_notifications
       ref: actions
 
 dev_dependencies:

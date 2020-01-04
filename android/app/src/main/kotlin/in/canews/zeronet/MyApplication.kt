@@ -1,10 +1,20 @@
 package `in`.canews.zeronet
 
+import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin
 import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugins.GeneratedPluginRegistrant
+import io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin
+
 
 internal class MyApplication : FlutterApplication(), PluginRegistry.PluginRegistrantCallback {
+
+   override fun onCreate() {
+       super.onCreate()
+       FlutterLocalNotificationsPlugin.setPluginRegistrant { registry -> SharedPreferencesPlugin.registerWith(registry.registrarFor("io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin")) }
+//       FlutterLocalNotificationsPlugin.setPluginRegistrant(this)
+   }
+
    override fun registerWith(registry: PluginRegistry) {
        //
        // Integration note:

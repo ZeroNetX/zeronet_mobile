@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'mobx/varstore.dart';
 
 Directory tempDir = Directory(dataDir + '/tmp');
@@ -36,6 +36,13 @@ String downloading = 'Downloading Files';
 String installing = 'Installing ZeroNet';
 String sesionKey = '';
 String browserUrl = 'https://google.com';
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+String zeroNetNotiId = 'zeroNetNetiId';
+String zeroNetChannelName = 'ZeroNet Mobile';
+String zeroNetChannelDes =
+    'Shows ZeroNet Notification to Persist from closing.';
+String notificationCategory = 'ZERONET_RUNNING';
 
 List<Color> colors = [
   Colors.cyan,
@@ -113,6 +120,7 @@ makeExecHelper() {
 }
 
 init() async {
+  initNotifications();
   sesionKey = randomAlpha(10);
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
@@ -124,6 +132,63 @@ init() async {
   else if (archL.contains('x86_64'))
     arch = 'x86_64';
   else if (archL.contains('x86')) arch = 'x86';
+}
+
+initNotifications() {
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon');
+  final initializationSettingsIOS = IOSInitializationSettings();
+  final initializationSettings = InitializationSettings(
+      initializationSettingsAndroid, initializationSettingsIOS);
+  final categories = [
+    NotificationCategory(
+      notificationCategory,
+      [
+        NotificationAction("Stop", "ACTION_CLOSE"),
+        // NotificationAction("Open App", "ACTION_OPENAPP"),
+      ],
+    ),
+  ];
+  flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onSelectNotification: onSelectNotification,
+    onSelectNotificationAction: onSelectNotificationAction,
+    categories: categories,
+  );
+}
+
+Future<void> onSelectNotification(String payload) async {
+  if (payload != null) {
+    printOut('notification payload: ' + payload);
+  }
+}
+
+Future<void> onSelectNotificationAction(NotificationActionData data) async {
+  printOut('notification action data: $data');
+  if (data.actionIdentifier == "ACTION_CLOSE") exit(0);
+}
+
+Future<void> showZeroNetRunningNotification() async {
+  var androidDetails = AndroidNotificationDetails(
+    zeroNetNotiId,
+    zeroNetChannelName,
+    zeroNetChannelDes,
+    ongoing: true,
+    playSound: false,
+    autoCancel: false,
+    enableVibration: true,
+  );
+  var iosDetails = IOSNotificationDetails();
+  var details = NotificationDetails(androidDetails, iosDetails);
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'ZeroNet Mobile is Running',
+    'Click on Stop, to Stop ZeroNet or Click Here to Open App',
+    details,
+    categoryIdentifier: notificationCategory,
+    // payload: 'zeronet',
+  );
 }
 
 check() async {
