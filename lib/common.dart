@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:random_string/random_string.dart';
@@ -14,37 +15,28 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'mobx/varstore.dart';
 
-Directory tempDir = Directory(dataDir + '/tmp');
-Directory metaDir = Directory(dataDir + '/meta');
-AndroidDeviceInfo deviceInfo;
-bool isZeroNetInstalledm = false;
-bool isZeroNetDownloadedm = false;
-bool isDownloadExec = false;
-bool canLaunchUrl = false;
-int downloadStatus = 0;
-Map downloadsMap = {};
-Map downloadStatusMap = {};
-var dataDir = "/data/data/in.canews.zeronet/files";
-var zeroNetState = state.NONE;
-Client client = Client();
-String arch;
-String gitRepo = 'https://github.com/canewsin/ZeroNet';
-String releases = gitRepo + '/releases/download/';
-String zeroNetUrl = '';
-String defZeroNetUrl = 'http://127.0.0.1:43110/';
-String downloading = 'Downloading Files';
-String installing = 'Installing ZeroNet';
-String sesionKey = '';
-String browserUrl = 'https://google.com';
-
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-String zeroNetNotiId = 'zeroNetNetiId';
-String zeroNetChannelName = 'ZeroNet Mobile';
-String zeroNetChannelDes =
+const String dataDir = "/data/data/in.canews.zeronet/files";
+const String bin = '$dataDir/usr/bin';
+const String python = '$bin/python';
+const String libDir = '$dataDir/usr/lib';
+const String libDir64 = '$dataDir/usr/lib64';
+const String zeronetDir = '$dataDir/ZeroNet-py3';
+const String zeronet = '$zeronetDir/zeronet.py';
+const String defZeroNetUrl = 'http://127.0.0.1:43110/';
+const String downloading = 'Downloading Files';
+const String installing = 'Installing ZeroNet';
+const String githubLink = 'https://github.com';
+const String rawGithubLink = 'https://raw.githubusercontent.com';
+const String canewsInRepo = '/canewsin/ZeroNet';
+const String releases = '$githubLink$canewsInRepo/releases/download/';
+const String md5hashLink = '$rawGithubLink$canewsInRepo/py3-patches/md5.hashes';
+const String zeroNetNotiId = 'zeroNetNetiId';
+const String zeroNetChannelName = 'ZeroNet Mobile';
+const String zeroNetChannelDes =
     'Shows ZeroNet Notification to Persist from closing.';
-String notificationCategory = 'ZERONET_RUNNING';
+const String notificationCategory = 'ZERONET_RUNNING';
 
-List<Color> colors = [
+const List<Color> colors = [
   Colors.cyan,
   Colors.indigoAccent,
   Color(0xFF9F63BF),
@@ -58,29 +50,37 @@ List<Color> colors = [
   Color(0xFF1BB2D4),
   Color(0xFF7ECA26),
 ];
-List<String> binDirs = [
+const List<String> binDirs = [
   'usr',
   'site-packages',
   'ZeroNet-py3',
 ];
-List<String> soDirs = [
+const List<String> soDirs = [
   'usr/bin',
   'usr/lib',
   'usr/lib/python3.8/lib-dynload',
 ];
+List<String> md5List = [];
 
-List<String> md5List = [
-  '30865832830c3bb1d67aeb48b0572774',
-  '4908d51ff8f2daa35a209db0c86dc535',
-  '3df0aae9c0f30941a3893f02b0533d65',
-  'e09fab4484cf10d5bc29901f5c17df78',
-  '11af969820fdc72db9d9c41abd98e4c9',
-  '336b451616f620743e6aecb30900b822',
-  '98c9109d618094a9775866c1838d4666',
-  '11e86b9a2aae72f854bf1f181946d78b',
-  '28d0faceb156ad1e5f1befa770dce3cd',
-  '3a502a40f060bd57a2072161a8461390',
-];
+Directory tempDir = Directory(dataDir + '/tmp');
+Directory metaDir = Directory(dataDir + '/meta');
+AndroidDeviceInfo deviceInfo;
+bool isZeroNetInstalledm = false;
+bool isZeroNetDownloadedm = false;
+bool isDownloadExec = false;
+bool canLaunchUrl = false;
+int downloadStatus = 0;
+Map downloadsMap = {};
+Map downloadStatusMap = {};
+
+var zeroNetState = state.NONE;
+Client client = Client();
+String arch;
+String zeroNetUrl = '';
+String sesionKey = '';
+String browserUrl = 'https://google.com';
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 String downloadLink(String item) => releases + 'Android_Binaries/$item.zip';
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
@@ -121,7 +121,6 @@ makeExecHelper() {
 
 init() async {
   initNotifications();
-  sesionKey = randomAlpha(10);
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
   String archL = deviceInfo.supportedAbis[0];
@@ -236,6 +235,7 @@ downloadBins() async {
       t = t + 2;
       var file = File(tempDir.path + '/$item.zip');
       if (!file.existsSync()) {
+        sesionKey = randomAlpha(10);
         var tempFilePath = downloadingMetaDir(
           tempDir.path,
           item,
@@ -257,6 +257,9 @@ downloadBins() async {
       } else {
         var bytes = file.readAsBytesSync();
         var digest = md5.convert(bytes).toString();
+        var res = await client.get(md5hashLink);
+        var list = json.decode(res.body) as List;
+        list.forEach((f) => md5List.add(f as String));
         for (var hash in md5List) {
           if (digest == hash) {
             File f = File(downloadedMetaDir(tempDir.path, item));

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:zeronet/zeronet/zeronet.dart';
 
 import 'common.dart';
@@ -288,13 +287,7 @@ class _MyHomePageState extends State<MyHomePage> {
       log = '';
       printOut(logRunning);
       printOut(startZeroNetLog + '\n');
-      var bin = '$dataDir/usr/bin';
-      var exec = '$bin/python';
-      var libDir = '$dataDir/usr/lib';
-      var libDir64 = '$dataDir/usr/lib64';
-      var zeronetDir = '$dataDir/ZeroNet-py3';
-      var zeronet = '$zeronetDir/zeronet.py';
-      Process.start('$exec', [
+      Process.start('$python', [
         zeronet
       ], environment: {
         "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
