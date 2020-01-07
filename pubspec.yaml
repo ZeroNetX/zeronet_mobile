@@ -24,6 +24,9 @@ dependencies:
     git:
       url: https://github.com/canewsin/flutter_local_notifications
       ref: actions
+  web_socket_channel: 1.1.0
+  zeronet_ws:
+    path: ../zeronet_ws
 
 dev_dependencies:
   flutter_test:

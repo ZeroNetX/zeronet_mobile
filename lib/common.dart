@@ -13,6 +13,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:zeronet_ws/zeronet_ws.dart';
 import 'mobx/varstore.dart';
 
 const String dataDir = "/data/data/in.canews.zeronet/files";
@@ -77,6 +78,8 @@ var zeroNetState = state.NONE;
 Client client = Client();
 String arch;
 String zeroNetUrl = '';
+String zeroNetIPwithPort(String url) =>
+    url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
 String browserUrl = 'https://google.com';
 
@@ -100,6 +103,18 @@ List<String> files(String arch) => [
       'site-packages-common',
       'ZeroNet-py3',
     ];
+
+shutDownZeronet() {
+  if (varStore.zeroNetStatus == 'Running') {
+    ZeroNet.instance.shutDown();
+    zeroNetUrl = '';
+    varStore.setZeroNetStatus('Not Running');
+    flutterLocalNotificationsPlugin.cancelAll();
+    Future.delayed(Duration(milliseconds: 3), () {
+      ZeroNet.instance.close();
+    });
+  }
+}
 
 debugTime(Function func) {
   var start = DateTime.now();
@@ -145,7 +160,7 @@ initNotifications() {
       notificationCategory,
       [
         NotificationAction("Stop", "ACTION_CLOSE"),
-        // NotificationAction("Open App", "ACTION_OPENAPP"),
+        NotificationAction("Exit App", "ACTION_EXITAPP"),
       ],
     ),
   ];
@@ -165,10 +180,16 @@ Future<void> onSelectNotification(String payload) async {
 
 Future<void> onSelectNotificationAction(NotificationActionData data) async {
   printOut('notification action data: $data');
-  if (data.actionIdentifier == "ACTION_CLOSE") exit(0);
+  if (data.actionIdentifier == "ACTION_CLOSE") {
+    shutDownZeronet();
+  } else {
+    shutDownZeronet();
+    exit(0);
+  }
 }
 
-Future<void> showZeroNetRunningNotification() async {
+Future<void> showZeroNetRunningNotification(
+    {bool enableVibration = true}) async {
   var androidDetails = AndroidNotificationDetails(
     zeroNetNotiId,
     zeroNetChannelName,
@@ -176,7 +197,7 @@ Future<void> showZeroNetRunningNotification() async {
     ongoing: true,
     playSound: false,
     autoCancel: false,
-    enableVibration: true,
+    enableVibration: enableVibration,
   );
   var iosDetails = IOSNotificationDetails();
   var details = NotificationDetails(androidDetails, iosDetails);
@@ -346,7 +367,6 @@ Future<bool> isZeroNetInstalled() async {
       isExists = exists;
     }
   }
-  varStore.isZeroNetInstalled(isExists);
   return isExists;
 }
 
@@ -514,30 +534,37 @@ testUrl() {
 }
 
 class Utils {
-  static const initialSites = {
+  static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
+  static const String urlTalk = 'Talk.ZeroNetwork.bit';
+  static const String urlBlog = 'Blog.ZeroNetwork.bit';
+  static const String urlMail = 'Mail.ZeroNetwork.bit';
+  static const String urlMe = 'Me.ZeroNetwork.bit';
+  static const String urlSites = 'Sites.ZeroNetwork.bit';
+
+  static const initialSites = const {
     'ZeroHello': {
       'description': 'Hello Zeronet Site',
-      'url': '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D',
+      'url': urlHello,
     },
     'ZeroTalk': {
       'description': 'Reddit-like, decentralized forum',
-      'url': 'Talk.ZeroNetwork.bit',
+      'url': urlTalk,
     },
     'ZeroBlog': {
       'description': 'Microblogging Platform',
-      'url': 'Blog.ZeroNetwork.bit',
+      'url': urlBlog,
     },
     'ZeroMail': {
       'description': 'End-to-End Encrypted Mailing',
-      'url': 'Mail.ZeroNetwork.bit',
+      'url': urlMail,
     },
     'ZeroMe': {
       'description': 'P2P Social Network',
-      'url': 'Me.ZeroNetwork.bit',
+      'url': urlMe,
     },
     'ZeroSites': {
       'description': 'Discover More Sites',
-      'url': 'Sites.ZeroNetwork.bit',
+      'url': urlSites,
     },
   };
 
