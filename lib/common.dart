@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:random_string/random_string.dart';
+import 'dart:isolate';
+import 'dart:ui';
 
+import 'package:package_info/package_info.dart';
+import 'package:random_string/random_string.dart';
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info/device_info.dart';
@@ -36,6 +39,8 @@ const String zeroNetChannelName = 'ZeroNet Mobile';
 const String zeroNetChannelDes =
     'Shows ZeroNet Notification to Persist from closing.';
 const String notificationCategory = 'ZERONET_RUNNING';
+const String isolateUnZipPort = 'unzip_send_port';
+const String isolateDownloadPort = 'downloader_send_port';
 
 const List<Color> colors = [
   Colors.cyan,
@@ -73,7 +78,9 @@ bool canLaunchUrl = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
-
+PackageInfo packageInfo;
+String appVersion;
+String buildNumber;
 var zeroNetState = state.NONE;
 Client client = Client();
 String arch;
@@ -136,6 +143,11 @@ makeExecHelper() {
 
 init() async {
   initNotifications();
+  bindDownloadIsolate();
+  bindUnZipIsolate();
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
   String archL = deviceInfo.supportedAbis[0];
@@ -211,6 +223,9 @@ Future<void> showZeroNetRunningNotification(
   );
 }
 
+int i = 0;
+bool created = false;
+
 check() async {
   if (!isZeroNetInstalledm) {
     if (isZeroNetDownloadedm) {
@@ -224,7 +239,7 @@ check() async {
           isZeroNetInstalledm = onValue;
           varStore.isZeroNetInstalled(onValue);
           if (!isZeroNetInstalledm) {
-            await unZipinBg();
+            unZipinBg();
           }
         });
       }
@@ -235,17 +250,83 @@ check() async {
         varStore.setLoadingStatus(downloading);
         if (!isDownloadExec) {
           downloadBins();
-        } else {
-          Timer(secs(2), () {
-            isZeroNetDownloadedm = allFilesDownloaded();
-            check();
-          });
         }
       } else {
         varStore.isZeroNetInstalled(true);
       }
     }
   }
+}
+
+ReceivePort _downloadPort = ReceivePort();
+ReceivePort _unZipPort = ReceivePort();
+
+void _unbindDownloadIsolate() {
+  IsolateNameServer.removePortNameMapping(isolateDownloadPort);
+}
+
+void _unbindUnZipIsolate() {
+  IsolateNameServer.removePortNameMapping(isolateUnZipPort);
+}
+
+bindDownloadIsolate() {
+  bool isSuccess = IsolateNameServer.registerPortWithName(
+      _downloadPort.sendPort, isolateDownloadPort);
+  if (!isSuccess) {
+    _unbindDownloadIsolate();
+    bindDownloadIsolate();
+    return;
+  }
+  _downloadPort.listen((data) {
+    String id = data[0];
+    DownloadTaskStatus status = data[1];
+    int progress = data[2];
+    for (var item in downloadsMap.keys) {
+      if (downloadsMap[item] == id) {
+        downloadStatusMap[id] = progress;
+        if (status == DownloadTaskStatus.complete)
+          File(downloadedMetaDir(tempDir.path, item))
+              .createSync(recursive: true);
+      }
+    }
+    var progressA = 0;
+    for (var key in downloadStatusMap.keys) {
+      progressA = (progressA + downloadStatusMap[key]);
+    }
+    varStore.setLoadingPercent(progressA ~/ 4);
+    if ((progressA ~/ 4) == 100) {
+      isZeroNetDownloadedm = true;
+      check();
+    }
+  });
+}
+
+int percentUnZip = 0;
+
+bindUnZipIsolate() {
+  bool isSuccess = IsolateNameServer.registerPortWithName(
+      _unZipPort.sendPort, isolateUnZipPort);
+  if (!isSuccess) {
+    _unbindUnZipIsolate();
+    bindUnZipIsolate();
+    return;
+  }
+  _unZipPort.listen((data) {
+    String name = data[0];
+    int currentFile = data[1];
+    int totalFiles = data[2];
+    var percent = (currentFile / totalFiles) * 100;
+    if (percent.toInt() % 5 == 0) {
+      varStore.setLoadingStatus('Installing $name');
+      varStore.setLoadingPercent(percent.toInt());
+    }
+    if (percent == 100) {
+      percentUnZip = percentUnZip + 100;
+    }
+    if (percentUnZip == 400) {
+      check();
+    }
+  });
 }
 
 downloadBins() async {
@@ -291,37 +372,19 @@ downloadBins() async {
             }
           }
         }
-        check();
       }
     }
-    Timer(secs(5), () {
-      check();
-    });
+    check();
   }
 }
 
 printOut(Object object) {
-  print(object);
+  if (appVersion.contains('beta')) print(object);
 }
 
-handleDownloads(String str, DownloadTaskStatus status, int percent) {
-  if (percent == 100) {
-    printOut("$str   $status   $percent");
-    downloadStatus = downloadStatus + percent;
-    printOut(downloadStatus);
-    varStore.setLoadingPercent(downloadStatus ~/ 4);
-    downloadStatusMap[str] = percent;
-    for (var item in downloadsMap.keys) {
-      if (downloadsMap[item] == str) {
-        File(downloadedMetaDir(tempDir.path, item)).createSync(recursive: true);
-      }
-    }
-    if (allFilesDownloaded()) {
-      isZeroNetDownloadedm = true;
-      varStore.isZeroNetDownloaded(true);
-      check();
-    }
-  }
+handleDownloads(String id, DownloadTaskStatus status, int progress) {
+  final SendPort send = IsolateNameServer.lookupPortByName(isolateDownloadPort);
+  send.send([id, status, progress]);
 }
 
 load() async {
@@ -419,18 +482,12 @@ bool isHashMatched(File file) {
 }
 
 unZipinBg() async {
-  downloadStatus = 0;
   if (arch != null)
     for (var item in files(arch)) {
-      int i = files(arch).indexOf(item);
-      varStore.setLoadingPercent(25 * i);
-      downloadStatus = downloadStatus + 100;
       File f = File(tempDir.path + '/$item.zip');
       File f2 = File(installingMetaDir(tempDir.path, item, sesionKey));
-      // File f3 = File(tempDir.path + '/$item.installed');
       zeroNetState = state.INSTALLING;
       if (!(f2.existsSync())) {
-        //&& f3.existsSync()
         f2.createSync(recursive: true);
         if (f.path.contains('usr')) {
           await compute(
@@ -461,16 +518,21 @@ unZipinBg() async {
       }
     }
   // printOut('Dont Call this Function Twice');
-  check();
+  // check();
 }
 
 void _unzipBytesAsync(UnzipParams params) async {
   printOut("UnZippingFiles.......");
   var out = dataDir + '/' + params.dest;
   Archive archive = ZipDecoder().decodeBytes(params.bytes);
+  int totalfiles = archive.length;
+  int i = 0;
   for (ArchiveFile file in archive) {
     String filename = file.name;
     printOut('$out$filename');
+    i++;
+    final SendPort send = IsolateNameServer.lookupPortByName(isolateUnZipPort);
+    send.send([params.item, i, totalfiles]);
     String outName = '$out' + filename;
     if (file.isFile) {
       List<int> data = file.content;

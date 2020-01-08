@@ -43,41 +43,44 @@ class Loading extends StatelessWidget {
     check();
     return Scaffold(
       body: Center(
-        child: Observer(
-          builder: (context) {
-            var percent = varStore.loadingPercent;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.asset('assets/logo.png'),
-                Padding(
-                  padding: EdgeInsets.all(24.0),
-                ),
-                Text(
-                  varStore.loadingStatus,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.asset('assets/logo.png'),
+            Padding(
+              padding: EdgeInsets.all(24.0),
+            ),
+            Observer(
+              builder: (context) {
+                var status = varStore.loadingStatus;
+                return Text(
+                  status,
                   style: TextStyle(
                     fontSize: 24.0,
                     fontStyle: FontStyle.italic,
                   ),
+                );
+              },
+            ),
+            //TODO ? Next Version.
+            Observer(builder: (context) {
+              var percent = varStore.loadingPercent;
+              return Text(
+                '($percent%)',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontStyle: FontStyle.italic,
                 ),
-                //TODO ? Next Version.
-                Text(
-                  '($percent%)',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                Text(
-                  warning,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            );
-          },
+              );
+            }),
+            Text(
+              warning,
+              style: TextStyle(
+                fontSize: 12.0,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -244,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
   printOut(Object object) {
     if (object is String) {
       if (!object.contains(startZeroNetLog)) {
-        print(object);
+        if (appVersion.contains('beta')) print(object);
         if (object.contains(uiServerLog)) {
           // var s = object.replaceAll(uiServerLog, '');
           int httpI = object.indexOf('Web interface: http');
