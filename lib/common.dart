@@ -65,6 +65,7 @@ const List<String> soDirs = [
   'usr/bin',
   'usr/lib',
   'usr/lib/python3.8/lib-dynload',
+  'usr/lib/python3.8/site-packages',
 ];
 List<String> md5List = [];
 
@@ -93,6 +94,8 @@ String browserUrl = 'https://google.com';
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 String downloadLink(String item) => releases + 'Android_Binaries/$item.zip';
+String downloadMinimalLink(String item) =>
+    releases + 'Android_Binaries_Minimal/$item.zip';
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
 bool isZeroNetExists() => Directory(dataDir + '/ZeroNet-py3').existsSync();
 String downloadingMetaDir(String tempDir, String name, String key) =>
@@ -107,6 +110,8 @@ Duration secs(int sec) => Duration(seconds: sec);
 List<String> files(String arch) => [
       'usr-$arch',
       'site-packages-$arch',
+      'lib-dynload-$arch',
+      'python3.8',
       'site-packages-common',
       'ZeroNet-py3',
     ];
@@ -293,8 +298,9 @@ bindDownloadIsolate() {
     for (var key in downloadStatusMap.keys) {
       progressA = (progressA + downloadStatusMap[key]);
     }
-    varStore.setLoadingPercent(progressA ~/ 4);
-    if ((progressA ~/ 4) == 100) {
+    var nooffiles = files(arch).length;
+    varStore.setLoadingPercent(progressA ~/ nooffiles);
+    if ((progressA ~/ nooffiles) == 100) {
       isZeroNetDownloadedm = true;
       check();
     }
@@ -345,8 +351,15 @@ downloadBins() async {
         );
         if (!File(tempFilePath).existsSync()) {
           Timer(Duration(seconds: t), () {
+            String url = '';
+            if (item.contains('usr') ||
+                item.contains('lib-dynload') ||
+                item.contains('python3.8')) {
+              url = downloadMinimalLink(item);
+            } else
+              url = downloadLink(item);
             FlutterDownloader.enqueue(
-              url: downloadLink(item),
+              url: url,
               savedDir: tempDir.path,
               showNotification: false,
               openFileFromNotification: false,
@@ -379,7 +392,7 @@ downloadBins() async {
 }
 
 printOut(Object object) {
-  if (appVersion.contains('beta')) print(object);
+  if (appVersion != null) if (appVersion.contains('beta')) print(object);
 }
 
 handleDownloads(String id, DownloadTaskStatus status, int progress) {
@@ -495,13 +508,24 @@ unZipinBg() async {
             UnzipParams(item, f.readAsBytesSync(), dest: 'usr/'),
           );
           makeExecHelper();
-        } else if (f.path.contains('site-packages')) {
+        } else if (f.path.contains('site-packages') ||
+            f.path.contains('lib-dynload')) {
           await compute(
             _unzipBytesAsync,
             UnzipParams(
               item,
               f.readAsBytesSync(),
               dest: 'usr/lib/python3.8/',
+            ),
+          );
+          makeExecHelper();
+        } else if (f.path.contains('python3.8')) {
+          await compute(
+            _unzipBytesAsync,
+            UnzipParams(
+              item,
+              f.readAsBytesSync(),
+              dest: 'usr/lib/',
             ),
           );
           makeExecHelper();
