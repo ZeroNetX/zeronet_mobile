@@ -22,6 +22,14 @@ abstract class _VarStore with Store {
   }
 
   @observable
+  String zeroNetAppbarStatus = 'ZeroNet Mobile';
+
+  @action
+  void setZeroNetAppbarStatus(String status) {
+    zeroNetAppbarStatus = status;
+  }
+
+  @observable
   String zeroNetStatus = 'Not Running';
 
   @action

@@ -26,6 +26,25 @@ mixin _$VarStore on _VarStore, Store {
     }, _$eventAtom, name: '${_$eventAtom.name}_set');
   }
 
+  final _$zeroNetAppbarStatusAtom = Atom(name: '_VarStore.zeroNetAppbarStatus');
+
+  @override
+  String get zeroNetAppbarStatus {
+    _$zeroNetAppbarStatusAtom.context
+        .enforceReadPolicy(_$zeroNetAppbarStatusAtom);
+    _$zeroNetAppbarStatusAtom.reportObserved();
+    return super.zeroNetAppbarStatus;
+  }
+
+  @override
+  set zeroNetAppbarStatus(String value) {
+    _$zeroNetAppbarStatusAtom.context.conditionallyRunInAction(() {
+      super.zeroNetAppbarStatus = value;
+      _$zeroNetAppbarStatusAtom.reportChanged();
+    }, _$zeroNetAppbarStatusAtom,
+        name: '${_$zeroNetAppbarStatusAtom.name}_set');
+  }
+
   final _$zeroNetStatusAtom = Atom(name: '_VarStore.zeroNetStatus');
 
   @override
@@ -118,6 +137,16 @@ mixin _$VarStore on _VarStore, Store {
     final _$actionInfo = _$_VarStoreActionController.startAction();
     try {
       return super.setObservableEvent(eve);
+    } finally {
+      _$_VarStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setZeroNetAppbarStatus(String status) {
+    final _$actionInfo = _$_VarStoreActionController.startAction();
+    try {
+      return super.setZeroNetAppbarStatus(status);
     } finally {
       _$_VarStoreActionController.endAction(_$actionInfo);
     }

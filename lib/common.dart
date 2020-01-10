@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 import 'mobx/varstore.dart';
+import 'package:path_provider/path_provider.dart';
 
 const String dataDir = "/data/data/in.canews.zeronet/files";
 const String bin = '$dataDir/usr/bin';
@@ -69,7 +70,8 @@ const List<String> soDirs = [
 ];
 List<String> md5List = [];
 
-Directory tempDir = Directory(dataDir + '/tmp');
+Directory appPrivDir;
+Directory tempDir;
 Directory metaDir = Directory(dataDir + '/meta');
 AndroidDeviceInfo deviceInfo;
 bool isZeroNetInstalledm = false;
@@ -80,7 +82,7 @@ int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
 PackageInfo packageInfo;
-String appVersion;
+String appVersion = '';
 String buildNumber;
 var zeroNetState = state.NONE;
 Client client = Client();
@@ -104,8 +106,8 @@ String downloadedMetaDir(String tempDir, String name) =>
     Directory(tempDir + '/meta/$name.downloaded').path;
 String installingMetaDir(String tempDir, String name, String key) =>
     Directory(tempDir + '/meta/$name.$key.installing').path;
-String installedMetaDir(String tempDir, String name) =>
-    Directory(tempDir + '/meta/$name.installed').path;
+String installedMetaDir(String dir, String name) =>
+    Directory(dir + '/$name.installed').path;
 Duration secs(int sec) => Duration(seconds: sec);
 List<String> files(String arch) => [
       'usr-$arch',
@@ -118,13 +120,34 @@ List<String> files(String arch) => [
 
 shutDownZeronet() {
   if (varStore.zeroNetStatus == 'Running') {
-    ZeroNet.instance.shutDown();
+    if (ZeroNet.isInitialised)
+      ZeroNet.instance.shutDown();
+    else {
+      runZeroNetWs();
+      ZeroNet.instance.shutDown();
+    }
     zeroNetUrl = '';
     varStore.setZeroNetStatus('Not Running');
     flutterLocalNotificationsPlugin.cancelAll();
-    Future.delayed(Duration(milliseconds: 3), () {
-      ZeroNet.instance.close();
+  }
+}
+
+runZeroNetWs() {
+  var zeroNetUrlL = zeroNetUrl.isNotEmpty ? zeroNetUrl : defZeroNetUrl;
+  zeroNetUrl = zeroNetUrlL;
+  if (varStore.zeroNetWrapperKey.isEmpty) {
+    ZeroNet.instance
+        .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
+        .then((value) {
+      if (value != null) {
+        ZeroNet.wrapperKey = value;
+        varStore.zeroNetWrapperKey = value;
+        browserUrl = zeroNetUrl;
+      }
     });
+  } else {
+    ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
+    browserUrl = zeroNetUrl;
   }
 }
 
@@ -137,23 +160,29 @@ debugTime(Function func) {
 makeExecHelper() {
   for (var item in soDirs) {
     var dir = Directory(dataDir + '/$item');
-    if (dir.existsSync())
-      for (var item in dir.listSync()) {
+    if (dir.existsSync()) {
+      var list = dir.listSync();
+      for (var item in list) {
         if (item is File) {
+          var i = list.indexOf(item);
+          varStore.setLoadingPercent(i ~/ list.length);
           makeExec(item.path);
         }
       }
+    }
   }
 }
 
 init() async {
+  getArch();
+  isZeroNetInstalledm = await isZeroNetInstalled();
+  if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
   initNotifications();
-  bindDownloadIsolate();
-  bindUnZipIsolate();
-  packageInfo = await PackageInfo.fromPlatform();
-  appVersion = packageInfo.version;
-  buildNumber = packageInfo.buildNumber;
+  tempDir = await getTemporaryDirectory();
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
+}
+
+getArch() async {
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
   String archL = deviceInfo.supportedAbis[0];
   if (archL.contains('arm64'))
@@ -163,6 +192,18 @@ init() async {
   else if (archL.contains('x86_64'))
     arch = 'x86_64';
   else if (archL.contains('x86')) arch = 'x86';
+}
+
+initDownloadParams() async {
+  await FlutterDownloader.initialize();
+  bindDownloadIsolate();
+  bindUnZipIsolate();
+  FlutterDownloader.registerCallback(handleDownloads);
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
+  appPrivDir = await getExternalStorageDirectory();
+  tempDir = await getTemporaryDirectory();
 }
 
 initNotifications() {
@@ -177,7 +218,7 @@ initNotifications() {
       notificationCategory,
       [
         NotificationAction("Stop", "ACTION_CLOSE"),
-        NotificationAction("Exit App", "ACTION_EXITAPP"),
+        NotificationAction("Exit App", "ACTION_CLOSEAPP"),
       ],
     ),
   ];
@@ -254,6 +295,7 @@ check() async {
         isZeroNetDownloadedm = await isZeroNetDownloaded();
         varStore.setLoadingStatus(downloading);
         if (!isDownloadExec) {
+          await initDownloadParams();
           downloadBins();
         }
       } else {
@@ -392,7 +434,7 @@ downloadBins() async {
 }
 
 printOut(Object object) {
-  if (appVersion != null) if (appVersion.contains('beta')) print(object);
+  if (kDebugMode || appVersion.contains('beta')) print(object);
 }
 
 handleDownloads(String id, DownloadTaskStatus status, int progress) {

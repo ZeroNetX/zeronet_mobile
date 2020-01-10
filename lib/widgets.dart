@@ -238,13 +238,13 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       if (e is OSError) {
         if (e.errorCode == 111) {
-          printOut('Zeronet Not Running');
+          printToConsole('Zeronet Not Running');
         }
       }
     }
   }
 
-  printOut(Object object) {
+  printToConsole(Object object) {
     if (object is String) {
       if (!object.contains(startZeroNetLog)) {
         if (appVersion.contains('beta')) print(object);
@@ -263,27 +263,9 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         }
         if (object.contains('Server port opened')) {
-          if (zeroNetUrl.isNotEmpty) {
-            if (varStore.zeroNetWrapperKey.isEmpty) {
-              ZeroNet.instance
-                  .getWrapperKey(
-                      zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
-                  .then((value) {
-                if (value != null) {
-                  ZeroNet.wrapperKey = value;
-                  varStore.zeroNetWrapperKey = value;
-                  browserUrl = zeroNetUrl;
-                  varStore.setZeroNetStatus('Running');
-                  showZeroNetRunningNotification();
-                }
-              });
-            } else {
-              ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
-              browserUrl = zeroNetUrl;
-              varStore.setZeroNetStatus('Running');
-              showZeroNetRunningNotification();
-            }
-          }
+          runZeroNetWs();
+          varStore.setZeroNetStatus('Running');
+          showZeroNetRunningNotification();
         }
       }
     }
@@ -297,8 +279,8 @@ class _MyHomePageState extends State<MyHomePage> {
     if (varStore.zeroNetStatus == 'Not Running') {
       varStore.setZeroNetStatus('Initialising...');
       log = '';
-      printOut(logRunning);
-      printOut(startZeroNetLog + '\n');
+      printToConsole(logRunning);
+      printToConsole(startZeroNetLog + '\n');
       Process.start('$python', [
         zeronet
       ], environment: {
@@ -306,10 +288,10 @@ class _MyHomePageState extends State<MyHomePage> {
       }).then((proc) {
         zero = proc;
         zero.stderr.listen((onData) {
-          printOut(utf8.decode(onData));
+          printToConsole(utf8.decode(onData));
         });
         zero.stdout.listen((onData) {
-          printOut(utf8.decode(onData));
+          printToConsole(utf8.decode(onData));
         });
       });
     } else {
@@ -330,79 +312,118 @@ class _MyHomePageState extends State<MyHomePage> {
   ].toSet();
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
+  void setAppBarTitle() {
+    if (!viewBrowser) {
+      if (showLog)
+        varStore.setZeroNetAppbarStatus('ZeroNet Log');
+      else
+        varStore.setZeroNetAppbarStatus('ZeroNet Mobile');
+    } else
+      varStore.setZeroNetAppbarStatus('ZeroNet Browser');
+  }
+
   AppBar appBar() {
     return AppBar(
-      title: const Text('ZeroNet Mobile'),
+      title: Observer(
+        builder: (context) {
+          return Text(varStore.zeroNetAppbarStatus);
+        },
+      ),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.home),
-          onPressed: () {
-            viewBrowser = !viewBrowser;
-            _reload();
-          },
-        ),
+        if (!viewBrowser)
+          IconButton(
+            icon: Icon(Icons.content_paste),
+            onPressed: () {
+              showLog = !showLog;
+              setAppBarTitle();
+              _reload();
+            },
+          ),
+        if (!viewBrowser)
+          IconButton(
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () {
+              viewBrowser = !viewBrowser;
+              setAppBarTitle();
+              _reload();
+            },
+          ),
+        if (viewBrowser)
+          IconButton(
+            icon: Icon(Icons.home),
+            onPressed: () {
+              viewBrowser = !viewBrowser;
+              flutterWebViewPlugin.close();
+              setAppBarTitle();
+              _reload();
+            },
+          ),
       ],
     );
   }
 
-  Widget webView() => Stack(
-        children: <Widget>[
-          // appBar(),
-          Padding(
-            padding: const EdgeInsets.only(top: 0.0), //80.0
-            child: WebviewScaffold(
-              url: browserUrl,
-              // javascriptChannels: jsChannels,
-              mediaPlaybackRequiresUserGesture: false,
-              appCacheEnabled: true,
-              appBar: appBar(),
-              withZoom: true,
-              withLocalStorage: true,
-              hidden: true,
-              initialChild: Container(
-                // color: Colors.white,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                      Text('Loading.....'),
-                    ],
-                  ),
-                ),
-              ),
-              bottomNavigationBar: BottomAppBar(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+  Widget webView() {
+    // ZeroNet.instance.setViewPort(MediaQuery.of(context).size.width);
+    return Stack(
+      children: <Widget>[
+        // appBar(),
+        Padding(
+          padding: const EdgeInsets.only(top: 0.0), //80.0
+          child: WebviewScaffold(
+            url: browserUrl,
+            javascriptChannels: jsChannels,
+            mediaPlaybackRequiresUserGesture: false,
+            appCacheEnabled: true,
+            appBar: appBar(),
+            withZoom: true,
+            useWideViewPort: true,
+            withLocalStorage: true,
+            hidden: true,
+            initialChild: Container(
+              // color: Colors.white,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios),
-                      onPressed: () {
-                        flutterWebViewPlugin.goBack();
-                      },
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_forward_ios),
-                      onPressed: () {
-                        flutterWebViewPlugin.goForward();
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.autorenew),
-                      onPressed: () {
-                        flutterWebViewPlugin.reload();
-                      },
-                    ),
+                    Text('Loading.....'),
                   ],
                 ),
               ),
             ),
+            bottomNavigationBar: BottomAppBar(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: () {
+                      flutterWebViewPlugin.goBack();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios),
+                    onPressed: () {
+                      flutterWebViewPlugin.goForward();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.autorenew),
+                    onPressed: () {
+                      flutterWebViewPlugin.reload();
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      );
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -420,25 +441,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: webView(),
           )
         : Scaffold(
-            appBar: AppBar(
-              title: Text('ZeroNet Mobile'),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.content_paste),
-                  onPressed: () {
-                    showLog = !showLog;
-                    _reload();
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.open_in_browser),
-                  onPressed: () {
-                    viewBrowser = !viewBrowser;
-                    _reload();
-                  },
-                ),
-              ],
-            ),
+            appBar: appBar(),
             body: SingleChildScrollView(
                 child: showLog
                     ? Text(log)
