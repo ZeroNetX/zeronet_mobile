@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:random_string/random_string.dart';
 import 'package:archive/archive.dart';
@@ -21,6 +22,7 @@ import 'mobx/varstore.dart';
 import 'package:path_provider/path_provider.dart';
 
 const String dataDir = "/data/data/in.canews.zeronet/files";
+const String zeroNetDir = dataDir + '/ZeroNet-py3';
 const String bin = '$dataDir/usr/bin';
 const String python = '$bin/python';
 const String libDir = '$dataDir/usr/lib';
@@ -42,6 +44,7 @@ const String zeroNetChannelDes =
 const String notificationCategory = 'ZERONET_RUNNING';
 const String isolateUnZipPort = 'unzip_send_port';
 const String isolateDownloadPort = 'downloader_send_port';
+const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
 
 const List<Color> colors = [
   Colors.cyan,
@@ -78,6 +81,7 @@ bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
+bool firstTime = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -175,11 +179,179 @@ makeExecHelper() {
 
 init() async {
   getArch();
+  loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
   initNotifications();
   tempDir = await getTemporaryDirectory();
+  appPrivDir = await getExternalStorageDirectory();
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
+}
+
+const String batteryOptimisation = 'Battery Optimisations';
+const String batteryOptimisationDes =
+    'This will Helps to Run App even App is in Background for long time.';
+const String publicDataFolder = 'Public DataFolder';
+const String publicDataFolderDes =
+    'This Will Make ZeroNet Data Folder Accessible via File Manager.';
+const String autoStartZeroNet = 'AutoStart ZeroNet';
+const String autoStartZeroNetDes =
+    'This Will Make ZeroNet Auto Start on App Start, So you don\'t have to click Start Button Every Time on App Start.';
+const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
+const String autoStartZeroNetonBootDes =
+    'This Will Make ZeroNet Auto Start on Device Boot.';
+
+Map<String, Setting> defSettings = {
+  batteryOptimisation: Setting(
+    name: batteryOptimisation,
+    description: batteryOptimisationDes,
+    value: false,
+  ),
+  publicDataFolder: Setting(
+    name: publicDataFolder,
+    description: publicDataFolderDes,
+    value: false,
+  ),
+  autoStartZeroNet: Setting(
+    name: autoStartZeroNet,
+    description: autoStartZeroNetDes,
+    value: true,
+  ),
+  autoStartZeroNetonBoot: Setting(
+    name: autoStartZeroNetonBoot,
+    description: autoStartZeroNetonBootDes,
+    value: false,
+  ),
+};
+
+class Setting {
+  String name;
+  String description;
+  bool value;
+
+  Setting({
+    this.name,
+    this.description,
+    this.value,
+  });
+
+  String toJson() => json.encode({
+        'name': name,
+        'description': description,
+        'value': value,
+      });
+
+  Setting fromJson(Map<String, dynamic> map) {
+    return Setting(
+      name: map['name'],
+      description: map['description'],
+      value: map['value'],
+    );
+  }
+}
+
+askBatteryOptimisation() {
+  _channel.invokeMethod('batteryOptimisations');
+}
+
+Future<bool> isBatteryOptimised() async =>
+    await _channel.invokeMethod('isBatteryOptimized');
+
+loadSettings() {
+  File f = File(dataDir + '/settings.json');
+  if (f.existsSync()) {
+    List map = json.decode(f.readAsStringSync());
+    for (var i = 0; i < map.length; i++) {
+      varStore.updateSetting(Setting().fromJson(map[i]));
+    }
+    // if(varStore.settings[publicDataFolder].value){
+
+    // }
+  } else {
+    saveSettings(defSettings);
+  }
+}
+
+saveSettings(Map map) {
+  File f = File(dataDir + '/settings.json');
+  String str = '';
+  for (var key in map.keys) {
+    int i = map.keys.toList().indexOf(key);
+    if (i == map.keys.length - 1) {
+      str = str + map[key].toJson();
+    } else
+      str = str + map[key].toJson() + ',';
+  }
+  str = '[$str]';
+  f.writeAsStringSync(str);
+}
+
+String log = 'Click on Fab to Run ZeroNet\n';
+String logRunning = 'Running ZeroNet\n';
+String uiServerLog = 'Ui.UiServer';
+String startZeroNetLog = 'Starting ZeroNet';
+Process zero;
+
+printToConsole(Object object) {
+  if (object is String) {
+    if (!object.contains(startZeroNetLog)) {
+      if (appVersion.contains('beta')) print(object);
+      if (object.contains(uiServerLog)) {
+        // var s = object.replaceAll(uiServerLog, '');
+        int httpI = object.indexOf('Web interface: http');
+        // int columnI = object.indexOf(':');
+        int end = object.indexOf('/\n');
+        // int slashI = object.indexOf('/', columnI);
+        if (zeroNetUrl.isEmpty && httpI != -1) {
+          var _zeroNetUrl = (end == -1)
+              ? object.substring(httpI + 15)
+              : object.substring(httpI + 15, end + 1);
+          if (zeroNetUrl != _zeroNetUrl) zeroNetUrl = _zeroNetUrl;
+          testUrl();
+        }
+      }
+      if (object.contains('Server port opened')) {
+        runZeroNetWs();
+        varStore.setZeroNetStatus('Running');
+        showZeroNetRunningNotification();
+      }
+    }
+  }
+  log = log + object + '\n';
+  varStore.setZeroNetLog(log);
+}
+
+runZeroNet() {
+  if (varStore.zeroNetStatus == 'Not Running') {
+    varStore.setZeroNetStatus('Initialising...');
+    log = '';
+    printToConsole(logRunning);
+    printToConsole(startZeroNetLog + '\n');
+    Process.start('$python', [
+      zeronet
+    ], environment: {
+      "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
+    }).then((proc) {
+      zero = proc;
+      zero.stderr.listen((onData) {
+        printToConsole(utf8.decode(onData));
+      });
+      zero.stdout.listen((onData) {
+        printToConsole(utf8.decode(onData));
+      });
+    });
+  } else {
+    shutDownZeronet();
+  }
+}
+
+writeZeroNetConf(String str) {
+  File f = File(zeroNetDir + '/zeronet.conf');
+  if (f.existsSync()) {
+    f.writeAsStringSync(str, mode: FileMode.append);
+  } else {
+    f.writeAsStringSync('[global]\n$str');
+  }
 }
 
 getArch() async {
@@ -202,8 +374,6 @@ initDownloadParams() async {
   packageInfo = await PackageInfo.fromPlatform();
   appVersion = packageInfo.version;
   buildNumber = packageInfo.buildNumber;
-  appPrivDir = await getExternalStorageDirectory();
-  tempDir = await getTemporaryDirectory();
 }
 
 initNotifications() {

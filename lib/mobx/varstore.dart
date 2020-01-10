@@ -1,4 +1,5 @@
 import 'package:mobx/mobx.dart';
+import 'package:zeronet/common.dart';
 
 // Include generated file
 part 'varstore.g.dart';
@@ -12,13 +13,32 @@ class VarStore = _VarStore with _$VarStore;
 abstract class _VarStore with Store {
   String zeroNetWrapperKey = '';
 
-  // ObservableStream stream = ObservableStream(init());
+  @observable
+  ObservableMap<String, Setting> settings = ObservableMap<String, Setting>();
+
+  @action
+  void updateSetting(Setting setting) {
+    settings.update(setting.name, (sett) {
+      return sett;
+    }, ifAbsent: () {
+      return setting;
+    });
+  }
+
   @observable
   ObservableEvent event;
 
   @action
   void setObservableEvent(ObservableEvent eve) {
     event = eve;
+  }
+
+  @observable
+  String zeroNetLog = 'ZeroNet Mobile';
+
+  @action
+  void setZeroNetLog(String status) {
+    zeroNetLog = status;
   }
 
   @observable

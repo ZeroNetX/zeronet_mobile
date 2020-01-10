@@ -9,6 +9,23 @@ part of 'varstore.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$VarStore on _VarStore, Store {
+  final _$settingsAtom = Atom(name: '_VarStore.settings');
+
+  @override
+  ObservableMap<String, Setting> get settings {
+    _$settingsAtom.context.enforceReadPolicy(_$settingsAtom);
+    _$settingsAtom.reportObserved();
+    return super.settings;
+  }
+
+  @override
+  set settings(ObservableMap<String, Setting> value) {
+    _$settingsAtom.context.conditionallyRunInAction(() {
+      super.settings = value;
+      _$settingsAtom.reportChanged();
+    }, _$settingsAtom, name: '${_$settingsAtom.name}_set');
+  }
+
   final _$eventAtom = Atom(name: '_VarStore.event');
 
   @override
@@ -24,6 +41,23 @@ mixin _$VarStore on _VarStore, Store {
       super.event = value;
       _$eventAtom.reportChanged();
     }, _$eventAtom, name: '${_$eventAtom.name}_set');
+  }
+
+  final _$zeroNetLogAtom = Atom(name: '_VarStore.zeroNetLog');
+
+  @override
+  String get zeroNetLog {
+    _$zeroNetLogAtom.context.enforceReadPolicy(_$zeroNetLogAtom);
+    _$zeroNetLogAtom.reportObserved();
+    return super.zeroNetLog;
+  }
+
+  @override
+  set zeroNetLog(String value) {
+    _$zeroNetLogAtom.context.conditionallyRunInAction(() {
+      super.zeroNetLog = value;
+      _$zeroNetLogAtom.reportChanged();
+    }, _$zeroNetLogAtom, name: '${_$zeroNetLogAtom.name}_set');
   }
 
   final _$zeroNetAppbarStatusAtom = Atom(name: '_VarStore.zeroNetAppbarStatus');
@@ -133,10 +167,30 @@ mixin _$VarStore on _VarStore, Store {
   final _$_VarStoreActionController = ActionController(name: '_VarStore');
 
   @override
+  void updateSetting(Setting setting) {
+    final _$actionInfo = _$_VarStoreActionController.startAction();
+    try {
+      return super.updateSetting(setting);
+    } finally {
+      _$_VarStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setObservableEvent(ObservableEvent eve) {
     final _$actionInfo = _$_VarStoreActionController.startAction();
     try {
       return super.setObservableEvent(eve);
+    } finally {
+      _$_VarStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setZeroNetLog(String status) {
+    final _$actionInfo = _$_VarStoreActionController.startAction();
+    try {
+      return super.setZeroNetLog(status);
     } finally {
       _$_VarStoreActionController.endAction(_$actionInfo);
     }
