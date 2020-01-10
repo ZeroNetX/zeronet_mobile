@@ -1,5 +1,6 @@
 package `in`.canews.zeronet
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -13,11 +14,12 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 
 
 class MainActivity: FlutterActivity() {
+  private var BATTERY_OPTIMISATION_RESULT_CODE = 0
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     MethodChannel(flutterView, "in.canews.zeronet").setMethodCallHandler { call, result ->
       when(call.method){
-        "batteryOptimisations" -> getBatteryOptimizations()
+        "batteryOptimisations" -> getBatteryOptimizations(result)
         "isBatteryOptimized" -> isBatteryOptimized(result)
       }
     }
@@ -35,7 +37,9 @@ class MainActivity: FlutterActivity() {
 
   }
 
-  private fun getBatteryOptimizations() {
+  private lateinit var result : MethodChannel.Result;
+
+  private fun getBatteryOptimizations(resultT: MethodChannel.Result) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       val intent = Intent()
       val packageName = packageName
@@ -43,8 +47,20 @@ class MainActivity: FlutterActivity() {
       if (!pm.isIgnoringBatteryOptimizations(packageName)) {
         intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
         intent.data = Uri.parse("package:$packageName")
-        startActivity(intent)
+        startActivityForResult(intent,BATTERY_OPTIMISATION_RESULT_CODE)
+        result = resultT
       }
     }
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    if (requestCode == BATTERY_OPTIMISATION_RESULT_CODE){
+      if (resultCode == Activity.RESULT_OK){
+          result.success(true)
+      }else{
+        result.success(false)
+      }
+    }
+    super.onActivityResult(requestCode, resultCode, data)
   }
 }

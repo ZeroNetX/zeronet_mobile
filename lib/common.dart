@@ -31,7 +31,7 @@ const String zeronetDir = '$dataDir/ZeroNet-py3';
 const String zeronet = '$zeronetDir/zeronet.py';
 const String defZeroNetUrl = 'http://127.0.0.1:43110/';
 const String downloading = 'Downloading Files';
-const String installing = 'Installing ZeroNet';
+const String installing = 'Installing ZeroNet Files';
 const String githubLink = 'https://github.com';
 const String rawGithubLink = 'https://raw.githubusercontent.com';
 const String canewsInRepo = '/canewsin/ZeroNet';
@@ -161,20 +161,20 @@ debugTime(Function func) {
   print(DateTime.now().difference(start).inMilliseconds);
 }
 
-makeExecHelper() {
+Future<bool> makeExecHelper() async {
   for (var item in soDirs) {
     var dir = Directory(dataDir + '/$item');
     if (dir.existsSync()) {
       var list = dir.listSync();
       for (var item in list) {
         if (item is File) {
-          var i = list.indexOf(item);
-          varStore.setLoadingPercent(i ~/ list.length);
+          printOut(item.path);
           makeExec(item.path);
         }
       }
     }
   }
+  return true;
 }
 
 init() async {
@@ -188,7 +188,7 @@ init() async {
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
 }
 
-const String batteryOptimisation = 'Battery Optimisations';
+const String batteryOptimisation = 'Disable Battery Optimisations';
 const String batteryOptimisationDes =
     'This will Helps to Run App even App is in Background for long time.';
 const String publicDataFolder = 'Public DataFolder';
@@ -250,31 +250,36 @@ class Setting {
   }
 }
 
-askBatteryOptimisation() {
-  _channel.invokeMethod('batteryOptimisations');
-}
+Future<bool> askBatteryOptimisation() async =>
+    await _channel.invokeMethod('batteryOptimisations');
 
 Future<bool> isBatteryOptimised() async =>
     await _channel.invokeMethod('isBatteryOptimized');
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');
+  List map;
   if (f.existsSync()) {
-    List map = json.decode(f.readAsStringSync());
-    for (var i = 0; i < map.length; i++) {
-      varStore.updateSetting(Setting().fromJson(map[i]));
-    }
-    // if(varStore.settings[publicDataFolder].value){
-
-    // }
+    map = json.decode(f.readAsStringSync());
   } else {
     firstTime = true;
     saveSettings(defSettings);
+    map = json.decode(maptoStringList(defSettings));
   }
+  for (var i = 0; i < map.length; i++) {
+    varStore.updateSetting(Setting().fromJson(map[i]));
+  }
+  // if(varStore.settings[publicDataFolder].value){
+
+  // }
 }
 
 saveSettings(Map map) {
   File f = File(dataDir + '/settings.json');
+  f.writeAsStringSync(maptoStringList(map));
+}
+
+String maptoStringList(Map map) {
   String str = '';
   for (var key in map.keys) {
     int i = map.keys.toList().indexOf(key);
@@ -284,7 +289,7 @@ saveSettings(Map map) {
       str = str + map[key].toJson() + ',';
   }
   str = '[$str]';
-  f.writeAsStringSync(str);
+  return str;
 }
 
 String log = 'Click on Fab to Run ZeroNet\n';
@@ -349,7 +354,7 @@ runZeroNet() {
 writeZeroNetConf(String str) {
   File f = File(zeroNetDir + '/zeronet.conf');
   if (f.existsSync()) {
-    f.writeAsStringSync(str, mode: FileMode.append);
+    f.writeAsStringSync('\n' + str, mode: FileMode.append);
   } else {
     f.writeAsStringSync('[global]\n$str');
   }
@@ -451,7 +456,6 @@ check() async {
         varStore.isZeroNetInstalled(isZeroNetInstalledm);
         printOut('isZeroNetInstalledm');
       } else {
-        varStore.setLoadingStatus(installing);
         isZeroNetInstalled().then((onValue) async {
           isZeroNetInstalledm = onValue;
           varStore.isZeroNetInstalled(onValue);
@@ -515,6 +519,8 @@ bindDownloadIsolate() {
     varStore.setLoadingPercent(progressA ~/ nooffiles);
     if ((progressA ~/ nooffiles) == 100) {
       isZeroNetDownloadedm = true;
+      varStore.setLoadingStatus(installing);
+      varStore.setLoadingPercent(0);
       check();
     }
   });
@@ -542,7 +548,9 @@ bindUnZipIsolate() {
     if (percent == 100) {
       percentUnZip = percentUnZip + 100;
     }
-    if (percentUnZip == 400) {
+    var nooffiles = files(arch).length;
+    if (percentUnZip == nooffiles * 100) {
+      makeExecHelper();
       check();
     }
   });
@@ -720,7 +728,6 @@ unZipinBg() async {
             _unzipBytesAsync,
             UnzipParams(item, f.readAsBytesSync(), dest: 'usr/'),
           );
-          makeExecHelper();
         } else if (f.path.contains('site-packages') ||
             f.path.contains('lib-dynload')) {
           await compute(
@@ -731,7 +738,6 @@ unZipinBg() async {
               dest: 'usr/lib/python3.8/',
             ),
           );
-          makeExecHelper();
         } else if (f.path.contains('python3.8')) {
           await compute(
             _unzipBytesAsync,
@@ -741,7 +747,6 @@ unZipinBg() async {
               dest: 'usr/lib/',
             ),
           );
-          makeExecHelper();
         } else {
           await compute(
             _unzipBytesAsync,
@@ -750,7 +755,6 @@ unZipinBg() async {
               f.readAsBytesSync(),
             ),
           );
-          makeExecHelper();
         }
       }
     }

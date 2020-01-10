@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -32,10 +31,12 @@ class MyApp extends StatelessWidget {
 class Loading extends StatelessWidget {
   // String data = 'Loading';
   final String warning = """
-        Please Wait! This may take a while, 
-        happens only first time, 
-        Don't Press Back button.
-        """;
+    Please Wait! This may take a while, happens 
+    only first time, Don't Press Back button.
+    If You Accidentally Pressed Back,
+    Clean App Storage in Settings or 
+    Uninstall and Reinstall The App.
+    """;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     checkInitStatus();
-    if (firstTime) viewSettings = true;
+    if (firstTime) {
+      viewSettings = true;
+      makeExecHelper();
+    }
     super.initState();
   }
 
@@ -233,7 +237,8 @@ class _MyHomePageState extends State<MyHomePage> {
       showZeroNetRunningNotification(enableVibration: false);
       testUrl();
     } catch (e) {
-      if (varStore.settings[autoStartZeroNet].value == true) runZeroNet();
+      if (!firstTime && varStore.settings[autoStartZeroNet].value == true)
+        runZeroNet();
       if (e is OSError) {
         if (e.errorCode == 111) {
           printToConsole('Zeronet Not Running');
@@ -428,24 +433,27 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ),
                                         Switch(
                                           value: map[key].value,
-                                          onChanged: (v) {
-                                            varStore.updateSetting(
-                                              map[key]..value = v,
-                                            );
+                                          onChanged: (v) async {
+                                            map[key]..value = v;
                                             Map<String, Setting> m = {};
                                             map.keys.forEach((k) {
                                               m[k] = map[k];
                                             });
                                             if (key == batteryOptimisation &&
                                                 v) {
-                                              askBatteryOptimisation();
+                                              m[key]
+                                                ..value =
+                                                    await askBatteryOptimisation();
                                             } else if (key ==
                                                 publicDataFolder) {
                                               String str =
-                                                  'data_dir = ${v ? appPrivDir : zeroNetDir}/data';
+                                                  'data_dir = ${v ? appPrivDir.path : zeroNetDir}/data';
                                               writeZeroNetConf(str);
                                             }
                                             saveSettings(m);
+                                            varStore.updateSetting(
+                                              map[key]..value = m[key].value,
+                                            );
                                           },
                                         )
                                       ],
@@ -578,16 +586,18 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                   ),
-            floatingActionButton: FloatingActionButton(
-              child: Observer(
-                builder: (c) {
-                  if (varStore.zeroNetStatus == 'Not Running')
-                    return Icon(Icons.play_arrow);
-                  return Icon(Icons.stop);
-                },
-              ),
-              onPressed: runZeroNet,
-            ),
+            floatingActionButton: (viewSettings)
+                ? null
+                : FloatingActionButton(
+                    child: Observer(
+                      builder: (c) {
+                        if (varStore.zeroNetStatus == 'Not Running')
+                          return Icon(Icons.play_arrow);
+                        return Icon(Icons.stop);
+                      },
+                    ),
+                    onPressed: runZeroNet,
+                  ),
           );
   }
 }
