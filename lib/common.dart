@@ -268,6 +268,7 @@ loadSettings() {
 
     // }
   } else {
+    firstTime = true;
     saveSettings(defSettings);
   }
 }
