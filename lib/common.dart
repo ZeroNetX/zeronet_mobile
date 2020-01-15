@@ -575,6 +575,7 @@ downloadBins() async {
             String url = '';
             if (item.contains('usr') ||
                 item.contains('lib-dynload') ||
+                item.contains('site-packages-arm') ||
                 item.contains('python3.8')) {
               url = downloadMinimalLink(item);
             } else
