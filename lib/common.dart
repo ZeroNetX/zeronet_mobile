@@ -92,6 +92,7 @@ var zeroNetState = state.NONE;
 Client client = Client();
 String arch;
 String zeroNetUrl = '';
+String zeroNetNativeDir = '';
 String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
@@ -99,9 +100,7 @@ String browserUrl = 'https://google.com';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-String downloadLink(String item) => releases + 'Android_Binaries/$item.zip';
-String downloadMinimalLink(String item) =>
-    releases + 'Android_Binaries_Minimal/$item.zip';
+String downloadLink(String item) => releases + 'Android_Binaries_New/$item.zip';
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
 bool isZeroNetExists() => Directory(dataDir + '/ZeroNet-py3').existsSync();
 String downloadingMetaDir(String tempDir, String name, String key) =>
@@ -114,11 +113,9 @@ String installedMetaDir(String dir, String name) =>
     Directory(dir + '/$name.installed').path;
 Duration secs(int sec) => Duration(seconds: sec);
 List<String> files(String arch) => [
-      'usr-$arch',
-      'site-packages-$arch',
-      'lib-dynload-$arch',
-      'python3.8',
+      'python3.8-$arch',
       'site-packages-common',
+      'site-packages-$arch',
       'ZeroNet-py3',
     ];
 
@@ -179,6 +176,7 @@ Future<bool> makeExecHelper() async {
 
 init() async {
   getArch();
+  zeroNetNativeDir = await getNativeDir();
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
@@ -333,10 +331,13 @@ runZeroNet() {
     log = '';
     printToConsole(logRunning);
     printToConsole(startZeroNetLog + '\n');
+    var python = zeroNetNativeDir + '/python3.8.so';
     Process.start('$python', [
       zeronet
     ], environment: {
       "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
+      'PYTHONHOME': '$dataDir/usr',
+      'PYTHONPATH': '$python',
     }).then((proc) {
       zero = proc;
       zero.stderr.listen((onData) {
@@ -345,6 +346,11 @@ runZeroNet() {
       zero.stdout.listen((onData) {
         printToConsole(utf8.decode(onData));
       });
+    }).catchError((e) {
+      if (e is ProcessException) {
+        printOut(e.toString());
+      }
+      varStore.setZeroNetStatus('Not Running');
     });
   } else {
     shutDownZeronet();
@@ -372,6 +378,9 @@ getArch() async {
   else if (archL.contains('x86')) arch = 'x86';
 }
 
+getNativeDir() async =>
+    await MethodChannel('in.canews.zeronet').invokeMethod('nativeDir');
+
 initDownloadParams() async {
   await FlutterDownloader.initialize();
   bindDownloadIsolate();
@@ -389,20 +398,20 @@ initNotifications() {
   final initializationSettingsIOS = IOSInitializationSettings();
   final initializationSettings = InitializationSettings(
       initializationSettingsAndroid, initializationSettingsIOS);
-  final categories = [
-    NotificationCategory(
-      notificationCategory,
-      [
-        NotificationAction("Stop", "ACTION_CLOSE"),
-        NotificationAction("Exit App", "ACTION_CLOSEAPP"),
-      ],
-    ),
-  ];
+  // final categories = [
+  //   NotificationCategory(
+  //     notificationCategory,
+  //     [
+  //       NotificationAction("Stop", "ACTION_CLOSE"),
+  //       NotificationAction("Exit App", "ACTION_CLOSEAPP"),
+  //     ],
+  //   ),
+  // ];
   flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onSelectNotification: onSelectNotification,
-    onSelectNotificationAction: onSelectNotificationAction,
-    categories: categories,
+    // onSelectNotificationAction: onSelectNotificationAction,
+    // categories: categories,
   );
 }
 
@@ -412,15 +421,15 @@ Future<void> onSelectNotification(String payload) async {
   }
 }
 
-Future<void> onSelectNotificationAction(NotificationActionData data) async {
-  printOut('notification action data: $data');
-  if (data.actionIdentifier == "ACTION_CLOSE") {
-    shutDownZeronet();
-  } else {
-    shutDownZeronet();
-    exit(0);
-  }
-}
+// Future<void> onSelectNotificationAction(NotificationActionData data) async {
+//   printOut('notification action data: $data');
+//   if (data.actionIdentifier == "ACTION_CLOSE") {
+//     shutDownZeronet();
+//   } else {
+//     shutDownZeronet();
+//     exit(0);
+//   }
+// }
 
 Future<void> showZeroNetRunningNotification(
     {bool enableVibration = true}) async {
@@ -440,7 +449,7 @@ Future<void> showZeroNetRunningNotification(
     'ZeroNet Mobile is Running',
     'Click on Stop, to Stop ZeroNet or Click Here to Open App',
     details,
-    categoryIdentifier: notificationCategory,
+    // categoryIdentifier: notificationCategory,
     // payload: 'zeronet',
   );
 }
@@ -572,16 +581,8 @@ downloadBins() async {
         );
         if (!File(tempFilePath).existsSync()) {
           Timer(Duration(seconds: t), () {
-            String url = '';
-            if (item.contains('usr') ||
-                item.contains('lib-dynload') ||
-                item.contains('site-packages-arm') ||
-                item.contains('python3.8')) {
-              url = downloadMinimalLink(item);
-            } else
-              url = downloadLink(item);
             FlutterDownloader.enqueue(
-              url: url,
+              url: downloadLink(item),
               savedDir: tempDir.path,
               showNotification: false,
               openFileFromNotification: false,
