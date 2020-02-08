@@ -331,7 +331,7 @@ runZeroNet() {
     log = '';
     printToConsole(logRunning);
     printToConsole(startZeroNetLog + '\n');
-    var python = zeroNetNativeDir + '/python3.8.so';
+    var python = zeroNetNativeDir + '/libpython3.8.so';
     Process.start('$python', [
       zeronet
     ], environment: {
