@@ -332,8 +332,11 @@ runZeroNet() {
     printToConsole(logRunning);
     printToConsole(startZeroNetLog + '\n');
     var python = zeroNetNativeDir + '/libpython3.8.so';
+    var openssl = zeroNetNativeDir + '/libopenssl.so';
     Process.start('$python', [
-      zeronet
+      zeronet,
+      "--openssl_path",
+      openssl
     ], environment: {
       "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
       'PYTHONHOME': '$dataDir/usr',
