@@ -117,6 +117,7 @@ List<String> files(String arch) => [
       'site-packages-common',
       'site-packages-$arch',
       'ZeroNet-py3',
+      'tor-$arch',
     ];
 
 shutDownZeronet() {
@@ -325,9 +326,29 @@ printToConsole(Object object) {
   varStore.setZeroNetLog(log);
 }
 
+runTorEngine() {
+  final tor = zeroNetNativeDir + '/libtor.so';
+  Process.start('$tor', [], environment: {
+    "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
+  }).then((proc) {
+    zero = proc;
+    zero.stderr.listen((onData) {
+      // printToConsole(utf8.decode(onData));
+    });
+    zero.stdout.listen((onData) {
+      // printToConsole(utf8.decode(onData));
+    });
+  }).catchError((e) {
+    if (e is ProcessException) {
+      printOut(e.toString());
+    }
+  });
+}
+
 runZeroNet() {
   if (varStore.zeroNetStatus == 'Not Running') {
     varStore.setZeroNetStatus('Initialising...');
+    runTorEngine();
     log = '';
     printToConsole(logRunning);
     printToConsole(startZeroNetLog + '\n');
@@ -335,7 +356,9 @@ runZeroNet() {
     var openssl = zeroNetNativeDir + '/libopenssl.so';
     Process.start('$python', [
       zeronet,
-      "--openssl_path",
+      "--start_dir",
+      zeroNetDir,
+      "--openssl_bin_file",
       openssl
     ], environment: {
       "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
@@ -728,10 +751,14 @@ unZipinBg() async {
       zeroNetState = state.INSTALLING;
       if (!(f2.existsSync())) {
         f2.createSync(recursive: true);
-        if (f.path.contains('usr')) {
+        if (f.path.contains('usr') || f.path.contains('tor')) {
           await compute(
             _unzipBytesAsync,
-            UnzipParams(item, f.readAsBytesSync(), dest: 'usr/'),
+            UnzipParams(
+              item,
+              f.readAsBytesSync(),
+              dest: 'usr/',
+            ),
           );
         } else if (f.path.contains('site-packages') ||
             f.path.contains('lib-dynload')) {
