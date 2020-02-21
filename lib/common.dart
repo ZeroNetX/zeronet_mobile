@@ -187,6 +187,12 @@ init() async {
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
 }
 
+const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
+const String vibrateOnZeroNetStartDes = 'Vibrates Phone When ZeroNet Starts';
+const String enableFullScreenOnWebView =
+    'Enable FullScreen for ZeroNet \nWebsites';
+const String enableFullScreenOnWebViewDes =
+    'This will Enable Full Screen for in app Webview of ZeroNet';
 const String batteryOptimisation = 'Disable Battery Optimisations';
 const String batteryOptimisationDes =
     'This will Helps to Run App even App is in Background for long time.';
@@ -201,6 +207,16 @@ const String autoStartZeroNetonBootDes =
     'This Will Make ZeroNet Auto Start on Device Boot.';
 
 Map<String, Setting> defSettings = {
+  vibrateOnZeroNetStart: Setting(
+    name: vibrateOnZeroNetStart,
+    description: vibrateOnZeroNetStartDes,
+    value: false,
+  ),
+  enableFullScreenOnWebView: Setting(
+    name: enableFullScreenOnWebView,
+    description: enableFullScreenOnWebViewDes,
+    value: false,
+  ),
   batteryOptimisation: Setting(
     name: batteryOptimisation,
     description: batteryOptimisationDes,
@@ -234,11 +250,13 @@ class Setting {
     this.value,
   });
 
-  String toJson() => json.encode({
+  Map toMap() => {
         'name': name,
         'description': description,
         'value': value,
-      });
+      };
+
+  String toJson() => json.encode(this.toMap());
 
   Setting fromJson(Map<String, dynamic> map) {
     return Setting(
@@ -257,20 +275,34 @@ Future<bool> isBatteryOptimised() async =>
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');
-  List map;
+  List settings;
   if (f.existsSync()) {
-    map = json.decode(f.readAsStringSync());
+    settings = json.decode(f.readAsStringSync());
+    if (settings.length < defSettings.keys.length) {
+      List settingsKeys = [];
+      Map<String, Setting> m = {};
+      for (var i = 0; i < settings.length; i++) {
+        var k = (settings[i] as Map)['name'];
+        settingsKeys.add(k);
+        var map = settings[i];
+        m[k] = Setting().fromJson(map);
+      }
+      for (var key in defSettings.keys) {
+        if (!settingsKeys.contains(key)) {
+          m[key] = defSettings[key];
+        }
+      }
+      saveSettings(m);
+      settings = json.decode(maptoStringList(m));
+    }
   } else {
     firstTime = true;
     saveSettings(defSettings);
-    map = json.decode(maptoStringList(defSettings));
+    settings = json.decode(maptoStringList(defSettings));
   }
-  for (var i = 0; i < map.length; i++) {
-    varStore.updateSetting(Setting().fromJson(map[i]));
+  for (var i = 0; i < settings.length; i++) {
+    varStore.updateSetting(Setting().fromJson(settings[i]));
   }
-  // if(varStore.settings[publicDataFolder].value){
-
-  // }
 }
 
 saveSettings(Map map) {
@@ -318,7 +350,8 @@ printToConsole(Object object) {
       if (object.contains('Server port opened')) {
         runZeroNetWs();
         varStore.setZeroNetStatus('Running');
-        showZeroNetRunningNotification();
+        bool vibrate = varStore.settings[vibrateOnZeroNetStart].value;
+        showZeroNetRunningNotification(enableVibration: vibrate);
       }
     }
   }
@@ -457,8 +490,9 @@ Future<void> onSelectNotification(String payload) async {
 //   }
 // }
 
-Future<void> showZeroNetRunningNotification(
-    {bool enableVibration = true}) async {
+Future<void> showZeroNetRunningNotification({
+  bool enableVibration = true,
+}) async {
   var androidDetails = AndroidNotificationDetails(
     zeroNetNotiId,
     zeroNetChannelName,
@@ -469,7 +503,10 @@ Future<void> showZeroNetRunningNotification(
     enableVibration: enableVibration,
   );
   var iosDetails = IOSNotificationDetails();
-  var details = NotificationDetails(androidDetails, iosDetails);
+  var details = NotificationDetails(
+    androidDetails,
+    iosDetails,
+  );
   await flutterLocalNotificationsPlugin.show(
     0,
     'ZeroNet Mobile is Running',

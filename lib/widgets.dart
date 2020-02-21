@@ -273,9 +273,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (viewBrowser)
-      SystemChrome.setEnabledSystemUIOverlays([]);
-    else
+    if (varStore.settings[enableFullScreenOnWebView].value == true) {
+      if (viewBrowser)
+        SystemChrome.setEnabledSystemUIOverlays([]);
+      else
+        SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    } else
       SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     return viewBrowser
         ? WillPopScope(
