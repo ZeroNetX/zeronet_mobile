@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 main(List<String> args) {
-  String arg = args[0];
+  String arg = (args.isEmpty) ? '' : args[0];
   switch (arg) {
     case 'modules':
       modules();
@@ -9,8 +10,40 @@ main(List<String> args) {
     case 'nonpy':
       removeNonPy();
       break;
+    case 'compile':
+      compile();
+      break;
     default:
+      compile();
   }
+}
+
+compile() {
+  String versionProp = '';
+  var content = File('android/version.properties').readAsStringSync();
+  versionProp =
+      content.split('\n')[0].replaceAll('flutter.versionName=', '').trim();
+  var result = Process.runSync('git', [
+    'log',
+    '-1',
+    '--pretty=%B',
+  ]);
+  var ver = (result.stdout as String).split('\n')[0].trim();
+  if (ver.contains(versionProp)) {
+    print('Repo is Clear to Compile APK For Release...');
+    print('Compiling APK For Release...');
+    Process.start('buildtools\\compile.bat', []).then((Process result) {
+      result.stdout.listen((onData) {
+        // print('Output : ');
+        print(utf8.decode(onData));
+      });
+      result.stderr.listen((onData) {
+        // print('Error : ');
+        print(utf8.decode(onData));
+      });
+    });
+  } else
+    throw "Update version.properties";
 }
 
 var totalFilesList = [];
