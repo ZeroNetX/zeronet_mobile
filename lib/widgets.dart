@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'common.dart';
@@ -471,8 +473,9 @@ class PopularZeroNetSites extends StatelessWidget {
                         top: 24.0,
                         left: 15.0,
                       ),
-                      child: Text(
+                      child: AutoSizeText(
                         name,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28.0,
@@ -483,8 +486,9 @@ class PopularZeroNetSites extends StatelessWidget {
                       padding: const EdgeInsets.only(
                         left: 15.0,
                       ),
-                      child: Text(
+                      child: AutoSizeText(
                         description,
+                        maxLines: 2,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.0,
@@ -584,8 +588,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text(
-                              map[key].name,
+                        AutoSizeText(
+                          map[key].name,
+                          maxLines: 1,
+                          maxFontSize: 18,
                               style: TextStyle(
                                 fontSize: 20.0,
                               ),
