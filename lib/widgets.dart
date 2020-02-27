@@ -123,7 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
       showZeroNetRunningNotification(enableVibration: false);
       testUrl();
     } catch (e) {
-      if (!firstTime && varStore.settings[autoStartZeroNet].value == true)
+      if (!firstTime &&
+          (varStore.settings[autoStartZeroNet] as ToggleSetting).value == true)
         runZeroNet();
       if (e is OSError) {
         if (e.errorCode == 111) {
@@ -275,7 +276,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (varStore.settings[enableFullScreenOnWebView].value == true) {
+    if ((varStore.settings[enableFullScreenOnWebView] as ToggleSetting)
+            ?.value ==
+        true) {
       if (viewBrowser)
         SystemChrome.setEnabledSystemUIOverlays([]);
       else
@@ -352,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               GestureDetector(
                                                 child: const Padding(
                                                   padding: const EdgeInsets.all(
-                                                    6.0,
+                                                    4.0,
                                                   ),
                                                   child: Chip(
                                                     backgroundColor: Colors.red,
@@ -371,7 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               GestureDetector(
                                                 child: const Padding(
                                                   padding: const EdgeInsets.all(
-                                                    6.0,
+                                                    4.0,
                                                   ),
                                                   child: Chip(
                                                     backgroundColor:
@@ -384,8 +387,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     ),
                                                   ),
                                                 ),
-                                                onTap: () =>
-                                                    ZeroNet.instance.siteInfo(),
+                                                onTap: () {
+                                                  ZeroNet.instance.siteInfo(
+                                                      callback: (msg) {
+                                                    //TODO: Show Info in List Form.
+                                                    showDialogC(
+                                                      context: context,
+                                                      title: 'ZeroNetInfo',
+                                                      body: msg,
+                                                    );
+                                                  });
+                                                },
                                               ),
                                           ],
                                         );
@@ -424,7 +436,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Icon(Icons.stop);
                       },
                     ),
-                    onPressed: runZeroNet,
+                    onPressed: (varStore.zeroNetStatus == 'Not Running')
+                        ? runZeroNet
+                        : shutDownZeronet,
                   ),
           );
   }
@@ -568,76 +582,239 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return ListView.builder(
-          itemCount: varStore.settings.keys.length,
-          itemBuilder: (c, i) {
-            var key = varStore.settings.keys.toList()[i];
-            var map = varStore.settings;
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                elevation: 10.0,
-                child: Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    List wrapChildren = <Widget>[
+      Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: GestureDetector(
+          child: Chip(
+            label: Text('Create New Profile'),
+          ),
+          onTap: () {
+            if (isZeroNetUserDataExists()) {
+              showDialogW(
+                context: context,
+                title: 'Provide A Name for Existing Profile',
+                body: ProfileSwitcherUserNameEditText(),
+
+                //TODO : Put Backup Button Also.
+                actionOk: FlatButton(
+                  child: Text('Create'),
+                  onPressed: () {
+                    if (username.isNotEmpty) {
+                      //TODO : Check if Username already exists.
+                      File file = File(getZeroNetUsersFilePath());
+                      var f = file.renameSync(
+                          getZeroNetDataDir().path + '/users-$username.json');
+                      if (f.existsSync()) {
+                        if (file.existsSync()) file.deleteSync();
+                        Navigator.pop(context);
+                        ZeroNet.instance.shutDown();
+                        runZeroNet();
+                      }
+                    } else {
+                      setState(() {
+                        validUsername = false;
+                      });
+                    }
+                  },
+                ),
+              );
+            } else {
+              showDialogC(
+                context: context,
+                title: 'ZeroNet data folder not Exists.',
+                body:
+                    "ZeroNet should be used atleast once (run it from home screen), "
+                    "before using this option",
+              );
+            }
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: GestureDetector(
+          child: Chip(
+            label: Text('Import Existing Profile'),
+          ),
+          onTap: () {},
+        ),
+      ),
+    ];
+    getZeroNameProfiles().forEach((profile) {
+      wrapChildren.add(
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: GestureDetector(
+            child: Chip(
+              label: Text(profile),
+            ),
+            onTap: () {
+              File f = File(getZeroNetUsersFilePath());
+              //TODO : Show Warning Dialog Here.
+              if (f.existsSync()) {
+                f.deleteSync();
+              }
+              File file =
+                  File(getZeroNetDataDir().path + '/users-$profile.json');
+              if (file.existsSync()) {
+                file.renameSync(getZeroNetDataDir().path + '/users.json');
+                setState(() {});
+                ZeroNet.instance.shutDown();
+                runZeroNet();
+              }
+            },
+          ),
+        ),
+      );
+    });
+    return ListView.builder(
+      itemCount: defSettings.keys.length,
+      itemBuilder: (c, i) {
+        var key = defSettings.keys.toList()[i];
+        var map = defSettings;
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            elevation: 10.0,
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
                         AutoSizeText(
                           map[key].name,
                           maxLines: 1,
                           maxFontSize: 18,
-                              style: TextStyle(
-                                fontSize: 20.0,
-                              ),
-                            ),
-                            Switch(
-                              value: map[key].value,
-                              onChanged: (v) async {
-                                map[key]..value = v;
-                                Map<String, Setting> m = {};
-                                map.keys.forEach((k) {
-                                  m[k] = map[k];
-                                });
-                                if (key == batteryOptimisation && v) {
-                                  m[key]
-                                    ..value = await askBatteryOptimisation();
-                                } else if (key == publicDataFolder) {
-                                  String str =
-                                      'data_dir = ${v ? appPrivDir.path : zeroNetDir}/data';
-                                  writeZeroNetConf(str);
-                                }
-                                saveSettings(m);
-                                varStore.updateSetting(
-                                  map[key]..value = m[key].value,
-                                );
-                              },
-                            )
-                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            map[key].description,
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
+                        if (map[key] is ToggleSetting)
+                          Observer(
+                            builder: (context) {
+                              var map = varStore.settings;
+                              map.removeWhere((e, w) => !(w is ToggleSetting));
+                              return Switch(
+                                value:
+                                    (map[key] as ToggleSetting)?.value ?? false,
+                                onChanged: (v) async {
+                                  (map[key] as ToggleSetting)..value = v;
+                                  Map<String, Setting> m = {};
+                                  map.keys.forEach((k) {
+                                    m[k] = map[k];
+                                  });
+                                  if (key == batteryOptimisation && v) {
+                                    (m[key] as ToggleSetting)
+                                      ..value = await askBatteryOptimisation();
+                                  } else if (key == publicDataFolder) {
+                                    String str =
+                                        'data_dir = ${v ? appPrivDir.path : zeroNetDir}/data';
+                                    writeZeroNetConf(str);
+                                  }
+                                  saveSettings(m);
+                                  varStore.updateSetting(
+                                    (map[key] as ToggleSetting)
+                                      ..value = (m[key] as ToggleSetting).value,
+                                  );
+                                },
+                              );
+                            },
                           ),
-                        ),
                       ],
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        map[key].description,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                    if (map[key] is MapSetting)
+                      if (key == profileSwitcher)
+                        ((map[key] as MapSetting).map['selected'] as String)
+                                .isEmpty
+                            ? Wrap(
+                                children: wrapChildren,
+                              )
+                            : GestureDetector(
+                                child: Chip(
+                                  label: Text('Create Profile'),
+                                ),
+                                onTap: () {},
+                              )
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
+    );
+  }
+}
+
+var username = '';
+var errorText = '';
+var validUsername = false;
+
+class ProfileSwitcherUserNameEditText extends StatefulWidget {
+  @override
+  _ProfileSwitcherUserNameEditTextState createState() =>
+      _ProfileSwitcherUserNameEditTextState();
+}
+
+class _ProfileSwitcherUserNameEditTextState
+    extends State<ProfileSwitcherUserNameEditText> {
+  @override
+  Widget build(BuildContext context) {
+    return ListBody(
+      children: <Widget>[
+        Text(
+          'Always remember to backup users.json before doing anything because, '
+          'we are not able to tell when a software will fail. '
+          'Click Backup below to backup your Existing users.json file.\n',
+          style: TextStyle(
+            color: Colors.red,
+          ),
+        ),
+        Text('Username Phrase :'),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 8.0,
+          ),
+          child: TextField(
+            onChanged: (text) {
+              username = text;
+              var valid = text.isNotEmpty;
+              if (valid) {
+                if (text.contains(' ')) {
+                  errorText = 'username can\'t contain spaces';
+                  valid = false;
+                } else if (text.length < 6) {
+                  errorText = 'username can\'t be less than 6 characters.';
+                  valid = false;
+                }
+              } else {
+                errorText = 'username can\'t be Empty';
+              }
+              setState(() {
+                validUsername = valid;
+              });
+            },
+            style: TextStyle(
+              fontSize: 18.0,
+            ),
+            decoration: InputDecoration(
+              hintText: 'username',
+              errorText: validUsername ? null : errorText,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

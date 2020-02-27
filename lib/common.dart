@@ -45,6 +45,9 @@ const String notificationCategory = 'ZERONET_RUNNING';
 const String isolateUnZipPort = 'unzip_send_port';
 const String isolateDownloadPort = 'downloader_send_port';
 const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
+const String zeronetStartUpError = 'Startup error: ';
+const String zeronetAlreadyRunningError =
+    zeronetStartUpError + 'Can\'t open lock file';
 
 const List<Color> colors = [
   Colors.cyan,
@@ -187,13 +190,15 @@ init() async {
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
 }
 
+const String profileSwitcher = 'Profile Switcher';
+const String profileSwitcherDes =
+    'Create and Use different Profiles on ZeroNet';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
 const String vibrateOnZeroNetStartDes = 'Vibrates Phone When ZeroNet Starts';
-const String enableFullScreenOnWebView =
-    'Enable FullScreen for ZeroNet \nWebsites';
+const String enableFullScreenOnWebView = 'FullScreen for ZeroNet Zites';
 const String enableFullScreenOnWebViewDes =
     'This will Enable Full Screen for in app Webview of ZeroNet';
-const String batteryOptimisation = 'Disable Battery Optimisations';
+const String batteryOptimisation = 'Disable Battery Optimisation';
 const String batteryOptimisationDes =
     'This will Helps to Run App even App is in Background for long time.';
 const String publicDataFolder = 'Public DataFolder';
@@ -207,62 +212,123 @@ const String autoStartZeroNetonBootDes =
     'This Will Make ZeroNet Auto Start on Device Boot.';
 
 Map<String, Setting> defSettings = {
-  vibrateOnZeroNetStart: Setting(
+  profileSwitcher: MapSetting(
+    name: profileSwitcher,
+    description: profileSwitcherDes,
+    map: {
+      "selected": '',
+      "all": [],
+    },
+  ),
+  vibrateOnZeroNetStart: ToggleSetting(
     name: vibrateOnZeroNetStart,
     description: vibrateOnZeroNetStartDes,
     value: false,
   ),
-  enableFullScreenOnWebView: Setting(
+  enableFullScreenOnWebView: ToggleSetting(
     name: enableFullScreenOnWebView,
     description: enableFullScreenOnWebViewDes,
     value: false,
   ),
-  batteryOptimisation: Setting(
+  batteryOptimisation: ToggleSetting(
     name: batteryOptimisation,
     description: batteryOptimisationDes,
     value: false,
   ),
-  publicDataFolder: Setting(
+  publicDataFolder: ToggleSetting(
     name: publicDataFolder,
     description: publicDataFolderDes,
     value: false,
   ),
-  autoStartZeroNet: Setting(
+  autoStartZeroNet: ToggleSetting(
     name: autoStartZeroNet,
     description: autoStartZeroNetDes,
     value: true,
   ),
-  autoStartZeroNetonBoot: Setting(
+  autoStartZeroNetonBoot: ToggleSetting(
     name: autoStartZeroNetonBoot,
     description: autoStartZeroNetonBootDes,
     value: false,
   ),
 };
 
-class Setting {
+abstract class Setting {
+  String name;
+  String description;
+  Setting({
+    this.name,
+    this.description,
+  });
+
+  Map toMap();
+
+  String toJson();
+
+  Setting fromJson(Map<String, dynamic> map);
+}
+
+class ToggleSetting extends Setting {
   String name;
   String description;
   bool value;
 
-  Setting({
+  ToggleSetting({
     this.name,
     this.description,
     this.value,
-  });
+  }) : super(
+          name: name,
+          description: description,
+        );
 
+  @override
   Map toMap() => {
         'name': name,
         'description': description,
         'value': value,
       };
 
+  @override
   String toJson() => json.encode(this.toMap());
 
-  Setting fromJson(Map<String, dynamic> map) {
-    return Setting(
+  ToggleSetting fromJson(Map<String, dynamic> map) {
+    return ToggleSetting(
       name: map['name'],
       description: map['description'],
       value: map['value'],
+    );
+  }
+}
+
+class MapSetting extends Setting {
+  String name;
+  String description;
+  Map map;
+
+  MapSetting({
+    this.name,
+    this.description,
+    this.map,
+  }) : super(
+          name: name,
+          description: description,
+        );
+
+  @override
+  Map toMap() => {
+        'name': name,
+        'description': description,
+        'map': map,
+      };
+
+  @override
+  String toJson() => json.encode(this.toMap());
+
+  MapSetting fromJson(Map<String, dynamic> map) {
+    return MapSetting(
+      name: map['name'],
+      description: map['description'],
+      map: map['map'],
     );
   }
 }
@@ -284,8 +350,10 @@ loadSettings() {
       for (var i = 0; i < settings.length; i++) {
         var k = (settings[i] as Map)['name'];
         settingsKeys.add(k);
-        var map = settings[i];
-        m[k] = Setting().fromJson(map);
+        Map map = settings[i];
+        if (map.containsKey('value')) {
+          m[k] = ToggleSetting().fromJson(map);
+        }
       }
       for (var key in defSettings.keys) {
         if (!settingsKeys.contains(key)) {
@@ -301,7 +369,12 @@ loadSettings() {
     settings = json.decode(maptoStringList(defSettings));
   }
   for (var i = 0; i < settings.length; i++) {
-    varStore.updateSetting(Setting().fromJson(settings[i]));
+    Map map = settings[i];
+    if (map.containsKey('value')) {
+      varStore.updateSetting(ToggleSetting().fromJson(map));
+    } else if (map.containsKey('map')) {
+      varStore.updateSetting(MapSetting().fromJson(map));
+    }
   }
 }
 
@@ -347,16 +420,129 @@ printToConsole(Object object) {
           testUrl();
         }
       }
-      if (object.contains('Server port opened')) {
+      if (object.contains('Server port opened') ||
+          object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         varStore.setZeroNetStatus('Running');
-        bool vibrate = varStore.settings[vibrateOnZeroNetStart].value;
+        bool vibrate =
+            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         showZeroNetRunningNotification(enableVibration: vibrate);
       }
+      if (object.contains('ConnServer Closed port') ||
+          object.contains('All server stopped')) {
+        zeroNetUrl = '';
+        varStore.setZeroNetStatus('Not Running');
+        flutterLocalNotificationsPlugin.cancelAll();
+      }
+      log = log + object + '\n';
+    } else {
+      if (object.contains(zeronetAlreadyRunningError)) {
+        runZeroNetWs();
+        varStore.setZeroNetStatus('Running');
+        bool vibrate =
+            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
+        showZeroNetRunningNotification(enableVibration: vibrate);
+      }
+      log = log + '\n';
     }
   }
-  log = log + object + '\n';
   varStore.setZeroNetLog(log);
+}
+
+//TODO : Move These ZeroNet Func to Seperate dart file.
+bool isZeroNetUserDataExists() {
+  return getZeroNetUsersFilePath().isNotEmpty;
+}
+
+String getZeroNetUsersFilePath() {
+  var dataDir = getZeroNetDataDir();
+  if (dataDir.existsSync()) {
+    File f = File(dataDir.path + '/users.json');
+    bool exists = f.existsSync();
+    if (exists) {
+      return f.path;
+    }
+  }
+  return '';
+}
+
+Directory getZeroNetDataDir() => Directory(
+      ((varStore.settings[publicDataFolder] as ToggleSetting).value
+              ? appPrivDir.path
+              : zeroNetDir) +
+          '/data',
+    );
+
+List<String> getZeroNameProfiles() {
+  List<String> list = [];
+  if (getZeroNetDataDir().existsSync())
+    for (var item in getZeroNetDataDir().listSync()) {
+      if (item is File) {
+        if (item.path.endsWith('.json')) {
+          var name = item.path.replaceAll(getZeroNetDataDir().path + '/', '');
+          if (name.startsWith('users-')) {
+            var username =
+                name.replaceAll('users-', '').replaceAll('.json', '');
+            list.add(username);
+            print(username);
+          }
+        }
+      }
+    }
+  return list;
+}
+
+void showDialogC({
+  BuildContext context,
+  String title = '',
+  String body = '',
+}) {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: Text(body),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      });
+}
+
+void showDialogW({
+  BuildContext context,
+  String title = '',
+  Widget body,
+  bool singleOption,
+  Widget actionOk,
+}) {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: body,
+          ),
+          actions: <Widget>[
+            actionOk,
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      });
 }
 
 runTorEngine() {
@@ -912,11 +1098,16 @@ class Utils {
   static const String urlMail = 'Mail.ZeroNetwork.bit';
   static const String urlMe = 'Me.ZeroNetwork.bit';
   static const String urlSites = 'Sites.ZeroNetwork.bit';
+  static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
 
   static const initialSites = const {
     'ZeroHello': {
       'description': 'Hello Zeronet Site',
       'url': urlHello,
+    },
+    'ZeroMobile': {
+      'description': 'Report Android App Issues Here.',
+      'url': urlZeroNetMob,
     },
     'ZeroTalk': {
       'description': 'Reddit-like, decentralized forum',
