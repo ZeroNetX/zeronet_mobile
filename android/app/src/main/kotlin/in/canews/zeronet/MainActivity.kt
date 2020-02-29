@@ -21,12 +21,12 @@ import java.io.IOException
 import java.io.InputStream
 
 
+const val BATTERY_OPTIMISATION_RESULT_CODE = 1
 const val PICK_USERJSON_FILE = 2
 const val SAVE_USERJSON_FILE = 3
 const val TAG = "MainActivity"
 
 class MainActivity : FlutterActivity() {
-    private var BATTERY_OPTIMISATION_RESULT_CODE = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MethodChannel(flutterEngine?.dartExecutor, "in.canews.zeronet").setMethodCallHandler { call, result ->
@@ -61,7 +61,6 @@ class MainActivity : FlutterActivity() {
     private fun getBatteryOptimizations(resultT: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent()
-            val packageName = packageName
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
@@ -69,7 +68,7 @@ class MainActivity : FlutterActivity() {
                 startActivityForResult(intent, BATTERY_OPTIMISATION_RESULT_CODE)
                 result = resultT
             } else {
-                result.success(true)
+                resultT.success(true)
             }
         }
     }

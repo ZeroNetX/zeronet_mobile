@@ -610,6 +610,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ZeroNet.instance.shutDown();
                             runZeroNet();
                           }
+                          setState(() {});
                         } else {
                           setState(() {
                             validUsername = false;
@@ -787,8 +788,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                     m[k] = map[k];
                                   });
                                   if (key == batteryOptimisation && v) {
+                                    final isOptimised =
+                                        await isBatteryOptimised();
                                     (m[key] as ToggleSetting)
-                                      ..value = await askBatteryOptimisation();
+                                      ..value = (!isOptimised)
+                                          ? await askBatteryOptimisation()
+                                          : true;
                                   } else if (key == publicDataFolder) {
                                     String str =
                                         'data_dir = ${v ? appPrivDir.path : zeroNetDir}/data';
