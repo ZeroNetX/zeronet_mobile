@@ -5,7 +5,9 @@ import 'dart:typed_data';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:package_info/package_info.dart';
 import 'package:random_string/random_string.dart';
 import 'package:archive/archive.dart';
@@ -21,7 +23,8 @@ import 'package:zeronet_ws/zeronet_ws.dart';
 import 'mobx/varstore.dart';
 import 'package:path_provider/path_provider.dart';
 
-const String dataDir = "/data/data/in.canews.zeronet/files";
+const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
+const String dataDir = "/data/data/$pkgName/files";
 const String zeroNetDir = dataDir + '/ZeroNet-py3';
 const String bin = '$dataDir/usr/bin';
 const String python = '$bin/python';
@@ -181,12 +184,12 @@ Future<bool> makeExecHelper() async {
 init() async {
   getArch();
   zeroNetNativeDir = await getNativeDir();
+  tempDir = await getTemporaryDirectory();
+  appPrivDir = await getExternalStorageDirectory();
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
   initNotifications();
-  tempDir = await getTemporaryDirectory();
-  appPrivDir = await getExternalStorageDirectory();
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
 }
 
@@ -338,6 +341,51 @@ Future<bool> askBatteryOptimisation() async =>
 
 Future<bool> isBatteryOptimised() async =>
     await _channel.invokeMethod('isBatteryOptimized');
+
+Future<String> saveUserJsonFile(String path) async =>
+    await _channel.invokeMethod('saveUserJsonFile', path);
+
+String filePath = '';
+Future<File> getUserJsonFile() async {
+  String uri;
+  if (deviceInfo.version.sdkInt > 28) {
+    uri = await _channel.invokeMethod('openFile');
+    filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
+  } else {
+    uri = (await pickUserJsonFile()).path;
+    filePath = uri;
+  }
+  String path = await _channel.invokeMethod('readJsonFromUri', uri);
+  return File(path);
+}
+
+Future<File> pickUserJsonFile() async {
+  File file = await FilePicker.getFile(
+    type: FileType.CUSTOM,
+    fileExtension: 'json',
+  );
+  return file;
+}
+
+Future<void> backUpUserJsonFile(BuildContext context) async {
+  if (getZeroNetUsersFilePath().isNotEmpty) {
+    String result = await saveUserJsonFile(getZeroNetUsersFilePath());
+    Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+      (result.contains('success'))
+          ? result
+          : "Please check yourself that file back up Successfully.",
+    )));
+  } else
+    zeronetNotInit(context);
+}
+
+void zeronetNotInit(BuildContext context) => showDialogC(
+      context: context,
+      title: 'ZeroNet data folder not Exists.',
+      body: "ZeroNet should be used atleast once (run it from home screen), "
+          "before using this option",
+    );
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');

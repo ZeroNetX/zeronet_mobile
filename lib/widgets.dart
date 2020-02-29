@@ -584,7 +584,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     List wrapChildren = <Widget>[
       Padding(
-        padding: const EdgeInsets.only(right: 8.0),
+        padding: const EdgeInsets.only(right: 4.0),
         child: GestureDetector(
           child: Chip(
             label: Text('Create New Profile'),
@@ -595,54 +595,111 @@ class _SettingsPageState extends State<SettingsPage> {
                 context: context,
                 title: 'Provide A Name for Existing Profile',
                 body: ProfileSwitcherUserNameEditText(),
-
-                //TODO : Put Backup Button Also.
-                actionOk: FlatButton(
-                  child: Text('Create'),
-                  onPressed: () {
-                    if (username.isNotEmpty) {
-                      //TODO : Check if Username already exists.
-                      File file = File(getZeroNetUsersFilePath());
-                      var f = file.renameSync(
-                          getZeroNetDataDir().path + '/users-$username.json');
-                      if (f.existsSync()) {
-                        if (file.existsSync()) file.deleteSync();
-                        Navigator.pop(context);
-                        ZeroNet.instance.shutDown();
-                        runZeroNet();
-                      }
-                    } else {
-                      setState(() {
-                        validUsername = false;
-                      });
-                    }
-                  },
+                actionOk: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text('Create'),
+                      onPressed: () {
+                        if (username.isNotEmpty) {
+                          File file = File(getZeroNetUsersFilePath());
+                          var f = file.renameSync(getZeroNetDataDir().path +
+                              '/users-$username.json');
+                          if (f.existsSync()) {
+                            if (file.existsSync()) file.deleteSync();
+                            Navigator.pop(context);
+                            ZeroNet.instance.shutDown();
+                            runZeroNet();
+                          }
+                        } else {
+                          setState(() {
+                            validUsername = false;
+                          });
+                        }
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Backup'),
+                      onPressed: () => backUpUserJsonFile(context),
+                    ),
+                  ],
                 ),
               );
-            } else {
-              showDialogC(
+            } else
+              zeronetNotInit(context);
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(right: 4.0),
+        child: GestureDetector(
+          child: Chip(
+            label: Text('Import Profile'),
+          ),
+          onTap: () async {
+            var file = await getUserJsonFile();
+            if (file != null && file.path.endsWith('users.json')) {
+              var isSameUser =
+                  file.existsSync() && getZeroNetUsersFilePath() == file.path;
+              showDialogW(
                 context: context,
-                title: 'ZeroNet data folder not Exists.',
-                body:
-                    "ZeroNet should be used atleast once (run it from home screen), "
-                    "before using this option",
+                title: 'Restore Profile ?',
+                body: Text(
+                  'this will delete the existing profile, '
+                  'backup existing profile using backup button below\n\n'
+                  'Selected Userfile : \n'
+                  '$filePath'
+                  '\n\n${isSameUser ? 'You can only select users.json file, outside zeronet data folder' : ''}',
+                ),
+                actionOk: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: isSameUser
+                          ? null
+                          : () async {
+                              File f = File(getZeroNetUsersFilePath());
+                              print(f.path);
+                              if (!isSameUser) {
+                                if (f.existsSync()) f.deleteSync();
+                                f.createSync();
+                                f.writeAsStringSync(file.readAsStringSync());
+                                setState(() {});
+                                try {
+                                  ZeroNet.instance.shutDown();
+                                } catch (e) {
+                                  print(e);
+                                }
+                                runZeroNet();
+                                Navigator.pop(context);
+                              }
+                            },
+                      child: Text(
+                        'Restore',
+                      ),
+                    ),
+                    FlatButton(
+                      child: Text('Backup'),
+                      onPressed: () => backUpUserJsonFile(context),
+                    ),
+                  ],
+                ),
               );
             }
           },
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(right: 8.0),
+        padding: const EdgeInsets.only(right: 4.0),
         child: GestureDetector(
           child: Chip(
-            label: Text('Import Existing Profile'),
+            label: Text('Backup Profile'),
           ),
-          onTap: () {},
+          onTap: () => backUpUserJsonFile(context),
         ),
       ),
     ];
     getZeroNameProfiles().forEach((profile) {
-      wrapChildren.add(
+      wrapChildren.insert(
+        0,
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: GestureDetector(
@@ -650,19 +707,43 @@ class _SettingsPageState extends State<SettingsPage> {
               label: Text(profile),
             ),
             onTap: () {
-              File f = File(getZeroNetUsersFilePath());
-              //TODO : Show Warning Dialog Here.
-              if (f.existsSync()) {
-                f.deleteSync();
-              }
-              File file =
-                  File(getZeroNetDataDir().path + '/users-$profile.json');
-              if (file.existsSync()) {
-                file.renameSync(getZeroNetDataDir().path + '/users.json');
-                setState(() {});
-                ZeroNet.instance.shutDown();
-                runZeroNet();
-              }
+              showDialogW(
+                context: context,
+                title: 'Switch Profile to $profile ?',
+                body: Text(
+                  'this will delete the existing profile, '
+                  'backup existing profile using backup button below',
+                ),
+                actionOk: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        File f = File(getZeroNetUsersFilePath());
+                        if (f.existsSync()) {
+                          f.deleteSync();
+                        }
+                        File file = File(
+                            getZeroNetDataDir().path + '/users-$profile.json');
+                        if (file.existsSync()) {
+                          file.renameSync(
+                              getZeroNetDataDir().path + '/users.json');
+                          setState(() {});
+                          ZeroNet.instance.shutDown();
+                          runZeroNet();
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Text(
+                        'Switch',
+                      ),
+                    ),
+                    FlatButton(
+                      child: Text('Backup'),
+                      onPressed: () => backUpUserJsonFile(context),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ),
@@ -796,6 +877,10 @@ class _ProfileSwitcherUserNameEditTextState
                   valid = false;
                 } else if (text.length < 6) {
                   errorText = 'username can\'t be less than 6 characters.';
+                  valid = false;
+                } else if (File(getZeroNetDataDir().path + '/users-$text.json')
+                    .existsSync()) {
+                  errorText = 'username already exists, choose different one.';
                   valid = false;
                 }
               } else {
