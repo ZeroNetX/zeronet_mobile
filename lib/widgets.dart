@@ -639,8 +639,9 @@ class _SettingsPageState extends State<SettingsPage> {
           onTap: () async {
             var file = await getUserJsonFile();
             if (file != null && file.path.endsWith('users.json')) {
-              var isSameUser =
-                  file.existsSync() && getZeroNetUsersFilePath() == file.path;
+              var isSameUser = file.existsSync()
+                  ? getZeroNetUsersFilePath() == file.path
+                  : false;
               showDialogW(
                 context: context,
                 title: 'Restore Profile ?',

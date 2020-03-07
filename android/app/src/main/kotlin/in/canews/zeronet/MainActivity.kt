@@ -49,7 +49,7 @@ class MainActivity : FlutterActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val packageName = packageName
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-            result.success(!pm.isIgnoringBatteryOptimizations(packageName))
+            result.success(pm.isIgnoringBatteryOptimizations(packageName))
         } else {
             result.success(false)
         }
