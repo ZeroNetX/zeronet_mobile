@@ -21,9 +21,9 @@ import java.io.IOException
 import java.io.InputStream
 
 
-const val BATTERY_OPTIMISATION_RESULT_CODE = 1
-const val PICK_USERJSON_FILE = 2
-const val SAVE_USERJSON_FILE = 3
+const val BATTERY_OPTIMISATION_RESULT_CODE = 1001
+const val PICK_USERJSON_FILE = 1002
+const val SAVE_USERJSON_FILE = 1003
 const val TAG = "MainActivity"
 
 class MainActivity : FlutterActivity() {
