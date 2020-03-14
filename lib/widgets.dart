@@ -856,6 +856,14 @@ class ProfileSwitcherUserNameEditText extends StatefulWidget {
 
 class _ProfileSwitcherUserNameEditTextState
     extends State<ProfileSwitcherUserNameEditText> {
+  TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    _controller.text = getZeroIdUserName();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListBody(
@@ -874,6 +882,7 @@ class _ProfileSwitcherUserNameEditTextState
             left: 8.0,
           ),
           child: TextField(
+            controller: _controller,
             onChanged: (text) {
               username = text;
               var valid = text.isNotEmpty;

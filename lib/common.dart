@@ -370,6 +370,26 @@ Future<File> pickUserJsonFile() async {
   return file;
 }
 
+String getZeroIdUserName() {
+  File file = File(getZeroNetUsersFilePath());
+  Map map = json.decode(file.readAsStringSync());
+  var key = map.keys.first;
+  Map certMap = map[key]['certs'];
+  var certs = [];
+  if (certMap.keys.length < 1)
+    return '';
+  else {
+    for (var cert in certMap.keys) {
+      certs.add(cert);
+      var t = certMap[cert];
+      if (t != null) {
+        return certMap[cert]['auth_user_name'] ?? '';
+      }
+    }
+  }
+  return '';
+}
+
 Future<void> backUpUserJsonFile(BuildContext context) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
     String result = await saveUserJsonFile(getZeroNetUsersFilePath());
