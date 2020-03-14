@@ -345,6 +345,9 @@ Future<bool> isBatteryOptimised() async =>
 Future<String> saveUserJsonFile(String path) async =>
     await _channel.invokeMethod('saveUserJsonFile', path);
 
+Future<bool> moveTaskToBack() async =>
+    await _channel.invokeMethod('moveTaskToBack');
+
 String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
