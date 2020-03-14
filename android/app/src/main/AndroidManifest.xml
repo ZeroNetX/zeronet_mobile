@@ -15,6 +15,7 @@
     <application
         android:label="ZeroNet"
         android:usesCleartextTraffic="true"
+        android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
