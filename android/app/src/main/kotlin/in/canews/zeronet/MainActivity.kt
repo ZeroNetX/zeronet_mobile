@@ -1,5 +1,6 @@
 package `in`.canews.zeronet
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -37,6 +38,10 @@ class MainActivity : FlutterActivity() {
                 "openFile" -> openFile(result)
                 "readJsonFromUri" -> readJsonFromUri(call.arguments.toString(), result)
                 "saveUserJsonFile" -> saveUserJsonFile(this, call.arguments.toString(), result)
+                "moveTaskToBack" -> {
+                    moveTaskToBack(true)
+                    result.success(true)
+                }
             }
         }
     }
@@ -58,6 +63,7 @@ class MainActivity : FlutterActivity() {
 
     private lateinit var result: MethodChannel.Result
 
+    @SuppressLint("BatteryLife")
     private fun getBatteryOptimizations(resultT: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent()

@@ -345,6 +345,9 @@ Future<bool> isBatteryOptimised() async =>
 Future<String> saveUserJsonFile(String path) async =>
     await _channel.invokeMethod('saveUserJsonFile', path);
 
+Future<bool> moveTaskToBack() async =>
+    await _channel.invokeMethod('moveTaskToBack');
+
 String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
@@ -365,6 +368,26 @@ Future<File> pickUserJsonFile() async {
     fileExtension: 'json',
   );
   return file;
+}
+
+String getZeroIdUserName() {
+  File file = File(getZeroNetUsersFilePath());
+  Map map = json.decode(file.readAsStringSync());
+  var key = map.keys.first;
+  Map certMap = map[key]['certs'];
+  var certs = [];
+  if (certMap.keys.length < 1)
+    return '';
+  else {
+    for (var cert in certMap.keys) {
+      certs.add(cert);
+      var t = certMap[cert];
+      if (t != null) {
+        return certMap[cert]['auth_user_name'] ?? '';
+      }
+    }
+  }
+  return '';
 }
 
 Future<void> backUpUserJsonFile(BuildContext context) async {
@@ -595,21 +618,26 @@ void showDialogW({
 
 runTorEngine() {
   final tor = zeroNetNativeDir + '/libtor.so';
-  Process.start('$tor', [], environment: {
-    "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
-  }).then((proc) {
-    zero = proc;
-    zero.stderr.listen((onData) {
-      // printToConsole(utf8.decode(onData));
+  if (File(tor).existsSync()) {
+    printToConsole('Running Tor Engine..');
+    Process.start('$tor', [], environment: {
+      "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
+    }).then((proc) {
+      zero = proc;
+      zero.stderr.listen((onData) {
+        // printToConsole(utf8.decode(onData));
+      });
+      zero.stdout.listen((onData) {
+        // printToConsole(utf8.decode(onData));
+      });
+    }).catchError((e) {
+      if (e is ProcessException) {
+        printOut(e.toString());
+      }
     });
-    zero.stdout.listen((onData) {
-      // printToConsole(utf8.decode(onData));
-    });
-  }).catchError((e) {
-    if (e is ProcessException) {
-      printOut(e.toString());
-    }
-  });
+  } else
+    //TODO: Improve Error Trace here
+    printToConsole('Tor Binary Not Found');
 }
 
 runZeroNet() {
@@ -621,30 +649,36 @@ runZeroNet() {
     printToConsole(startZeroNetLog + '\n');
     var python = zeroNetNativeDir + '/libpython3.8.so';
     var openssl = zeroNetNativeDir + '/libopenssl.so';
-    Process.start('$python', [
-      zeronet,
-      "--start_dir",
-      zeroNetDir,
-      "--openssl_bin_file",
-      openssl
-    ], environment: {
-      "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
-      'PYTHONHOME': '$dataDir/usr',
-      'PYTHONPATH': '$python',
-    }).then((proc) {
-      zero = proc;
-      zero.stderr.listen((onData) {
-        printToConsole(utf8.decode(onData));
+
+    if (File(python).existsSync()) {
+      Process.start('$python', [
+        zeronet,
+        "--start_dir",
+        zeroNetDir,
+        "--openssl_bin_file",
+        openssl
+      ], environment: {
+        "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
+        'PYTHONHOME': '$dataDir/usr',
+        'PYTHONPATH': '$python',
+      }).then((proc) {
+        zero = proc;
+        zero.stderr.listen((onData) {
+          printToConsole(utf8.decode(onData));
+        });
+        zero.stdout.listen((onData) {
+          printToConsole(utf8.decode(onData));
+        });
+      }).catchError((e) {
+        if (e is ProcessException) {
+          printOut(e.toString());
+        }
+        varStore.setZeroNetStatus('Not Running');
       });
-      zero.stdout.listen((onData) {
-        printToConsole(utf8.decode(onData));
-      });
-    }).catchError((e) {
-      if (e is ProcessException) {
-        printOut(e.toString());
-      }
-      varStore.setZeroNetStatus('Not Running');
-    });
+    } else {
+      //TODO: Improve Error Trace here
+      printToConsole('Python Binary Not Found');
+    }
   } else {
     shutDownZeronet();
   }
