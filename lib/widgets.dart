@@ -778,6 +778,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Observer(
                             builder: (context) {
                               var map = varStore.settings;
+                              //TODO: Check this, if it is removing non toggle settings from settings file
                               map.removeWhere((e, w) => !(w is ToggleSetting));
                               return Switch(
                                 value:

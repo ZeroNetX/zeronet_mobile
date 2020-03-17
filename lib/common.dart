@@ -196,6 +196,9 @@ init() async {
 const String profileSwitcher = 'Profile Switcher';
 const String profileSwitcherDes =
     'Create and Use different Profiles on ZeroNet';
+const String debugZeroNet = 'Debug ZeroNet Code';
+const String debugZeroNetDes =
+    'Useful for Developers to find bugs and errors in the code.';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
 const String vibrateOnZeroNetStartDes = 'Vibrates Phone When ZeroNet Starts';
 const String enableFullScreenOnWebView = 'FullScreen for ZeroNet Zites';
@@ -251,6 +254,11 @@ Map<String, Setting> defSettings = {
   autoStartZeroNetonBoot: ToggleSetting(
     name: autoStartZeroNetonBoot,
     description: autoStartZeroNetonBootDes,
+    value: false,
+  ),
+  debugZeroNet: ToggleSetting(
+    name: debugZeroNet,
+    description: debugZeroNetDes,
     value: false,
   ),
 };
@@ -651,8 +659,10 @@ runZeroNet() {
     var openssl = zeroNetNativeDir + '/libopenssl.so';
 
     if (File(python).existsSync()) {
+      var debug = (varStore.settings[debugZeroNet] as ToggleSetting).value;
       Process.start('$python', [
         zeronet,
+        if (debug) '--debug',
         "--start_dir",
         zeroNetDir,
         "--openssl_bin_file",
