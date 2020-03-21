@@ -199,6 +199,11 @@ const String profileSwitcherDes =
 const String debugZeroNet = 'Debug ZeroNet Code';
 const String debugZeroNetDes =
     'Useful for Developers to find bugs and errors in the code.';
+const String enableZeroNetConsole = 'Enable ZeroNet Console';
+const String enableZeroNetConsoleDes =
+    'Useful for Developers to see the exec of ZeroNet Python code';
+const String pluginManager = 'Plugin Manager';
+const String pluginManagerDes = 'Enable/Disable ZeroNet Plugins';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
 const String vibrateOnZeroNetStartDes = 'Vibrates Phone When ZeroNet Starts';
 const String enableFullScreenOnWebView = 'FullScreen for ZeroNet Zites';
@@ -260,6 +265,16 @@ Map<String, Setting> defSettings = {
     name: debugZeroNet,
     description: debugZeroNetDes,
     value: false,
+  ),
+  enableZeroNetConsole: ToggleSetting(
+    name: enableZeroNetConsole,
+    description: enableZeroNetConsoleDes,
+    value: false,
+  ),
+  pluginManager: MapSetting(
+    name: pluginManager,
+    description: pluginManagerDes,
+    map: {},
   ),
 };
 
@@ -360,7 +375,7 @@ String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
   if (deviceInfo.version.sdkInt > 28) {
-    uri = await _channel.invokeMethod('openFile');
+    uri = await _channel.invokeMethod('openJsonFile');
     filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
   } else {
     uri = (await pickUserJsonFile()).path;
@@ -374,6 +389,27 @@ Future<File> pickUserJsonFile() async {
   File file = await FilePicker.getFile(
     type: FileType.CUSTOM,
     fileExtension: 'json',
+  );
+  return file;
+}
+
+Future<File> getPluginZipFile() async {
+  String uri;
+  if (deviceInfo.version.sdkInt > 28) {
+    uri = await _channel.invokeMethod('openZipFile');
+    filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
+  } else {
+    uri = (await pickPluginZipFile()).path;
+    filePath = uri;
+  }
+  String path = await _channel.invokeMethod('readZipFromUri', uri);
+  return File(path);
+}
+
+Future<File> pickPluginZipFile() async {
+  File file = await FilePicker.getFile(
+    type: FileType.CUSTOM,
+    fileExtension: 'zip',
   );
   return file;
 }
@@ -692,6 +728,11 @@ runZeroNet() {
   } else {
     shutDownZeronet();
   }
+}
+
+restartZeroNet() {
+  ZeroNet.instance.shutDown();
+  runZeroNet();
 }
 
 writeZeroNetConf(String str) {
@@ -1107,6 +1148,54 @@ unZipinBg() async {
     }
   // printOut('Dont Call this Function Twice');
   // check();
+}
+
+installPlugin(File file) async {
+  await compute(
+    _unzipBytesAsync,
+    UnzipParams(
+      'plugin',
+      file.readAsBytesSync(),
+      dest: 'ZeroNet-py3/plugins/',
+    ),
+  );
+}
+
+void installPluginDialog(File file, BuildContext context) {
+  //TODO: Add Unzip listener for Plugin Install
+  // _unZipPort.close();
+  // bindUnZipIsolate();
+  // _unZipPort.listen((data) {
+  //   String name = data[0];
+  //   int currentFile = data[1];
+  //   int totalFiles = data[2];
+  //   var percent = (currentFile / totalFiles) * 100;
+  //   if (percent == 100) {
+  //     if (name == 'plugin') {
+  //       Navigator.pop(context);
+  //     }
+  //   }
+  // });
+  installPlugin(file);
+  showDialogW(
+    context: context,
+    title: 'Installing Plugin',
+    body: Column(
+      children: <Widget>[
+        Text(
+          "This Dialog will be automatically closed after installation, "
+          "After Installation Restart ZeroNet from Home page",
+        ),
+        Padding(padding: EdgeInsets.all(12.0)),
+        LinearProgressIndicator()
+      ],
+    ),
+    singleOption: true,
+  );
+  Timer(Duration(seconds: 5), () {
+    Navigator.pop(context);
+    restartZeroNet();
+  });
 }
 
 void _unzipBytesAsync(UnzipParams params) async {
