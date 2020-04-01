@@ -5,10 +5,13 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zeronet/widgets.dart';
+import 'package:zeronet/extensions.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
@@ -26,5 +29,12 @@ void main() {
     // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
+  });
+
+  test('name', () {
+    var current = Directory.current;
+    var testFileName = 'pubspec.yaml';
+    File f = File(current.path + '/$testFileName');
+    expect(f.name(), testFileName);
   });
 }

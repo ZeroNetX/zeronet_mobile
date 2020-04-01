@@ -877,7 +877,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       onPressed: () async {
                                         var file = await getPluginZipFile();
                                         Navigator.pop(context);
-                                        installPluginDialog(file,context);
+                                        installPluginDialog(file, context);
                                       },
                                       child: Text('Install'),
                                     ),
@@ -908,6 +908,8 @@ class PluginManager extends StatefulWidget {
 }
 
 class _PluginManagerState extends State<PluginManager> {
+  _reload() => this.mounted ? setState(() {}) : null;
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -916,13 +918,13 @@ class _PluginManagerState extends State<PluginManager> {
     Directory(pluginsPath).listSync().forEach((entity) {
       var pycacheDir = entity.path.endsWith('__pycache__');
       if (entity is Directory && !pycacheDir) {
-        print(entity.path);
+        printOut(entity.path);
         plugins.insert(0, entity.path.replaceAll(pluginsPath, ''));
       }
     });
     plugins.sort();
     return Container(
-      height: size.height,
+      height: size.height * 0.73,
       width: size.width,
       child: ListView.builder(
         itemCount: plugins.length,
@@ -944,7 +946,7 @@ class _PluginManagerState extends State<PluginManager> {
                   else
                     Directory(pluginsPath + plugins[i])
                         .renameSync(pluginsPath + 'disabled-' + plugins[i]);
-                  setState(() {});
+                  _reload();
                 },
                 value: !isDisabled,
               )
