@@ -10,8 +10,12 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
-import 'common.dart';
 import 'mobx/varstore.dart';
+import 'models.dart';
+import 'native.dart';
+import 'utils.dart';
+import 'common.dart';
+import 'constants.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -69,13 +73,15 @@ class Loading extends StatelessWidget {
             ),
             Observer(builder: (context) {
               var percent = varStore.loadingPercent;
-              return Text(
-                '($percent%)',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontStyle: FontStyle.italic,
-                ),
-              );
+              return (percent < 1)
+                  ? CircularProgressIndicator()
+                  : Text(
+                      '($percent%)',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    );
             }),
             Text(
               warning,
@@ -583,6 +589,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  _reload() => this.mounted ? setState(() {}) : null;
+
   @override
   Widget build(BuildContext context) {
     List wrapChildren = <Widget>[
@@ -613,11 +621,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             ZeroNet.instance.shutDown();
                             runZeroNet();
                           }
-                          setState(() {});
+                          _reload();
                         } else {
-                          setState(() {
-                            validUsername = false;
-                          });
+                          validUsername = false;
+                          _reload();
                         }
                       },
                     ),
@@ -667,7 +674,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 if (f.existsSync()) f.deleteSync();
                                 f.createSync();
                                 f.writeAsStringSync(file.readAsStringSync());
-                                setState(() {});
+                                _reload();
                                 try {
                                   ZeroNet.instance.shutDown();
                                 } catch (e) {
@@ -732,7 +739,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (file.existsSync()) {
                           file.renameSync(
                               getZeroNetDataDir().path + '/users.json');
-                          setState(() {});
+                          _reload();
                           ZeroNet.instance.shutDown();
                           runZeroNet();
                           Navigator.pop(context);
