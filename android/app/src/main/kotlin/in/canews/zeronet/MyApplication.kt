@@ -1,22 +1,13 @@
-//package `in`.canews.zeronet
-//
-//import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin
-//import io.flutter.app.FlutterApplication
-//import io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin
-//
-//
-//internal class MyApplication : FlutterApplication(){
-//
-//   override fun onCreate() {
-//       super.onCreate()
-//       FlutterLocalNotificationsPlugin.setPluginRegistrant {
-//           registry ->
-//           SharedPreferencesPlugin
-//                   .registerWith(
-//                   registry.registrarFor(
-//                           "io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin"
-//                   )
-//           )
-//       }
-//   }
-//}
+package `in`.canews.zeronet
+
+import android.content.Context
+import io.flutter.app.FlutterApplication
+import com.google.android.play.core.splitcompat.SplitCompat
+
+
+internal class MyApplication : FlutterApplication(){
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        SplitCompat.install(base)
+    }
+}

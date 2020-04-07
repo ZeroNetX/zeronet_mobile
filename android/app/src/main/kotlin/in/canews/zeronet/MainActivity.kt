@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import com.google.android.gms.common.ConnectionResult
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -20,6 +21,16 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.SplitInstallSessionState
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
+import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
+import io.flutter.plugin.common.JSONMessageCodec
 
 
 const val BATTERY_OPTIMISATION_RESULT_CODE = 1001
@@ -27,20 +38,39 @@ const val PICK_USERJSON_FILE = 1002
 const val SAVE_USERJSON_FILE = 1003
 const val PICK_ZIP_FILE = 1004
 const val TAG = "MainActivity"
+const val CHANNEL = "in.canews.zeronet"
+const val EVENT_CHANNEL = "in.canews.zeronet/installModules"
 
 class MainActivity : FlutterActivity() {
+
+    private var archName = ""
+    private var splitInstallManager: SplitInstallManager? = null
+    private lateinit var result: MethodChannel.Result
+    private var mSessionId = -1;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MethodChannel(flutterEngine?.dartExecutor, "in.canews.zeronet").setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "batteryOptimisations" -> getBatteryOptimizations(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
+                "initSplitInstall" -> {
+                    if (splitInstallManager == null)
+                        splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
+                    result.success(true)
+                }
+                "isModuleInstallSupported" -> result.success(isModuleInstallSupported())
+                "isRequiredModulesInstalled" -> result.success(isRequiredModulesInstalled())
+                "copyAssetsToCache" -> result.success(copyAssetsToCache())
                 "nativeDir" -> result.success(applicationInfo.nativeLibraryDir)
                 "openJsonFile" -> openJsonFile(result)
                 "openZipFile" -> openZipFile(result)
                 "readJsonFromUri" -> readJsonFromUri(call.arguments.toString(), result)
                 "readZipFromUri" -> readZipFromUri(call.arguments.toString(), result)
                 "saveUserJsonFile" -> saveUserJsonFile(this, call.arguments.toString(), result)
+                "nativePrint" -> {
+                    Log.e("Flutter>nativePrint()",call.arguments())
+                }
                 "moveTaskToBack" -> {
                     moveTaskToBack(true)
                     result.success(true)
@@ -51,6 +81,19 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
+        EventChannel(flutterEngine.dartExecutor, EVENT_CHANNEL).setStreamHandler(
+                object : StreamHandler {
+                    lateinit var events: EventChannel.EventSink;
+                    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                        getArchName()
+                        loadAndLaunchModule(archName, events)
+                    }
+
+                    override fun onCancel(arguments: Any?) {
+                        events.endOfStream()
+                    }
+                }
+        )
     }
 
     private fun isBatteryOptimized(result: MethodChannel.Result) {
@@ -63,8 +106,6 @@ class MainActivity : FlutterActivity() {
         }
 
     }
-
-    private lateinit var result: MethodChannel.Result
 
     @SuppressLint("BatteryLife")
     private fun getBatteryOptimizations(resultT: MethodChannel.Result) {
@@ -82,7 +123,11 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?
+    ) {
         if (requestCode == BATTERY_OPTIMISATION_RESULT_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 result.success(true)
@@ -115,7 +160,9 @@ class MainActivity : FlutterActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun openZipFile(resultT: MethodChannel.Result) =
+    private fun openZipFile(
+            resultT: MethodChannel.Result
+    ) =
             openFileIntent(
                     resultT,
                     Intent.ACTION_OPEN_DOCUMENT,
@@ -123,7 +170,9 @@ class MainActivity : FlutterActivity() {
                     PICK_ZIP_FILE
             )
 
-    private fun openJsonFile(resultT: MethodChannel.Result) =
+    private fun openJsonFile(
+            resultT: MethodChannel.Result
+    ) =
             openFileIntent(
                     resultT,
                     Intent.ACTION_OPEN_DOCUMENT,
@@ -131,7 +180,12 @@ class MainActivity : FlutterActivity() {
                     PICK_USERJSON_FILE
             )
 
-    private fun openFileIntent(resultT: MethodChannel.Result,intentAction : String,intentType : String,intentCode : Int){
+    private fun openFileIntent(
+            resultT: MethodChannel.Result,
+            intentAction: String,
+            intentType: String,
+            intentCode: Int
+    ) {
         val intent = Intent(intentAction).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = intentType
@@ -140,25 +194,35 @@ class MainActivity : FlutterActivity() {
         startActivityForResult(intent, intentCode)
     }
 
-    private fun readJsonFromUri(path: String, resultT: MethodChannel.Result) = copyFileToTempPath(path,resultT,"/users.json")
+    private fun readJsonFromUri(path: String, resultT: MethodChannel.Result) = copyFileToTempPath(path, resultT, "/users.json")
 
-    private fun readZipFromUri(path: String, resultT: MethodChannel.Result) = copyFileToTempPath(path,resultT,"/plugin.zip")
+    private fun readZipFromUri(path: String, resultT: MethodChannel.Result) = copyFileToTempPath(path, resultT, "/plugin.zip")
 
     @Throws(IOException::class)
-    private fun copyFileToTempPath(path: String, resultT: MethodChannel.Result, filename : String) {
+    private fun copyFileToTempPath(
+            path: String?,
+            resultT: MethodChannel.Result? = null,
+            filename: String,
+            inputStreamA: InputStream? = null
+    ) {
         var inputstream: InputStream? = null
-        if (path.startsWith("content://")) {
-            inputstream = contentResolver.openInputStream(Uri.parse(path))
-        } else if (path.startsWith("/")) {
-            inputstream = File(path).inputStream()
+        if (inputStreamA != null) {
+            inputstream = inputStreamA
+        } else {
+            if (path != null)
+                if (path.startsWith("content://")) {
+                    inputstream = contentResolver.openInputStream(Uri.parse(path))
+                } else if (path.startsWith("/")) {
+                    inputstream = File(path).inputStream()
+                }
         }
         inputstream.use { inputStream ->
-            val tempFilePath = cacheDir.path + filename
+            val tempFilePath = cacheDir.path + "/" + filename
             val tempFile = File(tempFilePath)
             if (tempFile.exists()) tempFile.delete()
             tempFile.createNewFile()
             inputStream?.toFile(tempFilePath)
-            resultT.success(File(tempFilePath).absoluteFile.absolutePath)
+            resultT?.success(File(tempFilePath).absoluteFile.absolutePath)
             tempFile.deleteOnExit()
         }
     }
@@ -187,4 +251,114 @@ class MainActivity : FlutterActivity() {
                 shareIntent, "Backup Users.json File"), SAVE_USERJSON_FILE)
         result = resultT
     }
+
+    private fun copyAssetsToCache(): Boolean {
+        getArchName()
+        try {
+            if (splitInstallManager?.installedModules!!.contains("common")) {
+                val list = listOf("zeronet_py3.zip", "site_packages_common.zip")
+                for (item in list) {
+                    getAssetFiles(item)
+                }
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName)) {
+                val list = listOf("python38_$archName.zip", "site_packages_$archName.zip", "tor_$archName.zip")
+                for (item in list) {
+                    getAssetFiles(item)
+                }
+            }
+        } catch (e: IOException) {
+            return false
+        }
+        return true
+    }
+
+    private fun getAssetFiles(fileName: String) {
+        val assetManager = createPackageContext(packageName, 0).assets
+        val assistContent = assetManager.open(fileName)
+        copyFileToTempPath(inputStreamA = assistContent, filename = fileName, path = null)
+    }
+
+    private fun isModuleInstallSupported(): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && isGooglePlayServicesAvailable(this)
+
+    private fun isGooglePlayServicesAvailable(activity: Activity?): Boolean {
+        val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+        if (status != ConnectionResult.SUCCESS) {
+            // if (googleApiAvailability.isUserResolvableError(status)) {
+            //     googleApiAvailability.getErrorDialog(activity, status, 2404).show()
+            // }
+            return false
+        }
+        return true
+    }
+
+    private fun getArchName() {
+        val arch = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Build.SUPPORTED_ABIS
+        } else {
+            TODO("VERSION.SDK_INT < LOLLIPOP")
+        }
+        if (archName.isEmpty())
+            archName = if (arch.contains("arm64-v8a")) {
+                "arm64"
+            } else if (arch.contains("armeabi-v7a")) {
+                "arm"
+            } else if (arch.contains("x86_64")) {
+                "x86_64"
+            } else {
+                "x86"
+            }
+    }
+
+    /**
+     * Load a feature by module name.
+     * @param name The name of the feature module to load.
+     */
+    private fun loadAndLaunchModule(name: String, eventSink: EventChannel.EventSink?) {
+        if (isModuleInstalled(name) == true)
+            return
+        val request = SplitInstallRequest.newBuilder()
+                .addModule("common")
+                .addModule(name)
+                .build()
+        splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
+            mSessionId = sessionId
+        }
+        splitInstallManager?.registerListener { state ->
+            if (state.sessionId() == mSessionId) {
+                when (state.status()) {
+                    SplitInstallSessionStatus.DOWNLOADING -> {
+                        val msg = """
+                            {
+                                "status" : ${state.status()},
+                                "downloaded" : ${state.bytesDownloaded()},
+                                "total" : ${state.totalBytesToDownload()}
+                            }
+                            """.trimIndent()
+                        eventSink?.success(msg)
+                    }
+                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
+                        startIntentSender(state.resolutionIntent()?.intentSender, null, 0, 0, 0)
+                    }
+                    else -> {
+                        val msg = """
+                            {
+                                "status" : ${state.status()}
+                            }
+                            """.trimIndent()
+                        eventSink?.success(msg)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun isModuleInstalled(name: String): Boolean? =
+            splitInstallManager?.installedModules?.contains(name)
+
+    private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
+            isModuleInstalled(archName) == true
 }

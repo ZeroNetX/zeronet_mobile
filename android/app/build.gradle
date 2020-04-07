@@ -36,6 +36,7 @@ if (keystorePropertiesFile.exists()) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'com.jeppeman.locallydynamic'
 
 android {
     compileSdkVersion 29
@@ -70,17 +71,17 @@ android {
 
         release {
             signingConfig signingConfigs.release
-            // ndk{
-            //    abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
-            // }
         }
 
         debug {
             applicationIdSuffix '.debug'
             signingConfig signingConfigs.release
+            locallyDynamic {
+                enabled = true
+                throttleDownloadBy = 1000
+            }
         }
     }
-}
     dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
 }
 
@@ -90,7 +91,12 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.gms:play-services-base:17.2.0'
+
+    debugImplementation 'com.jeppeman.locallydynamic:locallydynamic-debug:0.3'
+    releaseImplementation 'com.jeppeman.locallydynamic:locallydynamic:0.3'
+
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
