@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -377,7 +378,8 @@ check() async {
         } else {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
-            if (await isModuleInstallSupported()) {
+            //TODO: Remove kDebugMode once tested Fully for dynamic-feature-modules.
+            if (await isModuleInstallSupported() && kDebugMode) {
               await initSplitInstall();
               printOut(
                 'PlayStore Module Install Supported',
