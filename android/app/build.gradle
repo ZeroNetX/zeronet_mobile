@@ -81,6 +81,8 @@ android {
         }
     }
 }
+    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
+}
 
 flutter {
     source '../..'

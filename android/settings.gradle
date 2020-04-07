@@ -1,4 +1,9 @@
 include ':app'
+include ':arm64'
+include ':arm'
+include ':common'
+include ':x86'
+include ':x86_64'
 
 def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
 
