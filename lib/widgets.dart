@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -111,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   checkInitStatus() async {
     try {
-      String url = defZeroNetUrl + Utils.initialSites['ZeroHello']['url'];
+      String url = defZeroNetUrl + Utils.initialSites['ZeroMobile']['url'];
       String key = await ZeroNet.instance.getWrapperKey(url);
       zeroNetUrl = defZeroNetUrl;
       varStore.zeroNetWrapperKey = key;
@@ -177,15 +179,16 @@ class _MyHomePageState extends State<MyHomePage> {
               _reload();
             },
           ),
-        if (!viewBrowser && !viewSettings)
-          IconButton(
-            icon: Icon(Icons.content_paste),
-            onPressed: () {
-              showLog = !showLog;
-              setAppBarTitle();
-              _reload();
-            },
-          ),
+        if ((varStore.settings[enableZeroNetConsole] as ToggleSetting).value)
+          if (!viewBrowser && !viewSettings)
+            IconButton(
+              icon: Icon(Icons.content_paste),
+              onPressed: () {
+                showLog = !showLog;
+                setAppBarTitle();
+                _reload();
+              },
+            ),
         if (!viewBrowser && !viewSettings)
           IconButton(
             icon: Icon(Icons.open_in_browser),
@@ -778,6 +781,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Observer(
                             builder: (context) {
                               var map = varStore.settings;
+                              //TODO: Check this, if it is removing non toggle settings from settings file
                               map.removeWhere((e, w) => !(w is ToggleSetting));
                               return Switch(
                                 value:
@@ -833,6 +837,56 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ),
                                 onTap: () {},
                               )
+                      else if (key == pluginManager)
+                        Wrap(
+                          children: [
+                            GestureDetector(
+                              child: Chip(
+                                label: Text('Open Plugin Manager'),
+                              ),
+                              onTap: () {
+                                showDialogW(
+                                  context: context,
+                                  title: pluginManager,
+                                  body: PluginManager(),
+                                  actionOk: FlatButton(
+                                    onPressed: () {
+                                      ZeroNet.instance.shutDown();
+                                      runZeroNet();
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Restart'),
+                                  ),
+                                );
+                              },
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 8.0),
+                              child: GestureDetector(
+                                child: Chip(
+                                  label: Text('Load Plugin'),
+                                ),
+                                onTap: () {
+                                  showDialogW(
+                                    context: context,
+                                    title: 'Install a Plugin',
+                                    body: Text(
+                                        'This will load plugin to your ZeroNet repo, '
+                                        '\nWarning : Loading Unknown/Untrusted plugins may compromise ZeroNet Installation.'),
+                                    actionOk: FlatButton(
+                                      onPressed: () async {
+                                        var file = await getPluginZipFile();
+                                        Navigator.pop(context);
+                                        installPluginDialog(file,context);
+                                      },
+                                      child: Text('Install'),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        )
                   ],
                 ),
               ),
@@ -840,6 +894,64 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class PluginManager extends StatefulWidget {
+  const PluginManager({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _PluginManagerState createState() => _PluginManagerState();
+}
+
+class _PluginManagerState extends State<PluginManager> {
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    List<String> plugins = [];
+    var pluginsPath = zeroNetDir + '/plugins/';
+    Directory(pluginsPath).listSync().forEach((entity) {
+      var pycacheDir = entity.path.endsWith('__pycache__');
+      if (entity is Directory && !pycacheDir) {
+        print(entity.path);
+        plugins.insert(0, entity.path.replaceAll(pluginsPath, ''));
+      }
+    });
+    plugins.sort();
+    return Container(
+      height: size.height,
+      width: size.width,
+      child: ListView.builder(
+        itemCount: plugins.length,
+        itemBuilder: (ctx, i) {
+          final isDisabled = plugins[i].startsWith('disabled-');
+          final pluginName = isDisabled
+              ? plugins[i].replaceFirst('disabled-', '')
+              : plugins[i];
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(pluginName),
+              Switch(
+                onChanged: (value) {
+                  if (isDisabled)
+                    Directory(pluginsPath + plugins[i])
+                        .renameSync(pluginsPath + pluginName);
+                  else
+                    Directory(pluginsPath + plugins[i])
+                        .renameSync(pluginsPath + 'disabled-' + plugins[i]);
+                  setState(() {});
+                },
+                value: !isDisabled,
+              )
+            ],
+          );
+        },
+      ),
     );
   }
 }
