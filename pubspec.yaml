@@ -25,7 +25,10 @@ dependencies:
   path_provider: 1.6.5
   random_string: 2.0.1
   url_launcher: 5.2.7
-  flutter_webview_plugin: 0.3.10+1
+  flutter_webview_plugin: #0.3.11
+    git:
+      url: https://github.com/canewsin/flutter_webview_plugin
+      ref: fullscreen-support
   flutter_local_notifications: ^1.1.6
     # git:
     #   url: https://github.com/canewsin/flutter_local_notifications

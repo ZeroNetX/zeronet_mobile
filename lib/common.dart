@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -45,7 +44,8 @@ String browserUrl = 'https://google.com';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-String downloadLink(String item) => releases + 'Android_Binaries_New/$item.zip';
+String downloadLink(String item) =>
+    releases + 'Android_Module_Binaries/$item.zip';
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
 bool isZeroNetExists() => Directory(dataDir + '/ZeroNet-py3').existsSync();
 String downloadingMetaDir(String tempDir, String name, String key) =>
@@ -255,7 +255,7 @@ Process zero;
 printToConsole(Object object) {
   if (object is String) {
     if (!object.contains(startZeroNetLog)) {
-      if (appVersion.contains('beta')) print(object);
+      printOut(object);
       if (object.contains(uiServerLog)) {
         // var s = object.replaceAll(uiServerLog, '');
         int httpI = object.indexOf('Web interface: http');
@@ -378,8 +378,7 @@ check() async {
         } else {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
-            //TODO: Remove kDebugMode once tested Fully for dynamic-feature-modules.
-            if (await isModuleInstallSupported() && kDebugMode) {
+            if (await isModuleInstallSupported() && kEnableDynamicModules) {
               await initSplitInstall();
               printOut(
                 'PlayStore Module Install Supported',

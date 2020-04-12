@@ -162,7 +162,7 @@ void _unbindUnZipIsolate() {
 downloadBins() async {
   isDownloadExec = true;
 
-  if (!await isModuleInstallSupported()) if (tempDir != null && arch != null) {
+  if (tempDir != null && arch != null) {
     int t = 0;
     for (var item in files(arch)) {
       t = t + 2;
@@ -379,13 +379,10 @@ load() async {
 Future<bool> isZeroNetInstalled() async {
   bool isExists = false;
   for (var item in files(arch)) {
-    var i = binDirs.indexOf(item);
     File f = File(installedMetaDir(metaDir.path, item));
     var exists = f.existsSync();
     if (!exists) return Future.value(exists);
-    if (i == binDirs.length - 1) {
-      isExists = exists;
-    }
+    isExists = exists;
   }
   return isExists;
 }
@@ -509,7 +506,11 @@ shutDownZeronet() {
       ZeroNet.instance.shutDown();
     else {
       runZeroNetWs();
-      ZeroNet.instance.shutDown();
+      try {
+        ZeroNet.instance.shutDown();
+      } catch (e) {
+        printOut(e);
+      }
     }
     zeroNetUrl = '';
     varStore.setZeroNetStatus('Not Running');
@@ -563,8 +564,13 @@ String getZeroNetUsersFilePath() {
     if (exists) {
       return f.path;
     }
+    return zeroNetDir + '/data/users.json';
+  } else {
+    dataDir.createSync(recursive: true);
+    File f = File(dataDir.path + '/users.json');
+    f.createSync(recursive: true);
+    return f.path;
   }
-  return '';
 }
 
 Directory getZeroNetDataDir() => Directory(
@@ -585,7 +591,7 @@ List<String> getZeroNameProfiles() {
             var username =
                 name.replaceAll('users-', '').replaceAll('.json', '');
             list.add(username);
-            print(username);
+            printOut(username);
           }
         }
       }

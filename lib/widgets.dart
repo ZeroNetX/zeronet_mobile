@@ -150,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     JavascriptChannel(
       name: 'Print',
       onMessageReceived: (JavascriptMessage message) {
-        print(message.message);
+        printOut(message.message);
       },
     ),
   ].toSet();
@@ -669,7 +669,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ? null
                           : () async {
                               File f = File(getZeroNetUsersFilePath());
-                              print(f.path);
+                              printOut(f.path);
                               if (!isSameUser) {
                                 if (f.existsSync()) f.deleteSync();
                                 f.createSync();
@@ -678,7 +678,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 try {
                                   ZeroNet.instance.shutDown();
                                 } catch (e) {
-                                  print(e);
+                                  printOut(e);
                                 }
                                 runZeroNet();
                                 Navigator.pop(context);
