@@ -40,6 +40,9 @@ Future<bool> copyAssetsToCache() async =>
 Future<bool> initSplitInstall() async =>
     await _channel.invokeMethod('initSplitInstall');
 
+void uninstallModules() async =>
+    await _channel.invokeMethod('uninstallModules');
+
 void nativePrint(String log) => _channel.invokeMethod('nativePrint', log);
 
 getNativeDir() async => await _channel.invokeMethod('nativeDir');
