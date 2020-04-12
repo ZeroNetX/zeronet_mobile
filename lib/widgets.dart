@@ -766,6 +766,7 @@ class _SettingsPageState extends State<SettingsPage> {
       itemBuilder: (c, i) {
         var key = defSettings.keys.toList()[i];
         var map = defSettings;
+        if (firstTime && key == profileSwitcher) return Container();
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Card(
@@ -781,8 +782,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: <Widget>[
                         AutoSizeText(
                           map[key].name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                           maxLines: 1,
-                          maxFontSize: 18,
+                          minFontSize: 18,
+                          maxFontSize: 24,
                         ),
                         if (map[key] is ToggleSetting)
                           Observer(
@@ -883,8 +889,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                     actionOk: FlatButton(
                                       onPressed: () async {
                                         var file = await getPluginZipFile();
-                                        Navigator.pop(context);
-                                        installPluginDialog(file, context);
+                                        if (file != null) {
+                                          Navigator.pop(context);
+                                          installPluginDialog(file, context);
+                                        }
                                       },
                                       child: Text('Install'),
                                     ),

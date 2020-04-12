@@ -28,7 +28,7 @@ const String isolateDownloadPort = 'downloader_send_port';
 const String zeronetStartUpError = 'Startup error: ';
 const String zeronetAlreadyRunningError =
     zeronetStartUpError + 'Can\'t open lock file';
-const bool kEnableDynamicModules = false; //kDebugMode;
+const bool kEnableDynamicModules = !kDebugMode;
 
 const List<Color> colors = [
   Colors.cyan,

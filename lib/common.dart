@@ -86,15 +86,10 @@ Map<String, Setting> defSettings = {
       "all": [],
     },
   ),
-  vibrateOnZeroNetStart: ToggleSetting(
-    name: vibrateOnZeroNetStart,
-    description: vibrateOnZeroNetStartDes,
-    value: false,
-  ),
-  enableFullScreenOnWebView: ToggleSetting(
-    name: enableFullScreenOnWebView,
-    description: enableFullScreenOnWebViewDes,
-    value: false,
+  pluginManager: MapSetting(
+    name: pluginManager,
+    description: pluginManagerDes,
+    map: {},
   ),
   batteryOptimisation: ToggleSetting(
     name: batteryOptimisation,
@@ -104,6 +99,16 @@ Map<String, Setting> defSettings = {
   publicDataFolder: ToggleSetting(
     name: publicDataFolder,
     description: publicDataFolderDes,
+    value: false,
+  ),
+  vibrateOnZeroNetStart: ToggleSetting(
+    name: vibrateOnZeroNetStart,
+    description: vibrateOnZeroNetStartDes,
+    value: false,
+  ),
+  enableFullScreenOnWebView: ToggleSetting(
+    name: enableFullScreenOnWebView,
+    description: enableFullScreenOnWebViewDes,
     value: false,
   ),
   autoStartZeroNet: ToggleSetting(
@@ -125,11 +130,6 @@ Map<String, Setting> defSettings = {
     name: enableZeroNetConsole,
     description: enableZeroNetConsoleDes,
     value: false,
-  ),
-  pluginManager: MapSetting(
-    name: pluginManager,
-    description: pluginManagerDes,
-    map: {},
   ),
 };
 
