@@ -42,11 +42,11 @@ lib/generated_plugin_registrant.dart
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
 # Android related
-**/android/**/gradle-wrapper.jar
+# **/android/**/gradle-wrapper.jar
 **/android/.gradle
 **/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
+# **/android/gradlew
+# **/android/gradlew.bat
 **/android/local.properties
 **/android/key.properties
 **/android/**/GeneratedPluginRegistrant.java

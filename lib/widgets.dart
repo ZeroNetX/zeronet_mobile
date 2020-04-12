@@ -10,8 +10,12 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
-import 'common.dart';
 import 'mobx/varstore.dart';
+import 'models.dart';
+import 'native.dart';
+import 'utils.dart';
+import 'common.dart';
+import 'constants.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -69,13 +73,15 @@ class Loading extends StatelessWidget {
             ),
             Observer(builder: (context) {
               var percent = varStore.loadingPercent;
-              return Text(
-                '($percent%)',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontStyle: FontStyle.italic,
-                ),
-              );
+              return (percent < 1)
+                  ? CircularProgressIndicator()
+                  : Text(
+                      '($percent%)',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    );
             }),
             Text(
               warning,
@@ -144,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     JavascriptChannel(
       name: 'Print',
       onMessageReceived: (JavascriptMessage message) {
-        print(message.message);
+        printOut(message.message);
       },
     ),
   ].toSet();
@@ -583,6 +589,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  _reload() => this.mounted ? setState(() {}) : null;
+
   @override
   Widget build(BuildContext context) {
     List wrapChildren = <Widget>[
@@ -613,11 +621,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             ZeroNet.instance.shutDown();
                             runZeroNet();
                           }
-                          setState(() {});
+                          _reload();
                         } else {
-                          setState(() {
-                            validUsername = false;
-                          });
+                          validUsername = false;
+                          _reload();
                         }
                       },
                     ),
@@ -662,16 +669,16 @@ class _SettingsPageState extends State<SettingsPage> {
                           ? null
                           : () async {
                               File f = File(getZeroNetUsersFilePath());
-                              print(f.path);
+                              printOut(f.path);
                               if (!isSameUser) {
                                 if (f.existsSync()) f.deleteSync();
                                 f.createSync();
                                 f.writeAsStringSync(file.readAsStringSync());
-                                setState(() {});
+                                _reload();
                                 try {
                                   ZeroNet.instance.shutDown();
                                 } catch (e) {
-                                  print(e);
+                                  printOut(e);
                                 }
                                 runZeroNet();
                                 Navigator.pop(context);
@@ -732,7 +739,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (file.existsSync()) {
                           file.renameSync(
                               getZeroNetDataDir().path + '/users.json');
-                          setState(() {});
+                          _reload();
                           ZeroNet.instance.shutDown();
                           runZeroNet();
                           Navigator.pop(context);
@@ -759,6 +766,7 @@ class _SettingsPageState extends State<SettingsPage> {
       itemBuilder: (c, i) {
         var key = defSettings.keys.toList()[i];
         var map = defSettings;
+        if (firstTime && key == profileSwitcher) return Container();
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Card(
@@ -774,8 +782,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: <Widget>[
                         AutoSizeText(
                           map[key].name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                           maxLines: 1,
-                          maxFontSize: 18,
+                          minFontSize: 18,
+                          maxFontSize: 24,
                         ),
                         if (map[key] is ToggleSetting)
                           Observer(
@@ -876,8 +889,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                     actionOk: FlatButton(
                                       onPressed: () async {
                                         var file = await getPluginZipFile();
-                                        Navigator.pop(context);
-                                        installPluginDialog(file, context);
+                                        if (file != null) {
+                                          Navigator.pop(context);
+                                          installPluginDialog(file, context);
+                                        }
                                       },
                                       child: Text('Install'),
                                     ),

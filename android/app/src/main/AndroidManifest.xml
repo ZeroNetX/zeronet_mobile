@@ -13,6 +13,7 @@
 
 <!--    android:name=".MyApplication"-->
     <application
+        android:name=".MyApplication"
         android:label="ZeroNet"
         android:usesCleartextTraffic="true"
         android:extractNativeLibs="true"
