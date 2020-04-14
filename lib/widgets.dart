@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:share/share.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'mobx/varstore.dart';
@@ -112,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
       viewSettings = true;
       makeExecHelper();
     }
+    flutterWebViewPlugin.onUrlChanged.listen((newUrl) => browserUrl = newUrl);
     super.initState();
   }
 
@@ -256,6 +258,10 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => Share.share(browserUrl),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios),
                     onPressed: () {
@@ -621,6 +627,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ZeroNet.instance.shutDown();
                             runZeroNet();
                           }
+                          username = '';
                           _reload();
                         } else {
                           validUsername = false;
@@ -989,7 +996,11 @@ class _ProfileSwitcherUserNameEditTextState
 
   @override
   void initState() {
-    _controller.text = getZeroIdUserName();
+    final usrName = getZeroIdUserName();
+    _controller.text = usrName;
+    if (usrName.isNotEmpty) {
+      username = usrName;
+    }
     super.initState();
   }
 
