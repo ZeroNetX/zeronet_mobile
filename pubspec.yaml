@@ -24,6 +24,7 @@ dependencies:
   package_info: 0.4.0+16
   path_provider: 1.6.5
   random_string: 2.0.1
+  share: 0.6.3+6
   url_launcher: 5.2.7
   flutter_webview_plugin: #0.3.11
     git:
