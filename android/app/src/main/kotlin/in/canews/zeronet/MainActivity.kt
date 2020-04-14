@@ -59,6 +59,7 @@ class MainActivity : FlutterActivity() {
                         splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
                     result.success(true)
                 }
+                "uninstallModules" -> uninstallModules()
                 "isModuleInstallSupported" -> result.success(isModuleInstallSupported())
                 "isRequiredModulesInstalled" -> result.success(isRequiredModulesInstalled())
                 "copyAssetsToCache" -> result.success(copyAssetsToCache())
@@ -361,4 +362,12 @@ class MainActivity : FlutterActivity() {
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
             isModuleInstalled(archName) == true
+
+    private fun uninstallModules() {
+        val installedModules = splitInstallManager?.installedModules?.toList()
+        splitInstallManager?.deferredUninstall(installedModules)?.addOnSuccessListener {
+            Log.d("SplitModuleUninstall:>:","Uninstalling $installedModules")
+        }
+        context.cacheDir.deleteRecursively()
+    }
 }

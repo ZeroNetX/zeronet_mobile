@@ -150,6 +150,7 @@ bindUnZipIsolate() {
     if (percentUnZip == nooffiles * 100) {
       printOut('Installation Completed', isNative: true);
       makeExecHelper();
+      uninstallModules();
       check();
     }
   });
