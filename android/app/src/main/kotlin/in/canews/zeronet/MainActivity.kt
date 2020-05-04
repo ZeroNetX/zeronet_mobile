@@ -31,6 +31,7 @@ import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.JSONMessageCodec
+import java.lang.IllegalStateException
 
 
 const val BATTERY_OPTIMISATION_RESULT_CODE = 1001
@@ -131,20 +132,20 @@ class MainActivity : FlutterActivity() {
     ) {
         if (requestCode == BATTERY_OPTIMISATION_RESULT_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                result.success(true)
+                resultSuccess(true)
             } else {
-                result.success(false)
+                resultSuccess(false)
             }
         } else if (requestCode == SAVE_USERJSON_FILE) {
             if (resultCode == Activity.RESULT_OK) {
-                result.success("successfully saved users.json file")
+                resultSuccess("successfully saved users.json file")
             } else {
-                result.success("failed to save file")
+                resultSuccess("failed to save file")
             }
         } else if (requestCode == PICK_USERJSON_FILE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data?.data != null) {
-                    result.success(data.data.toString())
+                    resultSuccess(data.data.toString())
                 }
             } else {
                 result.error("526", "Error Picking User Json File", "Error Picking User Json File")
@@ -152,13 +153,21 @@ class MainActivity : FlutterActivity() {
         } else if (requestCode == PICK_ZIP_FILE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data?.data != null) {
-                    result.success(data.data.toString())
+                    resultSuccess(data.data.toString())
                 }
             } else {
                 result.error("527", "Error Picking Plugin File", "Error Picking Plugin File")
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun resultSuccess(msg : Any) {
+        result.success(msg).runCatching{}.onFailure {
+            if (it is IllegalStateException) {
+                Log.e("MainActivity>resultSuc>", it.message)
+            }
+        }
     }
 
     private fun openZipFile(
