@@ -14,6 +14,7 @@ import 'package:zeronet/native.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'common.dart';
+import 'extensions.dart';
 import 'constants.dart';
 import 'mobx/varstore.dart';
 import 'models.dart';
@@ -495,6 +496,11 @@ runZeroNet() {
     } else {
       //TODO: Improve Error Trace here
       printToConsole('Python Binary Not Found');
+      var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
+      for (var item in contents) {
+        printToConsole(item.name());
+        printToConsole(item.path);
+      }
     }
   } else {
     shutDownZeronet();

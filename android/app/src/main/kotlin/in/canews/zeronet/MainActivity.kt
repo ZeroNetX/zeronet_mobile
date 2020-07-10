@@ -323,6 +323,7 @@ class MainActivity : FlutterActivity() {
             return
         val request = SplitInstallRequest.newBuilder()
                 .addModule("common")
+                .addModule("nativelibs")
                 .addModule(name)
                 .build()
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
@@ -361,11 +362,12 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
+            isModuleInstalled("nativelibs") == true &&
             isModuleInstalled(archName) == true
 
     private fun uninstallModules() {
         val installedModules = splitInstallManager?.installedModules?.toList()
-        splitInstallManager?.deferredUninstall(installedModules)?.addOnSuccessListener {
+        splitInstallManager?.deferredUninstall(listOf("common",archName))?.addOnSuccessListener {
             Log.d("SplitModuleUninstall:>:","Uninstalling $installedModules")
         }
         context.cacheDir.deleteRecursively()
