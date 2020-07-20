@@ -14,24 +14,20 @@ import androidx.annotation.NonNull
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
+import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.play.core.splitinstall.SplitInstallManager
-import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
-import com.google.android.play.core.splitinstall.SplitInstallRequest
-import com.google.android.play.core.splitinstall.SplitInstallSessionState
-import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
-import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
-import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.EventChannel.StreamHandler
-import io.flutter.plugin.common.JSONMessageCodec
-import java.lang.IllegalStateException
 
 
 const val BATTERY_OPTIMISATION_RESULT_CODE = 1001
@@ -55,6 +51,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "batteryOptimisations" -> getBatteryOptimizations(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
+                "isPlayStoreInstall" -> result.success(isPlayStoreInstall(this))
                 "initSplitInstall" -> {
                     if (splitInstallManager == null)
                         splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
@@ -96,6 +93,17 @@ class MainActivity : FlutterActivity() {
                     }
                 }
         )
+    }
+
+    private fun isPlayStoreInstall(context: Context): Boolean {
+        // A list with valid installers package name
+        val validInstallers: List<String> = listOf("com.android.vending", "com.google.android.feedback")
+
+        // The package name of the app that has installed your app
+        val installer = context.packageManager.getInstallerPackageName(context.packageName)
+
+        // true if your app has been downloaded from Play Store
+        return installer != null && validInstallers.contains(installer)
     }
 
     private fun isBatteryOptimized(result: MethodChannel.Result) {

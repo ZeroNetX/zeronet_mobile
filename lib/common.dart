@@ -378,7 +378,9 @@ check() async {
         } else {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
-            if (await isModuleInstallSupported() && kEnableDynamicModules) {
+            if (await isModuleInstallSupported() &&
+                kEnableDynamicModules &&
+                await isPlayStoreInstall()) {
               await initSplitInstall();
               printOut(
                 'PlayStore Module Install Supported',
