@@ -43,7 +43,7 @@ class MainActivity : FlutterActivity() {
     private var archName = ""
     private var splitInstallManager: SplitInstallManager? = null
     private lateinit var result: MethodChannel.Result
-    private var mSessionId = -1;
+    private var mSessionId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +82,7 @@ class MainActivity : FlutterActivity() {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
         EventChannel(flutterEngine.dartExecutor, EVENT_CHANNEL).setStreamHandler(
                 object : StreamHandler {
-                    lateinit var events: EventChannel.EventSink;
+                    lateinit var events: EventChannel.EventSink
                     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                         getArchName()
                         loadAndLaunchModule(archName, events)
@@ -96,13 +96,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun isPlayStoreInstall(context: Context): Boolean {
-        // A list with valid installers package name
         val validInstallers: List<String> = listOf("com.android.vending", "com.google.android.feedback")
-
-        // The package name of the app that has installed your app
         val installer = context.packageManager.getInstallerPackageName(context.packageName)
 
-        // true if your app has been downloaded from Play Store
         return installer != null && validInstallers.contains(installer)
     }
 
