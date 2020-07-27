@@ -19,6 +19,9 @@ const EventChannel _events_channel =
 Future<bool> askBatteryOptimisation() async =>
     await _channel.invokeMethod('batteryOptimisations');
 
+Future<bool> isPlayStoreInstall() async =>
+    await _channel.invokeMethod('isPlayStoreInstall');
+
 Future<bool> isBatteryOptimised() async =>
     await _channel.invokeMethod('isBatteryOptimized');
 
