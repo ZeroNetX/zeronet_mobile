@@ -1,6 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../mobx/varstore.dart';
+import '../others/common.dart';
+import '../others/constants.dart';
+import '../others/native.dart';
+import '../others/zeronet_utils.dart';
+
 abstract class Setting {
   String name;
   String description;
@@ -45,6 +51,28 @@ class ToggleSetting extends Setting {
       name: map['name'],
       description: map['description'],
       value: map['value'],
+    );
+  }
+
+  void onChanged(bool value) async {
+    var map = varStore.settings;
+    var key = this.name;
+    (map[this.name] as ToggleSetting)..value = value;
+    Map<String, Setting> m = {};
+    map.keys.forEach((k) {
+      m[k] = map[k];
+    });
+    if (key == batteryOptimisation && value) {
+      final isOptimised = await isBatteryOptimised();
+      (m[key] as ToggleSetting)
+        ..value = (!isOptimised) ? await askBatteryOptimisation() : true;
+    } else if (key == publicDataFolder) {
+      String str = 'data_dir = ${value ? appPrivDir.path : zeroNetDir}/data';
+      writeZeroNetConf(str);
+    }
+    saveSettings(m);
+    varStore.updateSetting(
+      (map[key] as ToggleSetting)..value = (m[key] as ToggleSetting).value,
     );
   }
 }

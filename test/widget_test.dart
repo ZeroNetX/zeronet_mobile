@@ -10,8 +10,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:zeronet/widgets.dart';
-import 'package:zeronet/extensions.dart';
+import 'package:zeronet/widgets/my_app.dart';
+import 'package:zeronet/others/extensions.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

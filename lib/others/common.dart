@@ -10,12 +10,13 @@ import 'package:http/http.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zeronet/utils.dart';
 
-import 'mobx/varstore.dart';
+import '../mobx/varstore.dart';
+import '../models/models.dart';
 import 'constants.dart';
-import 'models.dart';
 import 'native.dart';
+import 'utils.dart';
+import 'zeronet_utils.dart';
 
 Directory appPrivDir;
 Directory tempDir;
@@ -147,26 +148,6 @@ Future<File> pickPluginZipFile() async {
     fileExtension: 'zip',
   );
   return file;
-}
-
-String getZeroIdUserName() {
-  File file = File(getZeroNetUsersFilePath());
-  Map map = json.decode(file.readAsStringSync());
-  var key = map.keys.first;
-  Map certMap = map[key]['certs'];
-  var certs = [];
-  if (certMap.keys.length < 1)
-    return '';
-  else {
-    for (var cert in certMap.keys) {
-      certs.add(cert);
-      var t = certMap[cert];
-      if (t != null) {
-        return certMap[cert]['auth_user_name'] ?? '';
-      }
-    }
-  }
-  return '';
 }
 
 Future<void> backUpUserJsonFile(BuildContext context) async {

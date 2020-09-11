@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:zeronet/models.dart';
+import 'package:zeronet/models/models.dart';
 
 // Include generated file
 part 'varstore.g.dart';
