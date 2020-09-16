@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import '../mobx/varstore.dart';
@@ -9,6 +10,36 @@ import '../others/utils.dart';
 import 'common.dart';
 import 'constants.dart';
 import 'extensions.dart';
+import 'native.dart';
+
+checkInitStatus() async {
+  try {
+    String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
+    String key = await ZeroNet.instance.getWrapperKey(url);
+    zeroNetUrl = defZeroNetUrl;
+    varStore.zeroNetWrapperKey = key;
+    // varStore.setZeroNetStatus('Running');
+    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+    ZeroNet.instance.connect(
+      zeroNetIPwithPort(defZeroNetUrl),
+      Utils.urlHello,
+    );
+    showZeroNetRunningNotification(enableVibration: false);
+    testUrl();
+  } catch (e) {
+    if (!firstTime &&
+        (varStore.settings[autoStartZeroNet] as ToggleSetting).value == true) {
+      //TODO: Remember this!
+      runZeroNet();
+    }
+    if (e is OSError) {
+      if (e.errorCode == 111) {
+        printToConsole('Zeronet Not Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
+      }
+    }
+  }
+}
 
 runTorEngine() {
   final tor = zeroNetNativeDir + '/libtor.so';
@@ -29,14 +60,16 @@ runTorEngine() {
         printOut(e.toString());
       }
     });
-  } else
+  } else {
     //TODO: Improve Error Trace here
     printToConsole('Tor Binary Not Found');
+    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+  }
 }
 
 runZeroNet() {
-  if (varStore.zeroNetStatus == 'Not Running') {
-    varStore.setZeroNetStatus('Initialising...');
+  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+    uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     runTorEngine();
     log = '';
     printToConsole(logRunning);
@@ -69,11 +102,12 @@ runZeroNet() {
         if (e is ProcessException) {
           printOut(e.toString());
         }
-        varStore.setZeroNetStatus('Not Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
       });
     } else {
       //TODO: Improve Error Trace here
       printToConsole('Python Binary Not Found');
+      uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
       var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
       for (var item in contents) {
         printToConsole(item.name());
@@ -86,7 +120,7 @@ runZeroNet() {
 }
 
 shutDownZeronet() {
-  if (varStore.zeroNetStatus == 'Running') {
+  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
@@ -98,7 +132,7 @@ shutDownZeronet() {
       }
     }
     zeroNetUrl = '';
-    varStore.setZeroNetStatus('Not Running');
+    uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
     flutterLocalNotificationsPlugin.cancelAll();
   }
 }
@@ -185,6 +219,7 @@ List<String> getZeroNameProfiles() {
 
 String getZeroIdUserName() {
   File file = File(getZeroNetUsersFilePath());
+  if (!file.existsSync()) return '';
   Map map = json.decode(file.readAsStringSync());
   var key = map.keys.first;
   Map certMap = map[key]['certs'];
@@ -201,4 +236,9 @@ String getZeroIdUserName() {
     }
   }
   return '';
+}
+
+bool isZiteExitsLocally(String address) {
+  String path = getZeroNetDataDir().path + '/$address';
+  return Directory(path).existsSync();
 }

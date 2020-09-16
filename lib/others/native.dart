@@ -67,15 +67,22 @@ void handleModuleDownloadStatus() {
 String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
-  if (deviceInfo.version.sdkInt > 28) {
-    uri = await _channel.invokeMethod('openJsonFile');
-    filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
-  } else {
-    uri = (await pickUserJsonFile()).path;
-    filePath = uri;
+  try {
+    if (deviceInfo.version.sdkInt > 28) {
+      uri = await _channel.invokeMethod('openJsonFile');
+      filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
+    } else {
+      uri = (await pickUserJsonFile()).path;
+      filePath = uri;
+    }
+    String path = await _channel.invokeMethod('readJsonFromUri', uri);
+    return File(path);
+  } catch (e) {
+    if (e is PlatformException && e.code == '526') {
+      return null;
+    }
+    return null;
   }
-  String path = await _channel.invokeMethod('readJsonFromUri', uri);
-  return File(path);
 }
 
 Future<File> getPluginZipFile() async {
