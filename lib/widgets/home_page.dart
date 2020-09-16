@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share/share.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/models/models.dart';
@@ -341,13 +342,16 @@ class SiteDetailsSheet extends StatelessWidget {
                     Icons.share,
                     color: Color(0xFF5A53FF),
                   ),
-                  onPressed: () {},
+                  onPressed: () => Share.share(Utils.initialSites[name]['url']),
                 ),
                 RaisedButton(
                   color: Color(0xFF009764),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
-                  onPressed: () {},
+                  onPressed: () {
+                    browserUrl = zeroNetUrl + Utils.initialSites[name]['url'];
+                    uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                  },
                   child: Text(
                     isZiteExists ? 'OPEN' : 'DOWNLOAD',
                     maxLines: 1,
@@ -396,7 +400,9 @@ class SiteDetailsSheet extends StatelessWidget {
                 color: Color(0xFF517184),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
+                onPressed: () {
+                  uiStore.updateCurrentAppRoute(AppRoute.LogPage);
+                },
                 child: Text(
                   'Show Log',
                   maxLines: 1,
@@ -412,7 +418,9 @@ class SiteDetailsSheet extends StatelessWidget {
                 color: Color(0xFF009793),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
+                onPressed: () {
+                  //TODO: Implement this function;
+                },
                 child: Text(
                   'Pause',
                   maxLines: 1,
@@ -428,7 +436,9 @@ class SiteDetailsSheet extends StatelessWidget {
                 color: Color(0xFFBB4848),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
+                onPressed: () {
+                  //TODO: Implement this function;
+                },
                 child: Text(
                   'Delete Zite',
                   maxLines: 1,
