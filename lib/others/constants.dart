@@ -99,10 +99,15 @@ class Utils {
   static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
   static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
   static const String urlTalk = 'Talk.ZeroNetwork.bit';
+  static const String btcUrlTalk = '1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT';
   static const String urlBlog = 'Blog.ZeroNetwork.bit';
+  static const String btcUrlBlog = '1BLogC9LN4oPDcruNz3qo1ysa133E9AGg8';
   static const String urlMail = 'Mail.ZeroNetwork.bit';
+  static const String btcUrlMail = '1MaiL5gfBM1cyb4a8e3iiL8L5gXmoAJu27';
   static const String urlMe = 'Me.ZeroNetwork.bit';
+  static const String btcUrlMe = '1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH';
   static const String urlSites = 'Sites.ZeroNetwork.bit';
+  static const String btcUrlSites = '1SiTEs2D3rCBxeMoLHXei2UYqFcxctdwB';
 
   static const initialSites = const {
     'ZeroHello': {
@@ -112,6 +117,7 @@ class Utils {
           'and Stats like Total Requests sent and received from other peers on ZeroNet. ' +
           'You can also pause, clone or favourite, delete Zites from single page.',
       'url': urlHello,
+      'btcAddress': urlHello,
     },
     'ZeroNetMobile': {
       'description': 'Forum to report ZeroNet Mobile app issues. ' +
@@ -121,6 +127,7 @@ class Utils {
           'Want to Discuss any topic about app development ? ' +
           'Just dive into to this Zite.',
       'url': urlZeroNetMob,
+      'btcAddress': urlZeroNetMob,
     },
     'ZeroTalk': {
       'description': 'Need a forum to discuss something, ' +
@@ -129,6 +136,7 @@ class Utils {
           'Have some queries ? don\'t hesitate to ask here.' +
           'Tired of Spam ? Who don\'t! You can mute individual users also.',
       'url': urlTalk,
+      'btcAddress': btcUrlTalk,
     },
     'ZeroBlog': {
       'description': 'Want to Know Where ZeroNet is Going ? ' +
@@ -138,6 +146,7 @@ class Utils {
           'Also Provides varies links to ZeroNet Protocol and ' +
           'how ZeroNet works underhood and much more things to know.',
       'url': urlBlog,
+      'btcAddress': btcUrlBlog,
     },
     'ZeroMail': {
       'description': 'So you need a mail service, use ZeroMail, ' +
@@ -146,6 +155,7 @@ class Utils {
           'all your data is encrypted and can only opened by you. ' +
           'Your all mails are backedup, so you can stay calm for your data.',
       'url': urlMail,
+      'btcAddress': btcUrlMail,
     },
     'ZeroMe': {
       'description': 'Social Network is everywhere, so we made one here too. ' +
@@ -153,6 +163,7 @@ class Utils {
           'Follow others and post your thoughts, like, comment on others posts, it\'s that easy-peasy. ' +
           'Find Like minded people and increase your friend circle beyond the borders.',
       'url': urlMe,
+      'btcAddress': btcUrlMe,
     },
     'ZeroSites': {
       'description': 'Want to know more sites on ZeroNet, ' +
@@ -161,6 +172,7 @@ class Utils {
           'You can even filter those lists with your preferred language ' +
           'to get more comprehensive list. Has a New Site to Show, Just Submit here.',
       'url': urlSites,
+      'btcAddress': btcUrlSites,
     },
   };
 

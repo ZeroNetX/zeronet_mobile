@@ -201,7 +201,9 @@ class SiteDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isZiteExists = isZiteExitsLocally(Utils.initialSites[name]['url']);
+    bool isZiteExists = isZiteExitsLocally(
+      Utils.initialSites[name]['btcAddress'],
+    );
     return Card(
       shadowColor: Color(0x52000000),
       elevation: 8.0,
@@ -312,7 +314,9 @@ class SiteDetailsSheet extends StatelessWidget {
         ),
       );
     } catch (e) {}
-    bool isZiteExists = isZiteExitsLocally(Utils.initialSites[name]['url']);
+    bool isZiteExists = isZiteExitsLocally(
+      Utils.initialSites[name]['btcAddress'],
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

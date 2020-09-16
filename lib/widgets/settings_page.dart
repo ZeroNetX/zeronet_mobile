@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zeronet/mobx/varstore.dart';
 import 'package:zeronet/models/models.dart';
+import 'package:zeronet/others/common.dart';
 import 'package:zeronet/others/constants.dart';
+import 'package:zeronet/others/zeronet_utils.dart';
+import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'common.dart';
 import 'home_page.dart';
@@ -203,6 +208,43 @@ class SettingsCard extends StatelessWidget {
                       ),
                     );
                   });
+                  if ((setting as MapSetting).name == profileSwitcher)
+                    getZeroNameProfiles().forEach((profile) {
+                      children.insert(
+                        0,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(24.0),
+                          splashColor: Color(0xFF5380FF),
+                          onTap: () {
+                            showDialogW(
+                              context: context,
+                              title: 'Switch Profile to $profile ?',
+                              body: Text(
+                                'this will delete the existing profile, '
+                                'backup existing profile using backup button below',
+                              ),
+                              actionOk:
+                                  profileSwitcherActionOk(profile, context),
+                            );
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 3.0, right: 3.0),
+                            child: Chip(
+                              elevation: 2.0,
+                              label: Text(
+                                profile,
+                                maxLines: 1,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
                   return Wrap(
                     children: children,
                   );
@@ -211,6 +253,36 @@ class SettingsCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Row profileSwitcherActionOk(String profile, BuildContext context) {
+    return Row(
+      children: <Widget>[
+        FlatButton(
+          onPressed: () {
+            File f = File(getZeroNetUsersFilePath());
+            if (f.existsSync()) {
+              f.deleteSync();
+            }
+            File file = File(getZeroNetDataDir().path + '/users-$profile.json');
+            if (file.existsSync()) {
+              file.renameSync(getZeroNetDataDir().path + '/users.json');
+              // _reload();
+              ZeroNet.instance.shutDown();
+              runZeroNet();
+              Navigator.pop(context);
+            }
+          },
+          child: Text(
+            'Switch',
+          ),
+        ),
+        FlatButton(
+          child: Text('Backup'),
+          onPressed: () => backUpUserJsonFile(context),
+        ),
+      ],
     );
   }
 }
