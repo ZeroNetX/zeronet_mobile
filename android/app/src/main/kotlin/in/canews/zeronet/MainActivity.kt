@@ -2,6 +2,7 @@ package `in`.canews.zeronet
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -13,6 +14,9 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.splitinstall.SplitInstallManager
@@ -44,11 +48,18 @@ class MainActivity : FlutterActivity() {
     private var splitInstallManager: SplitInstallManager? = null
     private lateinit var result: MethodChannel.Result
     private var mSessionId = -1
+    private var mLaunchShortcutUrl = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var intent = intent;
+        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null){
+            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
+        }
         MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
+                "addToHomeScreen" -> addShortcutToHomeScreen(context, result,call.argument("title"),call.argument("url"))
+                "launchZiteUrl" -> result.success(mLaunchShortcutUrl)
                 "batteryOptimisations" -> getBatteryOptimizations(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
                 "isPlayStoreInstall" -> result.success(isPlayStoreInstall(this))
@@ -93,6 +104,32 @@ class MainActivity : FlutterActivity() {
                     }
                 }
         )
+    }
+
+    private fun addShortcutToHomeScreen(context: Context,mResult: MethodChannel.Result,title:String?,url:String?) {
+        if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+            val shortcutInfo: ShortcutInfoCompat = ShortcutInfoCompat.Builder(context, title.toString())
+                    .setIntent(
+                            Intent(context, MainActivity::class.java)
+                                    .setAction(Intent.ACTION_MAIN)
+                                    .putExtra(
+                                            "LAUNCH_SHORTCUT_URL",
+                                            url
+                                    )
+                    )
+                    .setShortLabel(title.toString())
+                    .setIcon(IconCompat.createWithResource(context, R.drawable.app_icon))
+                    .build()
+            val shortcutCallbackIntent: PendingIntent = PendingIntent.getBroadcast(context,
+                    0,
+                    Intent(context, MainActivity::class.java)
+                            .putExtra("SHORTCUT_ADDED",true),
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+            ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, shortcutCallbackIntent.intentSender)
+            mResult.success(true)
+        } else {
+            // Shortcut is not supported by your launcher
+        }
     }
 
     private fun isPlayStoreInstall(context: Context): Boolean {

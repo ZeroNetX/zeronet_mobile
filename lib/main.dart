@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/mobx/varstore.dart';
+import 'package:zeronet/others/native.dart';
 import 'package:zeronet/widgets/home_page.dart';
 import 'package:zeronet/widgets/loading_page.dart';
 import 'package:zeronet/widgets/log_page.dart';
@@ -17,6 +18,7 @@ import 'others/utils.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
+  launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
 
@@ -45,6 +47,13 @@ class MyApp extends StatelessWidget {
               if (firstTime) {
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
+              }
+              if (launchUrl.isNotEmpty) {
+                browserUrl = (zeroNetUrl.isEmpty
+                        ? "http://127.0.0.1:43110/"
+                        : zeroNetUrl) +
+                    launchUrl;
+                uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
               }
               return Observer(
                 builder: (ctx) {

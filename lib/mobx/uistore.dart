@@ -15,6 +15,14 @@ class UiStore = _UiStore with _$UiStore;
 // The store-class
 abstract class _UiStore with Store {
   @observable
+  bool showSnackReply = false;
+
+  @action
+  void updateShowSnackReply(bool show) {
+    showSnackReply = show;
+  }
+
+  @observable
   SiteInfo currentSiteInfo = SiteInfo();
 
   @action

@@ -15,6 +15,15 @@ const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
 const EventChannel _events_channel =
     const EventChannel('in.canews.zeronet/installModules');
 
+Future<bool> addToHomeScreen(String title, String url) async =>
+    await _channel.invokeMethod('addToHomeScreen', {
+      'title': title,
+      'url': url,
+    });
+
+Future<String> launchZiteUrl() async =>
+    await _channel.invokeMethod('launchZiteUrl');
+
 Future<bool> askBatteryOptimisation() async =>
     await _channel.invokeMethod('batteryOptimisations');
 

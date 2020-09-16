@@ -38,6 +38,7 @@ var zeroNetState = state.NONE;
 Client client = Client();
 String arch;
 String zeroNetUrl = '';
+String launchUrl = '';
 String zeroNetNativeDir = '';
 String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
