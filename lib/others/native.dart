@@ -5,12 +5,11 @@ import 'package:device_info/device_info.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:zeronet/common.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/utils.dart';
 
+import '../mobx/varstore.dart';
 import 'common.dart';
 import 'constants.dart';
+import 'utils.dart';
 
 const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
 const EventChannel _events_channel =
@@ -68,15 +67,22 @@ void handleModuleDownloadStatus() {
 String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
-  if (deviceInfo.version.sdkInt > 28) {
-    uri = await _channel.invokeMethod('openJsonFile');
-    filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
-  } else {
-    uri = (await pickUserJsonFile()).path;
-    filePath = uri;
+  try {
+    if (deviceInfo.version.sdkInt > 28) {
+      uri = await _channel.invokeMethod('openJsonFile');
+      filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
+    } else {
+      uri = (await pickUserJsonFile()).path;
+      filePath = uri;
+    }
+    String path = await _channel.invokeMethod('readJsonFromUri', uri);
+    return File(path);
+  } catch (e) {
+    if (e is PlatformException && e.code == '526') {
+      return null;
+    }
+    return null;
   }
-  String path = await _channel.invokeMethod('readJsonFromUri', uri);
-  return File(path);
 }
 
 Future<File> getPluginZipFile() async {

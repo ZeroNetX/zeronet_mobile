@@ -79,23 +79,6 @@ mixin _$VarStore on _VarStore, Store {
         name: '${_$zeroNetAppbarStatusAtom.name}_set');
   }
 
-  final _$zeroNetStatusAtom = Atom(name: '_VarStore.zeroNetStatus');
-
-  @override
-  String get zeroNetStatus {
-    _$zeroNetStatusAtom.context.enforceReadPolicy(_$zeroNetStatusAtom);
-    _$zeroNetStatusAtom.reportObserved();
-    return super.zeroNetStatus;
-  }
-
-  @override
-  set zeroNetStatus(String value) {
-    _$zeroNetStatusAtom.context.conditionallyRunInAction(() {
-      super.zeroNetStatus = value;
-      _$zeroNetStatusAtom.reportChanged();
-    }, _$zeroNetStatusAtom, name: '${_$zeroNetStatusAtom.name}_set');
-  }
-
   final _$zeroNetInstalledAtom = Atom(name: '_VarStore.zeroNetInstalled');
 
   @override
@@ -201,16 +184,6 @@ mixin _$VarStore on _VarStore, Store {
     final _$actionInfo = _$_VarStoreActionController.startAction();
     try {
       return super.setZeroNetAppbarStatus(status);
-    } finally {
-      _$_VarStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setZeroNetStatus(String status) {
-    final _$actionInfo = _$_VarStoreActionController.startAction();
-    try {
-      return super.setZeroNetStatus(status);
     } finally {
       _$_VarStoreActionController.endAction(_$actionInfo);
     }

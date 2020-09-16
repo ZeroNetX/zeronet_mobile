@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:zeronet/models.dart';
+import 'package:zeronet/models/models.dart';
 
 // Include generated file
 part 'varstore.g.dart';
@@ -49,13 +49,13 @@ abstract class _VarStore with Store {
     zeroNetAppbarStatus = status;
   }
 
-  @observable
-  String zeroNetStatus = 'Not Running';
+  // @observable
+  // String zeroNetStatus = 'Not Running';
 
-  @action
-  void setZeroNetStatus(String status) {
-    zeroNetStatus = status;
-  }
+  // @action
+  // void setZeroNetStatus(String status) {
+  //   zeroNetStatus = status;
+  // }
 
   @observable
   bool zeroNetInstalled = false;

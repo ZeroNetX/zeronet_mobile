@@ -10,12 +10,14 @@ import 'package:http/http.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zeronet/utils.dart';
+import 'package:zeronet/mobx/uistore.dart';
 
-import 'mobx/varstore.dart';
+import '../mobx/varstore.dart';
+import '../models/models.dart';
 import 'constants.dart';
-import 'models.dart';
 import 'native.dart';
+import 'utils.dart';
+import 'zeronet_utils.dart';
 
 Directory appPrivDir;
 Directory tempDir;
@@ -149,26 +151,6 @@ Future<File> pickPluginZipFile() async {
   return file;
 }
 
-String getZeroIdUserName() {
-  File file = File(getZeroNetUsersFilePath());
-  Map map = json.decode(file.readAsStringSync());
-  var key = map.keys.first;
-  Map certMap = map[key]['certs'];
-  var certs = [];
-  if (certMap.keys.length < 1)
-    return '';
-  else {
-    for (var cert in certMap.keys) {
-      certs.add(cert);
-      var t = certMap[cert];
-      if (t != null) {
-        return certMap[cert]['auth_user_name'] ?? '';
-      }
-    }
-  }
-  return '';
-}
-
 Future<void> backUpUserJsonFile(BuildContext context) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
     String result = await saveUserJsonFile(getZeroNetUsersFilePath());
@@ -273,7 +255,7 @@ printToConsole(Object object) {
       if (object.contains('Server port opened') ||
           object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
-        varStore.setZeroNetStatus('Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
         bool vibrate =
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         showZeroNetRunningNotification(enableVibration: vibrate);
@@ -281,14 +263,14 @@ printToConsole(Object object) {
       if (object.contains('ConnServer Closed port') ||
           object.contains('All server stopped')) {
         zeroNetUrl = '';
-        varStore.setZeroNetStatus('Not Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
         flutterLocalNotificationsPlugin.cancelAll();
       }
       log = log + object + '\n';
     } else {
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
-        varStore.setZeroNetStatus('Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
         bool vibrate =
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         showZeroNetRunningNotification(enableVibration: vibrate);
