@@ -120,7 +120,7 @@ runZeroNet() {
 }
 
 shutDownZeronet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+  if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
