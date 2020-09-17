@@ -29,8 +29,12 @@ class ZeroBrowser extends StatelessWidget {
     return WillPopScope(
       onWillPop: () {
         SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-        uiStore.updateCurrentAppRoute(AppRoute.Home);
-        return Future.value(false);
+        if (launchUrl.isNotEmpty) {
+          return Future.value(true);
+        } else {
+          uiStore.updateCurrentAppRoute(AppRoute.Home);
+          return Future.value(false);
+        }
       },
       child: SafeArea(
         child: Stack(

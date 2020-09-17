@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:zeronet/core/site/site_manager.dart';
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
@@ -39,6 +40,9 @@ checkInitStatus() async {
       }
     }
   }
+  File sitesFile = File(getZeroNetDataDir().path + '/sites.json');
+  if (sitesFile.existsSync())
+    sitesAvailable = SiteManager().loadSitesFromFile(sitesFile);
 }
 
 runTorEngine() {
@@ -209,7 +213,7 @@ List<String> getZeroNameProfiles() {
             var username =
                 name.replaceAll('users-', '').replaceAll('.json', '');
             list.add(username);
-            printOut(username);
+            // printOut(username);
           }
         }
       }

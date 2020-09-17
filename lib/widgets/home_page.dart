@@ -7,6 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
+import 'package:zeronet/core/site/site.dart';
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
@@ -140,10 +141,8 @@ class ZeroNetStatusWidget extends StatelessWidget {
 }
 
 class PopularZeroNetSites extends StatelessWidget {
-  final VoidCallback callback;
   const PopularZeroNetSites({
     Key key,
-    this.callback,
   }) : super(key: key);
 
   @override
@@ -184,7 +183,6 @@ class PopularZeroNetSites extends StatelessWidget {
         ),
         ListView(
           shrinkWrap: true,
-          // crossAxisCount: 2,
           children: zeroSites,
           physics: BouncingScrollPhysics(),
         )
@@ -310,18 +308,16 @@ class SiteDetailsSheet extends StatelessWidget {
   final String name;
   @override
   Widget build(BuildContext context) {
-    try {
-      ZeroNet.instance
-          .connect(
-              zeroNetIPwithPort(defZeroNetUrl), Utils.initialSites[name]['url'])
-          .then((value) {
-        ZeroNet.instance.siteInfo(
-          callback: (msg) => uiStore.updateCurrentSiteInfo(
-            SiteInfo().fromJson(msg),
-          ),
-        );
-      });
-    } catch (e) {}
+    List<Site> sites = sitesAvailable
+        .where((element) =>
+            element.address == Utils.initialSites[name]['btcAddress'])
+        .toList();
+    if (sites.length > 0) {
+      Site currentSite = sites[0];
+      uiStore.updateCurrentSiteInfo(
+        SiteInfo().fromSite(currentSite),
+      );
+    }
     bool isZiteExists = isZiteExitsLocally(
       Utils.initialSites[name]['btcAddress'],
     );
@@ -532,9 +528,12 @@ class SiteInfoWidget extends StatelessWidget {
             : siteInfo.props[i].toString();
         if (item == 'size') {
           details = ((siteInfo.props[i] as int) ~/ 1000).toString() +
-              ' KB ($details Bytes) (' +
-              siteInfo.props[siteInfo.propStrings.indexOf('files')].toString() +
-              ' Files)';
+                  ' KB ($details Bytes)'
+              //TODO : Enable this when we read sites content.json file.
+              // +' (' +
+              // siteInfo.props[siteInfo.propStrings.indexOf('files')].toString() +
+              // ' Files)'
+              ;
         } else if (siteInfo.props[i] is DateTime) {
           DateTime t = siteInfo.props[i];
           details = details + ' (${t.day}/${t.month}/${t.year})';

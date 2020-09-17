@@ -10,6 +10,7 @@ import 'package:http/http.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zeronet/core/site/site.dart';
 import 'package:zeronet/mobx/uistore.dart';
 
 import '../mobx/varstore.dart';
@@ -44,6 +45,7 @@ String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
 String browserUrl = 'https://google.com';
+List<Site> sitesAvailable = [];
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
