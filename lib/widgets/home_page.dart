@@ -246,7 +246,7 @@ class SiteDetailCard extends StatelessWidget {
                       color: Color(0xFF5A53FF),
                     ),
                     onPressed: () {
-                      showBottomSheet(
+                      uiStore.currentBottomSheetController = showBottomSheet(
                         context: context,
                         elevation: 16.0,
                         builder: (ctx) {
@@ -351,8 +351,9 @@ class SiteDetailsSheet extends StatelessWidget {
                         Icons.share,
                         color: Color(0xFF5A53FF),
                       ),
-                      onPressed: () =>
-                          Share.share(Utils.initialSites[name]['url']),
+                      onPressed: () => Share.share(
+                        Utils.initialSites[name]['url'],
+                      ),
                     ),
                     RaisedButton(
                       color: Color(0xFF009764),
@@ -361,6 +362,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       onPressed: () {
                         browserUrl =
                             zeroNetUrl + Utils.initialSites[name]['url'];
+                        uiStore.currentBottomSheetController?.close();
                         uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                       },
                       child: Text(
@@ -418,6 +420,7 @@ class SiteDetailsSheet extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                     onPressed: () {
+                      uiStore.currentBottomSheetController?.close();
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
                     },
                     child: Text(

@@ -14,6 +14,8 @@ class UiStore = _UiStore with _$UiStore;
 
 // The store-class
 abstract class _UiStore with Store {
+  PersistentBottomSheetController currentBottomSheetController;
+
   @observable
   bool showSnackReply = false;
 

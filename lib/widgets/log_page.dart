@@ -17,9 +17,12 @@ class ZeroNetLogPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(bottom: 30),
               ),
-              SingleChildScrollView(
-                child: Observer(
-                  builder: (_) => Text(varStore.zeroNetLog),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.83,
+                child: SingleChildScrollView(
+                  child: Observer(
+                    builder: (_) => Text(varStore.zeroNetLog),
+                  ),
                 ),
               ),
             ],
