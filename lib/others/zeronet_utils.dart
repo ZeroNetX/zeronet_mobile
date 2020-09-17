@@ -22,7 +22,7 @@ checkInitStatus() async {
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
     ZeroNet.instance.connect(
       zeroNetIPwithPort(defZeroNetUrl),
-      Utils.urlHello,
+      Utils.urlZeroNetMob,
     );
     showZeroNetRunningNotification(enableVibration: false);
     testUrl();
@@ -145,13 +145,13 @@ runZeroNetWs() {
         .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
         .then((value) {
       if (value != null) {
-        ZeroNet.wrapperKey = value;
+        // ZeroNet.wrapperKey = value;
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
       }
     });
   } else {
-    ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
+    // ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
     browserUrl = zeroNetUrl;
   }
 }

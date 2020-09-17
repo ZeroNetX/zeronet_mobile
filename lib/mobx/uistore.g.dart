@@ -9,6 +9,23 @@ part of 'uistore.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$UiStore on _UiStore, Store {
+  final _$showSnackReplyAtom = Atom(name: '_UiStore.showSnackReply');
+
+  @override
+  bool get showSnackReply {
+    _$showSnackReplyAtom.context.enforceReadPolicy(_$showSnackReplyAtom);
+    _$showSnackReplyAtom.reportObserved();
+    return super.showSnackReply;
+  }
+
+  @override
+  set showSnackReply(bool value) {
+    _$showSnackReplyAtom.context.conditionallyRunInAction(() {
+      super.showSnackReply = value;
+      _$showSnackReplyAtom.reportChanged();
+    }, _$showSnackReplyAtom, name: '${_$showSnackReplyAtom.name}_set');
+  }
+
   final _$currentSiteInfoAtom = Atom(name: '_UiStore.currentSiteInfo');
 
   @override
@@ -112,6 +129,16 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   final _$_UiStoreActionController = ActionController(name: '_UiStore');
+
+  @override
+  void updateShowSnackReply(bool show) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.updateShowSnackReply(show);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void updateCurrentSiteInfo(SiteInfo siteInfo) {

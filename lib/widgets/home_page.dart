@@ -1,15 +1,18 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share/share.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
 import 'package:zeronet/others/constants.dart';
 import 'package:zeronet/others/extensions.dart';
+import 'package:zeronet/others/native.dart';
 import 'package:zeronet/others/zeronet_utils.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
@@ -243,7 +246,7 @@ class SiteDetailCard extends StatelessWidget {
                       color: Color(0xFF5A53FF),
                     ),
                     onPressed: () {
-                      showBottomSheet(
+                      uiStore.currentBottomSheetController = showBottomSheet(
                         context: context,
                         elevation: 16.0,
                         builder: (ctx) {
@@ -308,146 +311,198 @@ class SiteDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      ZeroNet.instance.siteInfo(
-        callback: (msg) => uiStore.updateCurrentSiteInfo(
-          SiteInfo().fromJson(msg),
-        ),
-      );
+      ZeroNet.instance
+          .connect(
+              zeroNetIPwithPort(defZeroNetUrl), Utils.initialSites[name]['url'])
+          .then((value) {
+        ZeroNet.instance.siteInfo(
+          callback: (msg) => uiStore.updateCurrentSiteInfo(
+            SiteInfo().fromJson(msg),
+          ),
+        );
+      });
     } catch (e) {}
     bool isZiteExists = isZiteExitsLocally(
       Utils.initialSites[name]['btcAddress'],
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              child: Text(
-                name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: GoogleFonts.roboto(
-                  fontSize: 31.0,
-                  fontWeight: FontWeight.w500,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: GoogleFonts.roboto(
+                      fontSize: 31.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.share,
+                        color: Color(0xFF5A53FF),
+                      ),
+                      onPressed: () => Share.share(
+                        Utils.initialSites[name]['url'],
+                      ),
+                    ),
+                    RaisedButton(
+                      color: Color(0xFF009764),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
+                      onPressed: () {
+                        browserUrl =
+                            zeroNetUrl + Utils.initialSites[name]['url'];
+                        uiStore.currentBottomSheetController?.close();
+                        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                      },
+                      child: Text(
+                        isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                        maxLines: 1,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+            Padding(padding: EdgeInsets.all(6.0)),
+            Text(
+              Utils.initialSites[name]['description'],
+              style: GoogleFonts.roboto(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
               ),
             ),
-            Row(
+            Padding(padding: EdgeInsets.all(6.0)),
+            Wrap(
+              spacing: 16.0,
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.share,
-                    color: Color(0xFF5A53FF),
-                  ),
-                  onPressed: () {},
-                ),
                 RaisedButton(
-                  color: Color(0xFF009764),
+                  color: Color(0xFF008297),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
-                  onPressed: () {},
+                  onPressed: () async {
+                    var added = await addToHomeScreen(
+                        name, Utils.initialSites[name]['url']);
+                    if (added) {
+                      uiStore.updateShowSnackReply(true);
+                    }
+                  },
                   child: Text(
-                    isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                    'Add to HomeScreen',
                     maxLines: 1,
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w300,
                       color: Colors.white,
                     ),
                   ),
                 ),
+                if (isZiteExists)
+                  RaisedButton(
+                    color: Color(0xFF517184),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    onPressed: () {
+                      uiStore.currentBottomSheetController?.close();
+                      uiStore.updateCurrentAppRoute(AppRoute.LogPage);
+                    },
+                    child: Text(
+                      'Show Log',
+                      maxLines: 1,
+                      style: GoogleFonts.roboto(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                if (isZiteExists)
+                  RaisedButton(
+                    color: Color(0xFF009793),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    onPressed: () {
+                      //TODO: Implement this function;
+                    },
+                    child: Text(
+                      'Pause',
+                      maxLines: 1,
+                      style: GoogleFonts.roboto(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                if (isZiteExists)
+                  RaisedButton(
+                    color: Color(0xFFBB4848),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    onPressed: () {
+                      //TODO: Implement this function;
+                    },
+                    child: Text(
+                      'Delete Zite',
+                      maxLines: 1,
+                      style: GoogleFonts.roboto(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
               ],
-            )
-          ],
-        ),
-        Padding(padding: EdgeInsets.all(6.0)),
-        Text(
-          Utils.initialSites[name]['description'],
-          style: GoogleFonts.roboto(
-            fontSize: 16.0,
-            fontWeight: FontWeight.normal,
-          ),
-        ),
-        Padding(padding: EdgeInsets.all(6.0)),
-        Wrap(
-          spacing: 16.0,
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.start,
-          children: [
-            RaisedButton(
-              color: Color(0xFF008297),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              onPressed: () {},
-              child: Text(
-                'Add to HomeScreen',
-                maxLines: 1,
-                style: GoogleFonts.roboto(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white,
-                ),
-              ),
             ),
+            Padding(padding: EdgeInsets.all(6.0)),
             if (isZiteExists)
-              RaisedButton(
-                color: Color(0xFF517184),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
-                child: Text(
-                  'Show Log',
-                  maxLines: 1,
-                  style: GoogleFonts.roboto(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            if (isZiteExists)
-              RaisedButton(
-                color: Color(0xFF009793),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
-                child: Text(
-                  'Pause',
-                  maxLines: 1,
-                  style: GoogleFonts.roboto(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            if (isZiteExists)
-              RaisedButton(
-                color: Color(0xFFBB4848),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {},
-                child: Text(
-                  'Delete Zite',
-                  maxLines: 1,
-                  style: GoogleFonts.roboto(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              Observer(builder: (context) {
+                return SiteInfoWidget(
+                  uiStore.currentSiteInfo,
+                );
+              }),
           ],
         ),
-        Padding(padding: EdgeInsets.all(6.0)),
-        if (isZiteExists)
-          Observer(builder: (context) {
-            return SiteInfoWidget(
-              uiStore.currentSiteInfo,
-            );
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Observer(builder: (context) {
+            Timer(Duration(seconds: 3), () {
+              uiStore.updateShowSnackReply(false);
+            });
+            return uiStore.showSnackReply
+                ? Container(
+                    height: 50.0,
+                    color: Colors.grey[900],
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: Text(
+                          '$name shortcut added to  HomeScreen',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container();
           }),
+        ),
       ],
     );
   }
