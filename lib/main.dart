@@ -13,6 +13,7 @@ import 'package:zeronet/widgets/settings_page.dart';
 import 'package:zeronet/widgets/zerobrowser_page.dart';
 import 'others/common.dart';
 import 'others/utils.dart';
+import 'others/zeronet_utils.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
 Future main() async {
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
               }
+              checkInitStatus();
               if (launchUrl.isNotEmpty) {
                 browserUrl = (zeroNetUrl.isEmpty
                         ? "http://127.0.0.1:43110/"

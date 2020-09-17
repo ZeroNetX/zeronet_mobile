@@ -15,14 +15,12 @@ import 'package:zeronet/others/constants.dart';
 import 'package:zeronet/others/extensions.dart';
 import 'package:zeronet/others/native.dart';
 import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'common.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    checkInitStatus();
     return Container(
       height: MediaQuery.of(context).size.height,
       child: SingleChildScrollView(
