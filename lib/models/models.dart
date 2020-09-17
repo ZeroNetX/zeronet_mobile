@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:zeronet/core/site/site.dart';
 
 import '../mobx/varstore.dart';
 import '../others/common.dart';
@@ -146,13 +147,13 @@ class SiteInfo extends Equatable {
   final bool serving;
   final DateTime siteCodeUpdated;
   SiteInfo({
-    this.address,
-    this.peers,
-    this.size,
-    this.files,
+    this.address = '',
+    this.peers = 0,
+    this.size = 0,
+    this.files = 0,
+    this.serving = false,
     this.siteAdded,
     this.siteModified,
-    this.serving,
     this.siteCodeUpdated,
   });
 
@@ -193,6 +194,19 @@ class SiteInfo extends Equatable {
           map['settings']['downloaded'] * 1000),
       siteCodeUpdated: DateTime.fromMillisecondsSinceEpoch(
           map['settings']['modified'] * 1000),
+    );
+  }
+
+  SiteInfo fromSite(Site site) {
+    return SiteInfo(
+      address: site.address,
+      peers: site.peers,
+      serving: site.serving,
+      size: site.size,
+      siteAdded: DateTime.fromMillisecondsSinceEpoch(site.added * 1000),
+      siteModified: DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000),
+      siteCodeUpdated:
+          DateTime.fromMillisecondsSinceEpoch(site.modified * 1000),
     );
   }
 }

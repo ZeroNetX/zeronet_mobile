@@ -11,7 +11,6 @@ import 'package:zeronet/others/zeronet_utils.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import 'common.dart';
-import 'home_page.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

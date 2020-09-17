@@ -10,3 +10,13 @@ extension CapExtension on String {
   String get capitalizeFirstofEach =>
       this.split(" ").map((str) => str.inCaps).join(" ");
 }
+
+extension DynamicExt on dynamic {
+  int toInt() {
+    if (this is num) {
+      if (this is double) return this.toInt();
+      if (this is int) return this;
+    }
+    return -1;
+  }
+}
