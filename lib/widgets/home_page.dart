@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -392,8 +393,17 @@ class SiteDetailsSheet extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
                   onPressed: () async {
+                    File logoFile = File(getZeroNetDataDir().path +
+                        "/${Utils.initialSites[name]['btcAddress']}/img/logo.png");
+                    String logoPath = '';
+                    if (logoFile.existsSync()) {
+                      logoPath = logoFile.path;
+                    }
                     var added = await addToHomeScreen(
-                        name, Utils.initialSites[name]['url']);
+                      name,
+                      Utils.initialSites[name]['url'],
+                      logoPath,
+                    );
                     if (added) {
                       uiStore.updateShowSnackReply(true);
                     }

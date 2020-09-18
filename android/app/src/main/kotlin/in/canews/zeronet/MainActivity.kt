@@ -5,6 +5,8 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -58,7 +60,10 @@ class MainActivity : FlutterActivity() {
         }
         MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
-                "addToHomeScreen" -> addShortcutToHomeScreen(context, result,call.argument("title"),call.argument("url"))
+                "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
+                        call.argument("title"),call.argument("url"),
+                        call.argument("logoPath")
+                )
                 "launchZiteUrl" -> result.success(mLaunchShortcutUrl)
                 "batteryOptimisations" -> getBatteryOptimizations(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
@@ -106,9 +111,10 @@ class MainActivity : FlutterActivity() {
         )
     }
 
-    private fun addShortcutToHomeScreen(context: Context,mResult: MethodChannel.Result,title:String?,url:String?) {
+    private fun addShortcutToHomeScreen(context: Context,mResult: MethodChannel.Result,
+                                        title:String?,url:String?,logoPath:String?) {
         if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-            val shortcutInfo: ShortcutInfoCompat = ShortcutInfoCompat.Builder(context, title.toString())
+            val shortcutInfoBuilder: ShortcutInfoCompat.Builder = ShortcutInfoCompat.Builder(context, title.toString())
                     .setIntent(
                             Intent(context, MainActivity::class.java)
                                     .setAction(Intent.ACTION_MAIN)
@@ -118,8 +124,15 @@ class MainActivity : FlutterActivity() {
                                     )
                     )
                     .setShortLabel(title.toString())
-                    .setIcon(IconCompat.createWithResource(context, R.drawable.app_icon))
-                    .build()
+            if (logoPath.toString().isNotEmpty()){
+                val image = File(logoPath.toString())
+                val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
+                val bitmap: Bitmap = BitmapFactory.decodeFile(image.absolutePath, bmOptions)
+                shortcutInfoBuilder.setIcon(IconCompat.createWithBitmap(bitmap))
+            }else{
+                shortcutInfoBuilder.setIcon(IconCompat.createWithResource(context, R.drawable.app_icon))
+            }
+            val shortcutInfo: ShortcutInfoCompat = shortcutInfoBuilder.build()
             val shortcutCallbackIntent: PendingIntent = PendingIntent.getBroadcast(context,
                     0,
                     Intent(context, MainActivity::class.java)
