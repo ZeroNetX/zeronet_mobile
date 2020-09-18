@@ -129,8 +129,8 @@ class MainActivity : FlutterActivity() {
                 val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
                 val bitmap: Bitmap = BitmapFactory.decodeFile(image.absolutePath, bmOptions)
                 shortcutInfoBuilder.setIcon(IconCompat.createWithBitmap(bitmap))
-            }else{
-                shortcutInfoBuilder.setIcon(IconCompat.createWithResource(context, R.drawable.app_icon))
+            } else {
+                shortcutInfoBuilder.setIcon(IconCompat.createWithResource(context, R.drawable.logo))
             }
             val shortcutInfo: ShortcutInfoCompat = shortcutInfoBuilder.build()
             val shortcutCallbackIntent: PendingIntent = PendingIntent.getBroadcast(context,

@@ -86,6 +86,9 @@ class ZeroBrowser extends StatelessWidget {
               withLocalStorage: true,
               hidden: true,
               initialChild: Container(
+                color: zeroBrowserTheme == 'dark'
+                    ? Colors.blueGrey[900]
+                    : Colors.white,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -94,7 +97,14 @@ class ZeroBrowser extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: CircularProgressIndicator(),
                       ),
-                      Text('Loading.....'),
+                      Text(
+                        'Loading.....',
+                        style: TextStyle(
+                          color: zeroBrowserTheme == 'light'
+                              ? Colors.blueGrey[900]
+                              : Colors.white,
+                        ),
+                      ),
                     ],
                   ),
                 ),
