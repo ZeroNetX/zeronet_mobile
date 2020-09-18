@@ -25,6 +25,14 @@ abstract class _UiStore with Store {
   }
 
   @observable
+  int reload = 0;
+
+  @action
+  void updateReload(int i) {
+    reload = i;
+  }
+
+  @observable
   SiteInfo currentSiteInfo = SiteInfo();
 
   @action
@@ -196,6 +204,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
 enum AppRoute {
   Home,
   Settings,
+  ShortcutLoadingPage,
   ZeroBrowser,
   LogPage,
 }

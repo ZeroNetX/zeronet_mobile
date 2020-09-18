@@ -10,6 +10,7 @@ import 'package:zeronet/widgets/home_page.dart';
 import 'package:zeronet/widgets/loading_page.dart';
 import 'package:zeronet/widgets/log_page.dart';
 import 'package:zeronet/widgets/settings_page.dart';
+import 'package:zeronet/widgets/shortcut_loading_page.dart';
 import 'package:zeronet/widgets/zerobrowser_page.dart';
 import 'others/common.dart';
 import 'others/utils.dart';
@@ -49,13 +50,18 @@ class MyApp extends StatelessWidget {
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
               }
-              checkInitStatus();
+              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+                checkInitStatus();
+              }
               if (launchUrl.isNotEmpty) {
                 browserUrl = (zeroNetUrl.isEmpty
                         ? "http://127.0.0.1:43110/"
                         : zeroNetUrl) +
                     launchUrl;
-                uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+                  uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                } else
+                  uiStore.updateCurrentAppRoute(AppRoute.ShortcutLoadingPage);
               }
               return Observer(
                 builder: (ctx) {
@@ -65,6 +71,9 @@ class MyApp extends StatelessWidget {
                       break;
                     case AppRoute.Settings:
                       return SettingsPage();
+                      break;
+                    case AppRoute.ShortcutLoadingPage:
+                      return ShortcutLoadingPage();
                       break;
                     case AppRoute.ZeroBrowser:
                       return ZeroBrowser();
@@ -77,8 +86,8 @@ class MyApp extends StatelessWidget {
                   }
                 },
               );
-            }
-            return Loading();
+            } else
+              return Loading();
           },
         ),
       ),

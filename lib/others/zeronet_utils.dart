@@ -14,13 +14,15 @@ import 'constants.dart';
 import 'extensions.dart';
 import 'native.dart';
 
-checkInitStatus() async {
+Future checkInitStatus() async {
+  loadSitesFromFileSystem();
+  loadUsersFromFileSystem();
+  setZeroBrowserThemeValues();
   try {
     String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
     String key = await ZeroNet.instance.getWrapperKey(url);
     zeroNetUrl = defZeroNetUrl;
     varStore.zeroNetWrapperKey = key;
-    // varStore.setZeroNetStatus('Running');
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
     ZeroNet.instance.connect(
       zeroNetIPwithPort(defZeroNetUrl),
@@ -29,8 +31,9 @@ checkInitStatus() async {
     showZeroNetRunningNotification(enableVibration: false);
     testUrl();
   } catch (e) {
-    if (!firstTime &&
-        (varStore.settings[autoStartZeroNet] as ToggleSetting).value == true) {
+    if (launchUrl.isNotEmpty ||
+        !firstTime &&
+            (varStore.settings[autoStartZeroNet] as ToggleSetting).value) {
       //TODO: Remember this!
       runZeroNet();
     }
@@ -41,9 +44,6 @@ checkInitStatus() async {
       }
     }
   }
-  loadSitesFromFileSystem();
-  loadUsersFromFileSystem();
-  setZeroBrowserThemeValues();
 }
 
 loadSitesFromFileSystem() {
@@ -223,17 +223,12 @@ Directory getZeroNetDataDir() => Directory(
 List<String> getZeroNameProfiles() {
   List<String> list = [];
   if (getZeroNetDataDir().existsSync())
-    for (var item in getZeroNetDataDir().listSync()) {
-      if (item is File) {
-        if (item.path.endsWith('.json')) {
-          var name = item.path.replaceAll(getZeroNetDataDir().path + '/', '');
-          if (name.startsWith('users-')) {
-            var username =
-                name.replaceAll('users-', '').replaceAll('.json', '');
-            list.add(username);
-            // printOut(username);
-          }
-        }
+    for (var item in getZeroNetDataDir().listSync().where(
+        (element) => element.path.endsWith('.json') && element is File)) {
+      var name = item.path.replaceAll(getZeroNetDataDir().path + '/', '');
+      if (name.startsWith('users-')) {
+        var username = name.replaceAll('users-', '').replaceAll('.json', '');
+        list.add(username);
       }
     }
   return list;
