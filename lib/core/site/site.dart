@@ -52,15 +52,15 @@ class Site {
   });
 
   Site.fromJson(Map<String, dynamic> jsonStr) {
-    added = jsonStr['added'].toInt();
+    added = jsonStr['added']?.toInt();
     ajaxKey = jsonStr['ajax_key'];
     authKey = jsonStr['auth_key'];
     bytesRecv = jsonStr['bytes_recv'];
     bytesSent = jsonStr['bytes_sent'];
     cache =
         jsonStr['cache'] != null ? new Cache.fromJson(jsonStr['cache']) : null;
-    downloaded = jsonStr['downloaded'].toInt();
-    modified = jsonStr['modified'].toInt();
+    downloaded = jsonStr['downloaded']?.toInt();
+    modified = jsonStr['modified']?.toInt();
     optionalDownloaded = jsonStr['optional_downloaded'];
     optionalHelp = jsonStr['optional_help'] != null
         ? json.decode(jsonStr['optional_help'])

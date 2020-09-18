@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/mobx/varstore.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
@@ -176,7 +177,8 @@ class SettingsCard extends StatelessWidget {
                 ],
               ),
               if (setting is MapSetting)
-                LayoutBuilder(builder: (ctx, constr) {
+                Observer(builder: (ctx) {
+                  var i = uiStore.reload;
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
                   settingL.options.forEach((element) {

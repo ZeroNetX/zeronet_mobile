@@ -26,6 +26,23 @@ mixin _$UiStore on _UiStore, Store {
     }, _$showSnackReplyAtom, name: '${_$showSnackReplyAtom.name}_set');
   }
 
+  final _$reloadAtom = Atom(name: '_UiStore.reload');
+
+  @override
+  int get reload {
+    _$reloadAtom.context.enforceReadPolicy(_$reloadAtom);
+    _$reloadAtom.reportObserved();
+    return super.reload;
+  }
+
+  @override
+  set reload(int value) {
+    _$reloadAtom.context.conditionallyRunInAction(() {
+      super.reload = value;
+      _$reloadAtom.reportChanged();
+    }, _$reloadAtom, name: '${_$reloadAtom.name}_set');
+  }
+
   final _$currentSiteInfoAtom = Atom(name: '_UiStore.currentSiteInfo');
 
   @override
@@ -135,6 +152,16 @@ mixin _$UiStore on _UiStore, Store {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.updateShowSnackReply(show);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void updateReload(int i) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.updateReload(i);
     } finally {
       _$_UiStoreActionController.endAction(_$actionInfo);
     }

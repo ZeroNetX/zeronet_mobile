@@ -260,7 +260,8 @@ printToConsole(Object object) {
           testUrl();
         }
       }
-      if (object.contains('Server port opened') ||
+      if (object.contains('Ui.UiServer Web interface: ') ||
+          object.contains('Server port opened') ||
           object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
