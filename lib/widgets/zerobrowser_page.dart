@@ -57,18 +57,18 @@ class ZeroBrowser extends StatelessWidget {
     flutterWebViewPlugin.onUrlChanged.listen((newUrl) => browserUrl = newUrl);
     return WillPopScope(
       onWillPop: () {
-        SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: Colors.white,
-            systemNavigationBarColor: Colors.white,
-            statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarIconBrightness: Brightness.dark,
-          ),
-        );
         if (launchUrl.isNotEmpty) {
           return Future.value(true);
         } else {
+          SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+          SystemChrome.setSystemUIOverlayStyle(
+            SystemUiOverlayStyle(
+              statusBarColor: Colors.white,
+              systemNavigationBarColor: Colors.white,
+              statusBarIconBrightness: Brightness.dark,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ),
+          );
           uiStore.updateCurrentAppRoute(AppRoute.Home);
           return Future.value(false);
         }

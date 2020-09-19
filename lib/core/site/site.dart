@@ -41,15 +41,23 @@ class Site {
     this.modified,
     this.optionalDownloaded,
     this.optionalHelp,
-    this.own,
+    this.own = false,
     this.peers,
     this.permissions,
-    this.serving,
+    this.serving = true,
     this.size,
     this.sizeFilesOptional,
     this.sizeOptional,
     this.wrapperKey,
   });
+
+  Site pause() {
+    return this..serving = false;
+  }
+
+  Site resume() {
+    return this..serving = true;
+  }
 
   Site.fromJson(Map<String, dynamic> jsonStr) {
     added = jsonStr['added']?.toInt();
@@ -125,11 +133,11 @@ class Cache {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.badFiles != null) {
-      data['bad_files'] = json.encode(this.badFiles);
+      data['bad_files'] = this.badFiles;
     }
     data['hashfield'] = this.hashfield;
     if (this.piecefields != null) {
-      data['piecefields'] = json.encode(this.piecefields);
+      data['piecefields'] = this.piecefields;
     }
     return data;
   }

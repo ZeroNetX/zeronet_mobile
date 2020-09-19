@@ -46,7 +46,7 @@ String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
 String browserUrl = 'https://google.com';
-List<Site> sitesAvailable = [];
+Map<String, Site> sitesAvailable = {};
 List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 // Color zeroBrowserPrimaryColor;

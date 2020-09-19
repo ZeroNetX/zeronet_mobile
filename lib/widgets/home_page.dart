@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 import 'package:zeronet/core/site/site.dart';
+import 'package:zeronet/core/site/site_manager.dart';
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
@@ -307,12 +308,14 @@ class SiteDetailsSheet extends StatelessWidget {
   final String name;
   @override
   Widget build(BuildContext context) {
-    List<Site> sites = sitesAvailable
-        .where((element) =>
-            element.address == Utils.initialSites[name]['btcAddress'])
+    List<String> sites = sitesAvailable.keys
+        .toList()
+        .where((element) => element == Utils.initialSites[name]['btcAddress'])
         .toList();
+    Site currentSite = Site();
     if (sites.length > 0) {
-      Site currentSite = sites[0];
+      currentSite = sitesAvailable[sites[0]]
+        ..address = Utils.initialSites[name]['btcAddress'];
       uiStore.updateCurrentSiteInfo(
         SiteInfo().fromSite(currentSite),
       );
@@ -398,6 +401,8 @@ class SiteDetailsSheet extends StatelessWidget {
                     String logoPath = '';
                     if (logoFile.existsSync()) {
                       logoPath = logoFile.path;
+                    } else {
+                      //TODO: Default logo quality is very low, use inbuilt logo for this.
                     }
                     var added = await addToHomeScreen(
                       name,
@@ -437,42 +442,51 @@ class SiteDetailsSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (isZiteExists)
-                  RaisedButton(
-                    color: Color(0xFF009793),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    onPressed: () {
-                      //TODO: Implement this function;
-                    },
-                    child: Text(
-                      'Pause',
-                      maxLines: 1,
-                      style: GoogleFonts.roboto(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                if (!unImplementedFeatures.contains(Feature.SITE_PAUSE_RESUME))
+                  if (isZiteExists && currentSite != null)
+                    RaisedButton(
+                      color: Color(0xFF009793),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
+                      onPressed: () {
+                        //TODO: Implement this function;
+                        currentSite = (currentSite.serving)
+                            ? currentSite.pause()
+                            : currentSite.resume();
+                        sitesAvailable[currentSite.address] = currentSite;
+                        SiteManager().saveSettingstoFile(
+                            File(getZeroNetDataDir().path + '/sites.json'),
+                            sitesAvailable);
+                      },
+                      child: Text(
+                        currentSite.serving ? 'Pause' : 'Resume',
+                        maxLines: 1,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                if (isZiteExists)
-                  RaisedButton(
-                    color: Color(0xFFBB4848),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    onPressed: () {
-                      //TODO: Implement this function;
-                    },
-                    child: Text(
-                      'Delete Zite',
-                      maxLines: 1,
-                      style: GoogleFonts.roboto(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                if (!unImplementedFeatures.contains(Feature.SITE_DELETE))
+                  if (isZiteExists && currentSite != null)
+                    RaisedButton(
+                      color: Color(0xFFBB4848),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
+                      onPressed: () {
+                        //TODO: Implement this function;
+                      },
+                      child: Text(
+                        'Delete Zite',
+                        maxLines: 1,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
               ],
             ),
             Padding(padding: EdgeInsets.all(6.0)),

@@ -41,19 +41,9 @@ const String zeronetAlreadyRunningError =
     zeronetStartUpError + 'Can\'t open lock file';
 const bool kEnableDynamicModules = !kDebugMode;
 
-const List<Color> colors = [
-  Colors.cyan,
-  Colors.indigoAccent,
-  Color(0xFF9F63BF),
-  Color(0xFFE2556F),
-  Color(0xFF358AC7),
-  Color(0xFFA176B6),
-  Color(0xFFC04848),
-  Color(0xFF4A569D),
-  Color(0xFFF39963),
-  Color(0xFFF1417D),
-  Color(0xFF1BB2D4),
-  Color(0xFF7ECA26),
+const List<Feature> unImplementedFeatures = [
+  Feature.SITE_DELETE,
+  Feature.SITE_PAUSE_RESUME,
 ];
 const List<String> binDirs = [
   'usr',
@@ -418,4 +408,9 @@ extension MapOptionExt on MapOptions {
       default:
     }
   }
+}
+
+enum Feature {
+  SITE_PAUSE_RESUME,
+  SITE_DELETE,
 }

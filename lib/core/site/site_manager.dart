@@ -4,14 +4,18 @@ import 'dart:io';
 import 'package:zeronet/core/site/site.dart';
 
 class SiteManager {
-  List<Site> loadSitesFromFile(File file) {
+  Map<String, Site> loadSitesFromFile(File file) {
     Map<String, dynamic> content = json.decode(file.readAsStringSync());
-    List<Site> sites = [];
+    Map<String, Site> sites = {};
     for (var item in content.keys) {
-      sites.add(
-        Site.fromJson(content[item])..address = item,
-      );
+      sites[item] = Site.fromJson(content[item]);
     }
     return sites;
+  }
+
+  void saveSettingstoFile(File sitesFile, Map sitesData) {
+    if (sitesFile.existsSync()) {
+      sitesFile.writeAsStringSync(json.encode(sitesData));
+    }
   }
 }
