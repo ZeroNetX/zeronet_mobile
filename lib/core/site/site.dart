@@ -65,8 +65,7 @@ class Site {
     authKey = jsonStr['auth_key'];
     bytesRecv = jsonStr['bytes_recv'];
     bytesSent = jsonStr['bytes_sent'];
-    cache =
-        jsonStr['cache'] != null ? new Cache.fromJson(jsonStr['cache']) : null;
+    cache = jsonStr['cache'] != null ? Cache.fromJson(jsonStr['cache']) : null;
     downloaded = jsonStr['downloaded']?.toInt();
     modified = jsonStr['modified']?.toInt();
     optionalDownloaded = jsonStr['optional_downloaded'];
@@ -125,9 +124,8 @@ class Cache {
   Cache.fromJson(Map<String, dynamic> jsonStr) {
     badFiles = jsonStr['bad_files'] != null ? jsonStr['bad_files'] : null;
     hashfield = jsonStr['hashfield'];
-    piecefields = jsonStr['piecefields'] != null
-        ? json.decode(jsonStr['piecefields'])
-        : null;
+    piecefields =
+        jsonStr['piecefields'] != null ? jsonStr['piecefields'] : null;
   }
 
   Map<String, dynamic> toJson() {

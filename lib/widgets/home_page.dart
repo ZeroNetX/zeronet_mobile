@@ -8,6 +8,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
+import 'package:in_app_review/in_app_review.dart';
+
 import 'package:zeronet/core/site/site.dart';
 import 'package:zeronet/core/site/site_manager.dart';
 import 'package:zeronet/mobx/uistore.dart';
@@ -41,10 +43,44 @@ class HomePage extends StatelessWidget {
                   ),
                   ZeroNetStatusWidget(),
                   PopularZeroNetSites(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 5),
+                  ),
+                  RatingButtonWidget(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                  ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class RatingButtonWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      onPressed: () async {
+        final InAppReview inAppReview = InAppReview.instance;
+        if (await inAppReview.isAvailable()) {
+          inAppReview.requestReview();
+        }
+      },
+      color: Color(0xFF008297),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: Text(
+        'Give Your Rating/Feedback',
+        style: GoogleFonts.roboto(
+          fontSize: 16.0,
+          fontWeight: FontWeight.normal,
+          color: Colors.white,
         ),
       ),
     );
