@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet/others/constants.dart';
 import 'package:zeronet/others/utils.dart';
 import 'package:zeronet/others/zeronet_utils.dart';

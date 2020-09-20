@@ -49,6 +49,12 @@ Future<bool> isRequiredModulesInstalled() async =>
 Future<bool> copyAssetsToCache() async =>
     await _channel.invokeMethod('copyAssetsToCache');
 
+Future<String> getAppInstallTime() async =>
+    await _channel.invokeMethod('getAppInstallTime');
+
+Future<String> getAppLastUpdateTime() async =>
+    await _channel.invokeMethod('getAppLastUpdateTime');
+
 Future<bool> initSplitInstall() async =>
     await _channel.invokeMethod('initSplitInstall');
 

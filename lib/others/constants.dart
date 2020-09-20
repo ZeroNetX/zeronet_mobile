@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/utils.dart';
 import 'package:zeronet/others/zeronet_utils.dart';

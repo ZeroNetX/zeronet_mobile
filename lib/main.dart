@@ -12,6 +12,7 @@ import 'package:zeronet/widgets/log_page.dart';
 import 'package:zeronet/widgets/settings_page.dart';
 import 'package:zeronet/widgets/shortcut_loading_page.dart';
 import 'package:zeronet/widgets/zerobrowser_page.dart';
+import 'models/enums.dart';
 import 'others/common.dart';
 import 'others/utils.dart';
 import 'others/zeronet_utils.dart';

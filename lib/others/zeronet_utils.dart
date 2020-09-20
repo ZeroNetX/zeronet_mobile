@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:zeronet/core/site/site_manager.dart';
 import 'package:zeronet/core/user/user_manager.dart';
 import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import '../mobx/varstore.dart';
@@ -18,6 +21,7 @@ Future checkInitStatus() async {
   loadSitesFromFileSystem();
   loadUsersFromFileSystem();
   setZeroBrowserThemeValues();
+  checkForAppUpdates();
   try {
     String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
     String key = await ZeroNet.instance.getWrapperKey(url);
@@ -42,6 +46,19 @@ Future checkInitStatus() async {
         printToConsole('Zeronet Not Running');
         uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
       }
+    }
+  }
+}
+
+checkForAppUpdates() async {
+  DateTime time = DateTime.now();
+  var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
+  var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
+  //TODO: Update this checking to days instead of seconds after testing completed;
+  if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
+    AppUpdateInfo info = await InAppUpdate.checkForUpdate();
+    if (info.updateAvailable && info.flexibleUpdateAllowed) {
+      uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
 }

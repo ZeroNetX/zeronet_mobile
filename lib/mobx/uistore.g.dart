@@ -9,6 +9,23 @@ part of 'uistore.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$UiStore on _UiStore, Store {
+  final _$appUpdateAtom = Atom(name: '_UiStore.appUpdate');
+
+  @override
+  AppUpdate get appUpdate {
+    _$appUpdateAtom.context.enforceReadPolicy(_$appUpdateAtom);
+    _$appUpdateAtom.reportObserved();
+    return super.appUpdate;
+  }
+
+  @override
+  set appUpdate(AppUpdate value) {
+    _$appUpdateAtom.context.conditionallyRunInAction(() {
+      super.appUpdate = value;
+      _$appUpdateAtom.reportChanged();
+    }, _$appUpdateAtom, name: '${_$appUpdateAtom.name}_set');
+  }
+
   final _$showSnackReplyAtom = Atom(name: '_UiStore.showSnackReply');
 
   @override
@@ -114,14 +131,14 @@ mixin _$UiStore on _UiStore, Store {
   final _$currentThemeAtom = Atom(name: '_UiStore.currentTheme');
 
   @override
-  Theme get currentTheme {
+  AppTheme get currentTheme {
     _$currentThemeAtom.context.enforceReadPolicy(_$currentThemeAtom);
     _$currentThemeAtom.reportObserved();
     return super.currentTheme;
   }
 
   @override
-  set currentTheme(Theme value) {
+  set currentTheme(AppTheme value) {
     _$currentThemeAtom.context.conditionallyRunInAction(() {
       super.currentTheme = value;
       _$currentThemeAtom.reportChanged();
@@ -146,6 +163,16 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   final _$_UiStoreActionController = ActionController(name: '_UiStore');
+
+  @override
+  void updateInAppUpdateAvailable(AppUpdate available) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.updateInAppUpdateAvailable(available);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void updateShowSnackReply(bool show) {
@@ -208,7 +235,7 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   @override
-  void setTheme(Theme theme) {
+  void setTheme(AppTheme theme) {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.setTheme(theme);

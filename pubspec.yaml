@@ -23,6 +23,7 @@ dependencies:
   mobx: 0.3.3+1
   google_fonts: 1.1.0
   in_app_review: 0.2.0+4
+  in_app_update: 1.1.11
   outline_material_icons: 0.1.1
   equatable: 1.2.5
   time_ago_provider: 2.0.5

@@ -13,6 +13,7 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:zeronet/core/site/site.dart';
 import 'package:zeronet/core/site/site_manager.dart';
 import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
 import 'package:zeronet/others/constants.dart';
@@ -42,9 +43,16 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 30),
                   ),
                   ZeroNetStatusWidget(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                  ),
                   PopularZeroNetSites(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
+                  ),
+                  InAppUpdateWidget(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
                   ),
                   RatingButtonWidget(),
                   Padding(
@@ -57,6 +65,47 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class InAppUpdateWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (context) {
+      if (uiStore.appUpdate != AppUpdate.NOT_AVAILABLE)
+        return Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              'App Update Available : ',
+              style: GoogleFonts.roboto(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            RaisedButton(
+              onPressed: uiStore.appUpdate.action,
+              color: Color(0xFF008297),
+              padding: EdgeInsets.only(left: 10, right: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: Observer(builder: (context) {
+                return Text(
+                  uiStore.appUpdate.text,
+                  style: GoogleFonts.roboto(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                );
+              }),
+            ),
+          ],
+        );
+      return Container();
+    });
   }
 }
 
@@ -168,9 +217,6 @@ class ZeroNetStatusWidget extends StatelessWidget {
             ),
           ],
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 30),
-        )
       ],
     );
   }

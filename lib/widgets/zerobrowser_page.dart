@@ -4,6 +4,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:share/share.dart';
 import 'package:zeronet/mobx/uistore.dart';
 import 'package:zeronet/mobx/varstore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet/models/models.dart';
 import 'package:zeronet/others/common.dart';
 import 'package:zeronet/others/constants.dart';

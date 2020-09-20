@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:zeronet/core/site/site.dart';
 import 'package:zeronet/core/user/user.dart';
 import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 
 import '../mobx/varstore.dart';
 import '../models/models.dart';

@@ -5,6 +5,8 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -54,7 +56,6 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var intent = intent;
         if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null){
             mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
         }
@@ -64,8 +65,10 @@ class MainActivity : FlutterActivity() {
                         call.argument("title"),call.argument("url"),
                         call.argument("logoPath")
                 )
-                "launchZiteUrl" -> result.success(mLaunchShortcutUrl)
                 "batteryOptimisations" -> getBatteryOptimizations(result)
+                "copyAssetsToCache" -> result.success(copyAssetsToCache())
+                "getAppInstallTime" -> getAppInstallTime(result)
+                "getAppLastUpdateTime" -> getAppLastUpdateTime(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
                 "isPlayStoreInstall" -> result.success(isPlayStoreInstall(this))
                 "initSplitInstall" -> {
@@ -73,23 +76,23 @@ class MainActivity : FlutterActivity() {
                         splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
                     result.success(true)
                 }
-                "uninstallModules" -> uninstallModules()
                 "isModuleInstallSupported" -> result.success(isModuleInstallSupported())
                 "isRequiredModulesInstalled" -> result.success(isRequiredModulesInstalled())
-                "copyAssetsToCache" -> result.success(copyAssetsToCache())
+                "launchZiteUrl" -> result.success(mLaunchShortcutUrl)
+                "moveTaskToBack" -> {
+                    moveTaskToBack(true)
+                    result.success(true)
+                }
                 "nativeDir" -> result.success(applicationInfo.nativeLibraryDir)
+                "nativePrint" -> {
+                    Log.e("Flutter>nativePrint()",call.arguments())
+                }
                 "openJsonFile" -> openJsonFile(result)
                 "openZipFile" -> openZipFile(result)
                 "readJsonFromUri" -> readJsonFromUri(call.arguments.toString(), result)
                 "readZipFromUri" -> readZipFromUri(call.arguments.toString(), result)
                 "saveUserJsonFile" -> saveUserJsonFile(this, call.arguments.toString(), result)
-                "nativePrint" -> {
-                    Log.e("Flutter>nativePrint()",call.arguments())
-                }
-                "moveTaskToBack" -> {
-                    moveTaskToBack(true)
-                    result.success(true)
-                }
+                "uninstallModules" -> uninstallModules()
             }
         }
     }
@@ -143,6 +146,20 @@ class MainActivity : FlutterActivity() {
         } else {
             // Shortcut is not supported by your launcher
         }
+    }
+
+    private fun getAppInstallTime(result: MethodChannel.Result) {
+        val info = context.packageManager.getPackageInfo(context.packageName,0);
+        val field = PackageInfo::class.java.getField("firstInstallTime")
+        val timeStamp = field.getLong(info)
+        result.success(timeStamp.toString())
+    }
+
+    private fun getAppLastUpdateTime(result: MethodChannel.Result) {
+        val info = context.packageManager.getPackageInfo(context.packageName,0);
+        val field = PackageInfo::class.java.getField("lastUpdateTime")
+        val timeStamp = field.getLong(info)
+        result.success(timeStamp.toString())
     }
 
     private fun isPlayStoreInstall(context: Context): Boolean {
