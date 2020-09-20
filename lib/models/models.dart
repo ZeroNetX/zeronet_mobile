@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:equatable/equatable.dart';
+import 'package:zeronet/core/site/site.dart';
+
 import '../mobx/varstore.dart';
 import '../others/common.dart';
 import '../others/constants.dart';
@@ -81,11 +84,13 @@ class MapSetting extends Setting {
   String name;
   String description;
   Map map;
+  List<MapOptions> options;
 
   MapSetting({
     this.name,
     this.description,
     this.map,
+    this.options,
   }) : super(
           name: name,
           description: description,
@@ -110,49 +115,6 @@ class MapSetting extends Setting {
   }
 }
 
-class Utils {
-  static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
-  static const String urlTalk = 'Talk.ZeroNetwork.bit';
-  static const String urlBlog = 'Blog.ZeroNetwork.bit';
-  static const String urlMail = 'Mail.ZeroNetwork.bit';
-  static const String urlMe = 'Me.ZeroNetwork.bit';
-  static const String urlSites = 'Sites.ZeroNetwork.bit';
-  static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
-
-  static const initialSites = const {
-    'ZeroHello': {
-      'description': 'Hello Zeronet Site',
-      'url': urlHello,
-    },
-    'ZeroMobile': {
-      'description': 'Report Android App Issues Here.',
-      'url': urlZeroNetMob,
-    },
-    'ZeroTalk': {
-      'description': 'Reddit-like, decentralized forum',
-      'url': urlTalk,
-    },
-    'ZeroBlog': {
-      'description': 'Microblogging Platform',
-      'url': urlBlog,
-    },
-    'ZeroMail': {
-      'description': 'End-to-End Encrypted Mailing',
-      'url': urlMail,
-    },
-    'ZeroMe': {
-      'description': 'P2P Social Network',
-      'url': urlMe,
-    },
-    'ZeroSites': {
-      'description': 'Discover More Sites',
-      'url': urlSites,
-    },
-  };
-
-  // 'ZeroName': '1Name2NXVi1RDPDgf5617UoW7xA6YrhM9F',
-}
-
 class UnzipParams {
   String item;
   Uint8List bytes;
@@ -173,4 +135,78 @@ enum state {
   READY,
   RUNNING,
   NONE,
+}
+
+class SiteInfo extends Equatable {
+  final String address;
+  final int peers;
+  final int size;
+  final int files;
+  final DateTime siteAdded;
+  final DateTime siteModified;
+  final bool serving;
+  final DateTime siteCodeUpdated;
+  SiteInfo({
+    this.address = '',
+    this.peers = 0,
+    this.size = 0,
+    this.files = 0,
+    this.serving = false,
+    this.siteAdded,
+    this.siteModified,
+    this.siteCodeUpdated,
+  });
+
+  @override
+  List<Object> get props => [
+        address,
+        peers,
+        serving,
+        size,
+        files,
+        siteAdded,
+        siteModified,
+        siteCodeUpdated,
+      ];
+
+  List<String> get propStrings => [
+        'address',
+        'peers',
+        'serving',
+        'size',
+        'files',
+        'siteAdded',
+        'siteModified',
+        'siteCodeUpdated',
+      ];
+
+  SiteInfo fromJson(String jsonMap) {
+    Map map = json.decode(jsonMap)['result'];
+    return SiteInfo(
+      address: map['address'],
+      peers: map['peers'],
+      serving: map['settings']['serving'],
+      size: map['settings']['size'],
+      files: map['content']['files'],
+      siteAdded:
+          DateTime.fromMillisecondsSinceEpoch(map['settings']['added'] * 1000),
+      siteModified: DateTime.fromMillisecondsSinceEpoch(
+          map['settings']['downloaded'] * 1000),
+      siteCodeUpdated: DateTime.fromMillisecondsSinceEpoch(
+          map['settings']['modified'] * 1000),
+    );
+  }
+
+  SiteInfo fromSite(Site site) {
+    return SiteInfo(
+      address: site.address,
+      peers: site.peers,
+      serving: site.serving,
+      size: site.size,
+      siteAdded: DateTime.fromMillisecondsSinceEpoch(site.added * 1000),
+      siteModified: DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000),
+      siteCodeUpdated:
+          DateTime.fromMillisecondsSinceEpoch(site.modified * 1000),
+    );
+  }
 }

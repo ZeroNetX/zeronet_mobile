@@ -1,6 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:in_app_update/in_app_update.dart';
+import 'package:zeronet/core/site/site_manager.dart';
+import 'package:zeronet/core/user/user_manager.dart';
+import 'package:zeronet/mobx/uistore.dart';
+import 'package:zeronet/models/enums.dart';
 import 'package:zeronet_ws/zeronet_ws.dart';
 
 import '../mobx/varstore.dart';
@@ -9,6 +15,69 @@ import '../others/utils.dart';
 import 'common.dart';
 import 'constants.dart';
 import 'extensions.dart';
+import 'native.dart';
+
+Future checkInitStatus() async {
+  loadSitesFromFileSystem();
+  loadUsersFromFileSystem();
+  setZeroBrowserThemeValues();
+  checkForAppUpdates();
+  try {
+    String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
+    String key = await ZeroNet.instance.getWrapperKey(url);
+    zeroNetUrl = defZeroNetUrl;
+    varStore.zeroNetWrapperKey = key;
+    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+    ZeroNet.instance.connect(
+      zeroNetIPwithPort(defZeroNetUrl),
+      Utils.urlZeroNetMob,
+    );
+    showZeroNetRunningNotification(enableVibration: false);
+    testUrl();
+  } catch (e) {
+    if (launchUrl.isNotEmpty ||
+        !firstTime &&
+            (varStore.settings[autoStartZeroNet] as ToggleSetting).value) {
+      //TODO: Remember this!
+      runZeroNet();
+    }
+    if (e is OSError) {
+      if (e.errorCode == 111) {
+        printToConsole('Zeronet Not Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
+      }
+    }
+  }
+}
+
+checkForAppUpdates() async {
+  DateTime time = DateTime.now();
+  var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
+  var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
+  //TODO: Update this checking to days instead of seconds after testing completed;
+  if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
+    AppUpdateInfo info = await InAppUpdate.checkForUpdate();
+    if (info.updateAvailable && info.flexibleUpdateAllowed)
+      uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
+  }
+}
+
+loadSitesFromFileSystem() {
+  File sitesFile = File(getZeroNetDataDir().path + '/sites.json');
+  if (sitesFile.existsSync())
+    sitesAvailable = SiteManager().loadSitesFromFile(sitesFile);
+}
+
+loadUsersFromFileSystem() {
+  File usersFile = File(getZeroNetDataDir().path + '/users.json');
+  if (usersFile.existsSync())
+    usersAvailable = UserManager().loadUsersFromFile(usersFile);
+}
+
+setZeroBrowserThemeValues() {
+  if (usersAvailable.length > 0)
+    zeroBrowserTheme = usersAvailable.first.settings.theme;
+}
 
 runTorEngine() {
   final tor = zeroNetNativeDir + '/libtor.so';
@@ -29,14 +98,16 @@ runTorEngine() {
         printOut(e.toString());
       }
     });
-  } else
+  } else {
     //TODO: Improve Error Trace here
     printToConsole('Tor Binary Not Found');
+    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+  }
 }
 
 runZeroNet() {
-  if (varStore.zeroNetStatus == 'Not Running') {
-    varStore.setZeroNetStatus('Initialising...');
+  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+    uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     runTorEngine();
     log = '';
     printToConsole(logRunning);
@@ -69,11 +140,12 @@ runZeroNet() {
         if (e is ProcessException) {
           printOut(e.toString());
         }
-        varStore.setZeroNetStatus('Not Running');
+        uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
       });
     } else {
       //TODO: Improve Error Trace here
       printToConsole('Python Binary Not Found');
+      uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
       var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
       for (var item in contents) {
         printToConsole(item.name());
@@ -86,7 +158,7 @@ runZeroNet() {
 }
 
 shutDownZeronet() {
-  if (varStore.zeroNetStatus == 'Running') {
+  if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
@@ -98,7 +170,7 @@ shutDownZeronet() {
       }
     }
     zeroNetUrl = '';
-    varStore.setZeroNetStatus('Not Running');
+    uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
     flutterLocalNotificationsPlugin.cancelAll();
   }
 }
@@ -111,13 +183,13 @@ runZeroNetWs() {
         .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
         .then((value) {
       if (value != null) {
-        ZeroNet.wrapperKey = value;
+        // ZeroNet.wrapperKey = value;
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
       }
     });
   } else {
-    ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
+    // ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
     browserUrl = zeroNetUrl;
   }
 }
@@ -167,17 +239,12 @@ Directory getZeroNetDataDir() => Directory(
 List<String> getZeroNameProfiles() {
   List<String> list = [];
   if (getZeroNetDataDir().existsSync())
-    for (var item in getZeroNetDataDir().listSync()) {
-      if (item is File) {
-        if (item.path.endsWith('.json')) {
-          var name = item.path.replaceAll(getZeroNetDataDir().path + '/', '');
-          if (name.startsWith('users-')) {
-            var username =
-                name.replaceAll('users-', '').replaceAll('.json', '');
-            list.add(username);
-            printOut(username);
-          }
-        }
+    for (var item in getZeroNetDataDir().listSync().where(
+        (element) => element.path.endsWith('.json') && element is File)) {
+      var name = item.path.replaceAll(getZeroNetDataDir().path + '/', '');
+      if (name.startsWith('users-')) {
+        var username = name.replaceAll('users-', '').replaceAll('.json', '');
+        list.add(username);
       }
     }
   return list;
@@ -185,6 +252,7 @@ List<String> getZeroNameProfiles() {
 
 String getZeroIdUserName() {
   File file = File(getZeroNetUsersFilePath());
+  if (!file.existsSync()) return '';
   Map map = json.decode(file.readAsStringSync());
   var key = map.keys.first;
   Map certMap = map[key]['certs'];
@@ -201,4 +269,9 @@ String getZeroIdUserName() {
     }
   }
   return '';
+}
+
+bool isZiteExitsLocally(String address) {
+  String path = getZeroNetDataDir().path + '/$address';
+  return Directory(path).existsSync();
 }

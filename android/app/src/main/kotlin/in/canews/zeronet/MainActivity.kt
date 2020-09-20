@@ -2,8 +2,13 @@ package `in`.canews.zeronet
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +18,9 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.splitinstall.SplitInstallManager
@@ -44,12 +52,23 @@ class MainActivity : FlutterActivity() {
     private var splitInstallManager: SplitInstallManager? = null
     private lateinit var result: MethodChannel.Result
     private var mSessionId = -1
+    private var mLaunchShortcutUrl = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null){
+            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
+        }
         MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
+                "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
+                        call.argument("title"),call.argument("url"),
+                        call.argument("logoPath")
+                )
                 "batteryOptimisations" -> getBatteryOptimizations(result)
+                "copyAssetsToCache" -> result.success(copyAssetsToCache())
+                "getAppInstallTime" -> getAppInstallTime(result)
+                "getAppLastUpdateTime" -> getAppLastUpdateTime(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
                 "isPlayStoreInstall" -> result.success(isPlayStoreInstall(this))
                 "initSplitInstall" -> {
@@ -57,23 +76,23 @@ class MainActivity : FlutterActivity() {
                         splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
                     result.success(true)
                 }
-                "uninstallModules" -> uninstallModules()
                 "isModuleInstallSupported" -> result.success(isModuleInstallSupported())
                 "isRequiredModulesInstalled" -> result.success(isRequiredModulesInstalled())
-                "copyAssetsToCache" -> result.success(copyAssetsToCache())
+                "launchZiteUrl" -> result.success(mLaunchShortcutUrl)
+                "moveTaskToBack" -> {
+                    moveTaskToBack(true)
+                    result.success(true)
+                }
                 "nativeDir" -> result.success(applicationInfo.nativeLibraryDir)
+                "nativePrint" -> {
+                    Log.e("Flutter>nativePrint()",call.arguments())
+                }
                 "openJsonFile" -> openJsonFile(result)
                 "openZipFile" -> openZipFile(result)
                 "readJsonFromUri" -> readJsonFromUri(call.arguments.toString(), result)
                 "readZipFromUri" -> readZipFromUri(call.arguments.toString(), result)
                 "saveUserJsonFile" -> saveUserJsonFile(this, call.arguments.toString(), result)
-                "nativePrint" -> {
-                    Log.e("Flutter>nativePrint()",call.arguments())
-                }
-                "moveTaskToBack" -> {
-                    moveTaskToBack(true)
-                    result.success(true)
-                }
+                "uninstallModules" -> uninstallModules()
             }
         }
     }
@@ -93,6 +112,54 @@ class MainActivity : FlutterActivity() {
                     }
                 }
         )
+    }
+
+    private fun addShortcutToHomeScreen(context: Context,mResult: MethodChannel.Result,
+                                        title:String?,url:String?,logoPath:String?) {
+        if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+            val shortcutInfoBuilder: ShortcutInfoCompat.Builder = ShortcutInfoCompat.Builder(context, title.toString())
+                    .setIntent(
+                            Intent(context, MainActivity::class.java)
+                                    .setAction(Intent.ACTION_MAIN)
+                                    .putExtra(
+                                            "LAUNCH_SHORTCUT_URL",
+                                            url
+                                    )
+                    )
+                    .setShortLabel(title.toString())
+            if (logoPath.toString().isNotEmpty()){
+                val image = File(logoPath.toString())
+                val bmOptions: BitmapFactory.Options = BitmapFactory.Options()
+                val bitmap: Bitmap = BitmapFactory.decodeFile(image.absolutePath, bmOptions)
+                shortcutInfoBuilder.setIcon(IconCompat.createWithBitmap(bitmap))
+            } else {
+                shortcutInfoBuilder.setIcon(IconCompat.createWithResource(context, R.drawable.logo))
+            }
+            val shortcutInfo: ShortcutInfoCompat = shortcutInfoBuilder.build()
+            val shortcutCallbackIntent: PendingIntent = PendingIntent.getBroadcast(context,
+                    0,
+                    Intent(context, MainActivity::class.java)
+                            .putExtra("SHORTCUT_ADDED",true),
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+            ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, shortcutCallbackIntent.intentSender)
+            mResult.success(true)
+        } else {
+            // Shortcut is not supported by your launcher
+        }
+    }
+
+    private fun getAppInstallTime(result: MethodChannel.Result) {
+        val info = context.packageManager.getPackageInfo(context.packageName,0);
+        val field = PackageInfo::class.java.getField("firstInstallTime")
+        val timeStamp = field.getLong(info)
+        result.success(timeStamp.toString())
+    }
+
+    private fun getAppLastUpdateTime(result: MethodChannel.Result) {
+        val info = context.packageManager.getPackageInfo(context.packageName,0);
+        val field = PackageInfo::class.java.getField("lastUpdateTime")
+        val timeStamp = field.getLong(info)
+        result.success(timeStamp.toString())
     }
 
     private fun isPlayStoreInstall(context: Context): Boolean {

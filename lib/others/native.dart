@@ -15,6 +15,16 @@ const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
 const EventChannel _events_channel =
     const EventChannel('in.canews.zeronet/installModules');
 
+Future<bool> addToHomeScreen(String title, String url, String logoPath) async =>
+    await _channel.invokeMethod('addToHomeScreen', {
+      'title': title,
+      'url': url,
+      'logoPath': logoPath,
+    });
+
+Future<String> launchZiteUrl() async =>
+    await _channel.invokeMethod('launchZiteUrl');
+
 Future<bool> askBatteryOptimisation() async =>
     await _channel.invokeMethod('batteryOptimisations');
 
@@ -38,6 +48,12 @@ Future<bool> isRequiredModulesInstalled() async =>
 
 Future<bool> copyAssetsToCache() async =>
     await _channel.invokeMethod('copyAssetsToCache');
+
+Future<String> getAppInstallTime() async =>
+    await _channel.invokeMethod('getAppInstallTime');
+
+Future<String> getAppLastUpdateTime() async =>
+    await _channel.invokeMethod('getAppLastUpdateTime');
 
 Future<bool> initSplitInstall() async =>
     await _channel.invokeMethod('initSplitInstall');
@@ -67,15 +83,22 @@ void handleModuleDownloadStatus() {
 String filePath = '';
 Future<File> getUserJsonFile() async {
   String uri;
-  if (deviceInfo.version.sdkInt > 28) {
-    uri = await _channel.invokeMethod('openJsonFile');
-    filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
-  } else {
-    uri = (await pickUserJsonFile()).path;
-    filePath = uri;
+  try {
+    if (deviceInfo.version.sdkInt > 28) {
+      uri = await _channel.invokeMethod('openJsonFile');
+      filePath = await FlutterAbsolutePath.getAbsolutePath(uri);
+    } else {
+      uri = (await pickUserJsonFile()).path;
+      filePath = uri;
+    }
+    String path = await _channel.invokeMethod('readJsonFromUri', uri);
+    return File(path);
+  } catch (e) {
+    if (e is PlatformException && e.code == '526') {
+      return null;
+    }
+    return null;
   }
-  String path = await _channel.invokeMethod('readJsonFromUri', uri);
-  return File(path);
 }
 
 Future<File> getPluginZipFile() async {
