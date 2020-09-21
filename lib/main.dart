@@ -53,7 +53,13 @@ class MyApp extends StatelessWidget {
                       return HomePage();
                       break;
                     case AppRoute.Settings:
-                      return SettingsPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: SettingsPage(),
+                      );
                       break;
                     case AppRoute.ShortcutLoadingPage:
                       return ShortcutLoadingPage();
@@ -62,7 +68,13 @@ class MyApp extends StatelessWidget {
                       return ZeroBrowser();
                       break;
                     case AppRoute.LogPage:
-                      return ZeroNetLogPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: ZeroNetLogPage(),
+                      );
                       break;
                     default:
                       return Container();
