@@ -57,7 +57,6 @@ checkForAppUpdates() async {
   //TODO: Update this checking to days instead of seconds after testing completed;
   if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
     AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-    print(info);
     if (info.updateAvailable && info.flexibleUpdateAllowed)
       uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
   }
