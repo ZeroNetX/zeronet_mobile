@@ -28,11 +28,16 @@ class HomePage extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
                   ),
-                  InAppUpdateWidget(),
+                  if (!unImplementedFeatures.contains(Feature.IN_APP_UPDATES))
+                    InAppUpdateWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
                   RatingButtonWidget(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                  ),
+                  AboutButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -84,6 +89,28 @@ class InAppUpdateWidget extends StatelessWidget {
         );
       return Container();
     });
+  }
+}
+
+class AboutButtonWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      onPressed: () => uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
+      color: Color(0xFFAA5297),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: Text(
+        'Know More',
+        style: GoogleFonts.roboto(
+          fontSize: 16.0,
+          fontWeight: FontWeight.normal,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 }
 

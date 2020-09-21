@@ -19,13 +19,29 @@ class ZeroNetAppBar extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          InkWell(
-            child: Icon(
-              uiStore.currentAppRoute.icon,
-              size: 32.0,
-              color: Colors.black,
-            ),
-            onTap: uiStore.currentAppRoute.onClick,
+          Row(
+            children: [
+              if (uiStore.currentAppRoute == AppRoute.Settings)
+                InkWell(
+                  child: Icon(
+                    OMIcons.info,
+                    size: 32.0,
+                    color: Colors.black,
+                  ),
+                  onTap: () =>
+                      uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
+                ),
+              if (uiStore.currentAppRoute == AppRoute.Settings)
+                Padding(padding: const EdgeInsets.only(right: 20.0)),
+              InkWell(
+                child: Icon(
+                  uiStore.currentAppRoute.icon,
+                  size: 32.0,
+                  color: Colors.black,
+                ),
+                onTap: uiStore.currentAppRoute.onClick,
+              )
+            ],
           )
         ],
       );

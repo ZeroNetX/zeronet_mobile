@@ -160,11 +160,15 @@ enum AppRoute {
   ShortcutLoadingPage,
   ZeroBrowser,
   LogPage,
+  AboutPage,
 }
 
 extension AppRouteExt on AppRoute {
   get title {
     switch (this) {
+      case AppRoute.AboutPage:
+        return 'About';
+        break;
       case AppRoute.Home:
         return 'ZeroNet Mobile';
         break;
@@ -183,6 +187,7 @@ extension AppRouteExt on AppRoute {
 
   IconData get icon {
     switch (this) {
+      case AppRoute.AboutPage:
       case AppRoute.Settings:
       case AppRoute.ZeroBrowser:
       case AppRoute.LogPage:
@@ -201,6 +206,7 @@ extension AppRouteExt on AppRoute {
       case AppRoute.Home:
         uiStore.updateCurrentAppRoute(AppRoute.Settings);
         break;
+      case AppRoute.AboutPage:
       case AppRoute.Settings:
       case AppRoute.LogPage:
       case AppRoute.ZeroBrowser:

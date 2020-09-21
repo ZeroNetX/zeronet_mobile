@@ -43,6 +43,7 @@ export 'others/extensions.dart';
 export 'others/native.dart';
 export 'others/utils.dart';
 export 'others/zeronet_utils.dart';
+export 'widgets/about_page.dart';
 export 'widgets/common.dart';
 export 'widgets/home_page.dart';
 export 'widgets/loading_page.dart';

@@ -49,6 +49,14 @@ class MyApp extends StatelessWidget {
               return Observer(
                 builder: (ctx) {
                   switch (uiStore.currentAppRoute) {
+                    case AppRoute.AboutPage:
+                      return WillPopScope(
+                          onWillPop: () {
+                            uiStore.updateCurrentAppRoute(AppRoute.Home);
+                            return Future.value(false);
+                          },
+                          child: AboutPage());
+                      break;
                     case AppRoute.Home:
                       return HomePage();
                       break;
