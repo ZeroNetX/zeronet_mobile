@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:in_app_update/in_app_update.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
+import '../imports.dart';
 
 enum ZeroNetStatus {
   NOT_RUNNING,
@@ -179,6 +176,35 @@ extension AppRouteExt on AppRoute {
         break;
       case AppRoute.LogPage:
         return 'ZeroNet Log';
+        break;
+      default:
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case AppRoute.Settings:
+      case AppRoute.ZeroBrowser:
+      case AppRoute.LogPage:
+        return OMIcons.home;
+        break;
+      case AppRoute.Home:
+        return OMIcons.settings;
+        break;
+      default:
+        return OMIcons.error;
+    }
+  }
+
+  void onClick() {
+    switch (uiStore.currentAppRoute) {
+      case AppRoute.Home:
+        uiStore.updateCurrentAppRoute(AppRoute.Settings);
+        break;
+      case AppRoute.Settings:
+      case AppRoute.LogPage:
+      case AppRoute.ZeroBrowser:
+        uiStore.updateCurrentAppRoute(AppRoute.Home);
         break;
       default:
     }

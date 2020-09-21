@@ -1,15 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:device_info/device_info.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_absolute_path/flutter_absolute_path.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-import '../mobx/varstore.dart';
-import 'common.dart';
-import 'constants.dart';
-import 'utils.dart';
+import '../imports.dart';
 
 const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
 const EventChannel _events_channel =

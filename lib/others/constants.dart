@@ -1,17 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/utils.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet/widgets/common.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
-import 'native.dart';
+import '../imports.dart';
 
 const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
 const String dataDir = "/data/data/$pkgName/files";
@@ -45,6 +32,7 @@ const bool kEnableDynamicModules = !kDebugMode;
 const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
+  Feature.IN_APP_UPDATES,
 ];
 const List<String> binDirs = [
   'usr',
@@ -414,4 +402,5 @@ extension MapOptionExt on MapOptions {
 enum Feature {
   SITE_PAUSE_RESUME,
   SITE_DELETE,
+  IN_APP_UPDATES,
 }

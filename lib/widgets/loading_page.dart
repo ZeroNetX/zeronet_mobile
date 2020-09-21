@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-
-import '../mobx/varstore.dart';
-import '../others/common.dart';
+import '../imports.dart';
 
 class Loading extends StatelessWidget {
   // String data = 'Loading';

@@ -1,27 +1,5 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:share/share.dart';
+import '../imports.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
-import 'package:in_app_review/in_app_review.dart';
-
-import 'package:zeronet/core/site/site.dart';
-import 'package:zeronet/core/site/site_manager.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/common.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/extensions.dart';
-import 'package:zeronet/others/native.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-
-import 'common.dart';
 
 class HomePage extends StatelessWidget {
   @override

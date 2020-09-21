@@ -1,14 +1,4 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:equatable/equatable.dart';
-import 'package:zeronet/core/site/site.dart';
-
-import '../mobx/varstore.dart';
-import '../others/common.dart';
-import '../others/constants.dart';
-import '../others/native.dart';
-import '../others/zeronet_utils.dart';
+import '../imports.dart';
 
 abstract class Setting {
   String name;
@@ -203,10 +193,15 @@ class SiteInfo extends Equatable {
       peers: site.peers,
       serving: site.serving,
       size: site.size,
-      siteAdded: DateTime.fromMillisecondsSinceEpoch(site.added * 1000),
-      siteModified: DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000),
-      siteCodeUpdated:
-          DateTime.fromMillisecondsSinceEpoch(site.modified * 1000),
+      siteAdded: site.added != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.added * 1000)
+          : null,
+      siteModified: site.downloaded != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000)
+          : null,
+      siteCodeUpdated: site.modified != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.modified * 1000)
+          : null,
     );
   }
 }

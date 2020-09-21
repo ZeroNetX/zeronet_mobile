@@ -1,17 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/common.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
+import '../imports.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

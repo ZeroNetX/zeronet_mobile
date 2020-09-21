@@ -1,13 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/utils.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
+import '../imports.dart';
 
 class ZeroNetAppBar extends StatelessWidget {
   const ZeroNetAppBar({
@@ -22,7 +13,7 @@ class ZeroNetAppBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            uiStore.appBarTitle,
+            uiStore.currentAppRoute.title,
             style: GoogleFonts.roboto(
               fontSize: 32.0,
               fontWeight: FontWeight.bold,
@@ -30,23 +21,11 @@ class ZeroNetAppBar extends StatelessWidget {
           ),
           InkWell(
             child: Icon(
-              uiStore.appBarIcon,
+              uiStore.currentAppRoute.icon,
               size: 32.0,
               color: Colors.black,
             ),
-            onTap: () {
-              switch (uiStore.currentAppRoute) {
-                case AppRoute.Home:
-                  uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                  break;
-                case AppRoute.Settings:
-                case AppRoute.ZeroBrowser:
-                case AppRoute.LogPage:
-                  uiStore.updateCurrentAppRoute(AppRoute.Home);
-                  break;
-                default:
-              }
-            },
+            onTap: uiStore.currentAppRoute.onClick,
           )
         ],
       );
