@@ -34,7 +34,7 @@ const bool kEnableDynamicModules = !kDebugMode;
 const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
-  Feature.IN_APP_UPDATES,
+  // Feature.IN_APP_UPDATES,
 ];
 const List<String> binDirs = [
   'usr',
