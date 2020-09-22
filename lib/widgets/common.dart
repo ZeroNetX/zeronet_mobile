@@ -187,3 +187,26 @@ class _ProfileSwitcherUserNameEditTextState
     );
   }
 }
+
+class ClickableTextWidget extends StatelessWidget {
+  ClickableTextWidget({
+    this.text,
+    this.textStyle,
+    this.onClick,
+  });
+
+  final String text;
+  final TextStyle textStyle;
+  final VoidCallback onClick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        text: text,
+        style: textStyle,
+        recognizer: TapGestureRecognizer()..onTap = onClick,
+      ),
+    );
+  }
+}

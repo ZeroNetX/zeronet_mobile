@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/gestures.dart';
+import 'package:zeronet/others/donation_const.dart';
 
 import '../imports.dart';
 
@@ -84,6 +86,10 @@ class AboutPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                     ),
+                    DonationWidget(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                    ),
                     Text(
                       'Contribute',
                       style: GoogleFonts.roboto(
@@ -107,6 +113,92 @@ class AboutPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class DonationWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Donation Addresses',
+          style: GoogleFonts.roboto(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+        ),
+        LayoutBuilder(
+          builder: (ctx, cons) {
+            List<Widget> children = [];
+            for (var crypto in donationsAddressMap.keys) {
+              children.add(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      crypto,
+                      style: GoogleFonts.roboto(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    ClickableTextWidget(
+                      text: donationsAddressMap[crypto],
+                      textStyle: GoogleFonts.roboto(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                        color: Color(0xFF8663FF),
+                        decoration: TextDecoration.underline,
+                      ),
+                      onClick: () =>
+                          FlutterClipboard.copy(donationsAddressMap[crypto]),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(6.0),
+                    )
+                  ],
+                ),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children,
+            );
+          },
+        ),
+        Flexible(
+          child: Text(
+            "* Click on Address to copy",
+            style: GoogleFonts.roboto(
+              fontSize: 16.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+        ),
+        Flexible(
+          child: Text(
+            "* Any Donation can activate all pro-features in app, "
+            "these are just an encouragement to me to work more on the app. "
+            "Pro-features will be made available to general public after certain time, "
+            "thus you don't need to worry about exclusiveness of a feature. "
+            "If you purchase from any source other than Google Play Purchase, "
+            "just send your transaction id to canews.in@gmail.com / ZeroMail: zeromepro, "
+            "so than I can send activation code to activate pro-features.",
+            style: GoogleFonts.roboto(
+              fontSize: 16.0,
+            ),
+          ),
+        )
+      ],
     );
   }
 }
