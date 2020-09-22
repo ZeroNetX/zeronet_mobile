@@ -120,8 +120,12 @@ class RatingButtonWidget extends StatelessWidget {
     return RaisedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
-        if (await inAppReview.isAvailable()) {
+        final kIsPlayStoreInstall = await isPlayStoreInstall();
+        //TODO: remove this once we support non playstore reviews.
+        if (await inAppReview.isAvailable() && kIsPlayStoreInstall) {
           inAppReview.requestReview();
+        } else {
+          //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
         }
       },
       color: Color(0xFF008297),
