@@ -3,6 +3,8 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
+  //TODO: Check For Google Play Store Install.
+  InAppPurchaseConnection.enablePendingPurchases();
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }

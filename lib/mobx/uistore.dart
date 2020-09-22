@@ -21,6 +21,24 @@ abstract class _UiStore with Store {
   void updateInAppUpdateAvailable(AppUpdate available) => appUpdate = available;
 
   @observable
+  ObservableList<ProductDetails> oneTimePurchases =
+      ObservableList<ProductDetails>();
+
+  @observable
+  ObservableList<ProductDetails> subscriptions =
+      ObservableList<ProductDetails>();
+
+  @action
+  void addOneTimePuchases(List<ProductDetails> details) {
+    oneTimePurchases.addAll(details);
+  }
+
+  @action
+  void addSubscriptions(List<ProductDetails> details) {
+    subscriptions.addAll(details);
+  }
+
+  @observable
   bool showSnackReply = false;
 
   @action

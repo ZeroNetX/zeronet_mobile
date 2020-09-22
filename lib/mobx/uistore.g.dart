@@ -26,6 +26,40 @@ mixin _$UiStore on _UiStore, Store {
     }, _$appUpdateAtom, name: '${_$appUpdateAtom.name}_set');
   }
 
+  final _$oneTimePurchasesAtom = Atom(name: '_UiStore.oneTimePurchases');
+
+  @override
+  ObservableList<ProductDetails> get oneTimePurchases {
+    _$oneTimePurchasesAtom.context.enforceReadPolicy(_$oneTimePurchasesAtom);
+    _$oneTimePurchasesAtom.reportObserved();
+    return super.oneTimePurchases;
+  }
+
+  @override
+  set oneTimePurchases(ObservableList<ProductDetails> value) {
+    _$oneTimePurchasesAtom.context.conditionallyRunInAction(() {
+      super.oneTimePurchases = value;
+      _$oneTimePurchasesAtom.reportChanged();
+    }, _$oneTimePurchasesAtom, name: '${_$oneTimePurchasesAtom.name}_set');
+  }
+
+  final _$subscriptionsAtom = Atom(name: '_UiStore.subscriptions');
+
+  @override
+  ObservableList<ProductDetails> get subscriptions {
+    _$subscriptionsAtom.context.enforceReadPolicy(_$subscriptionsAtom);
+    _$subscriptionsAtom.reportObserved();
+    return super.subscriptions;
+  }
+
+  @override
+  set subscriptions(ObservableList<ProductDetails> value) {
+    _$subscriptionsAtom.context.conditionallyRunInAction(() {
+      super.subscriptions = value;
+      _$subscriptionsAtom.reportChanged();
+    }, _$subscriptionsAtom, name: '${_$subscriptionsAtom.name}_set');
+  }
+
   final _$showSnackReplyAtom = Atom(name: '_UiStore.showSnackReply');
 
   @override
@@ -135,6 +169,26 @@ mixin _$UiStore on _UiStore, Store {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.updateInAppUpdateAvailable(available);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addOneTimePuchases(List<ProductDetails> details) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.addOneTimePuchases(details);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addSubscriptions(List<ProductDetails> details) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.addSubscriptions(details);
     } finally {
       _$_UiStoreActionController.endAction(_$actionInfo);
     }

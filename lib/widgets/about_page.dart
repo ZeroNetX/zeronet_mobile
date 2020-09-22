@@ -184,6 +184,10 @@ class DonationWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
         ),
+        GooglePlayInAppPurchases(),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+        ),
         Flexible(
           child: Text(
             "* Any Donation can activate all pro-features in app, "
@@ -301,6 +305,77 @@ class DeveloperWidget extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class GooglePlayInAppPurchases extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    getGooglePlayOneTimePurchases()
+        .then((value) => uiStore.addOneTimePuchases(value));
+    getGooglePlaySubscriptions()
+        .then((value) => uiStore.addSubscriptions(value));
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text.rich(
+            TextSpan(
+              text: 'Direct Donation ',
+              children: [
+                TextSpan(
+                  text: '(30% taken by Google) :',
+                  style: GoogleFonts.roboto(
+                    fontSize: 14.0,
+                  ),
+                ),
+              ],
+              style: GoogleFonts.roboto(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Observer(builder: (ctx) {
+            List<ProductDetails> oneTimePurchases = uiStore.oneTimePurchases;
+            if (oneTimePurchases.length > 0) {
+              List<Widget> children = [];
+              for (var item in oneTimePurchases) {
+                var i = oneTimePurchases.indexOf(item);
+                Color c = Color(0xFF);
+                String label = '';
+                switch (i) {
+                  case 0:
+                    label = 'Tip';
+                    c = Color(0xFF06CAB6);
+                    break;
+                  case 1:
+                    label = 'Coffee';
+                    c = Color(0xFF0696CA);
+                    break;
+                  case 2:
+                    label = 'Lunch';
+                    c = Color(0xFFCA067B);
+                    break;
+                  default:
+                }
+                children.add(
+                  RaisedButton(
+                    child: Text("$label(${item.price})"),
+                    color: c,
+                    onPressed: () {},
+                  ),
+                );
+              }
+              return Wrap(
+                children: [],
+              );
+            } else
+              return Container();
+          })
+        ],
+      ),
     );
   }
 }

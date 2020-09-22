@@ -20,6 +20,7 @@ export 'package:flutter_mobx/flutter_mobx.dart';
 export 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 export 'package:google_fonts/google_fonts.dart';
 export 'package:http/http.dart';
+export 'package:in_app_purchase/in_app_purchase.dart';
 export 'package:in_app_review/in_app_review.dart';
 export 'package:in_app_update/in_app_update.dart';
 export 'package:outline_material_icons/outline_material_icons.dart';
