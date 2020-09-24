@@ -21,7 +21,7 @@ Future<List<ProductDetails>> getGooglePlaySubscriptions() async {
   final ProductDetailsResponse response = await InAppPurchaseConnection.instance
       .queryProductDetails(kGooglePlayPurchaseSubscriptionIds);
   if (response.notFoundIDs.isNotEmpty) {
-    // Handle the error.
+    print(response.notFoundIDs);
   }
   return response.productDetails;
 }
@@ -30,7 +30,7 @@ Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
   final ProductDetailsResponse response = await InAppPurchaseConnection.instance
       .queryProductDetails(kGooglePlayPurchaseOneTimeIds);
   if (response.notFoundIDs.isNotEmpty) {
-    // Handle the error.
+    print(response.notFoundIDs);
   }
   return response.productDetails;
 }
