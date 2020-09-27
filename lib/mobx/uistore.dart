@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:outline_material_icons/outline_material_icons.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
+
+import '../imports.dart';
 
 // Include generated file
 part 'uistore.g.dart';
@@ -21,6 +19,24 @@ abstract class _UiStore with Store {
 
   @action
   void updateInAppUpdateAvailable(AppUpdate available) => appUpdate = available;
+
+  @observable
+  ObservableList<ProductDetails> oneTimePurchases =
+      ObservableList<ProductDetails>();
+
+  @observable
+  ObservableList<ProductDetails> subscriptions =
+      ObservableList<ProductDetails>();
+
+  @action
+  void addOneTimePuchases(List<ProductDetails> details) {
+    oneTimePurchases.addAll(details);
+  }
+
+  @action
+  void addSubscriptions(List<ProductDetails> details) {
+    subscriptions.addAll(details);
+  }
 
   @observable
   bool showSnackReply = false;
@@ -50,40 +66,7 @@ abstract class _UiStore with Store {
   AppRoute currentAppRoute = AppRoute.Home;
 
   @action
-  void updateCurrentAppRoute(AppRoute appRoute) {
-    currentAppRoute = appRoute;
-    switch (appRoute) {
-      case AppRoute.Home:
-        updateAppBarTitle(AppRoute.Home.title);
-        updateAppBarIcon(OMIcons.settings);
-        break;
-      case AppRoute.Settings:
-        updateAppBarTitle(AppRoute.Settings.title);
-        updateAppBarIcon(OMIcons.home);
-        break;
-      case AppRoute.ZeroBrowser:
-        updateAppBarTitle(AppRoute.ZeroBrowser.title);
-        updateAppBarIcon(OMIcons.home);
-        break;
-      case AppRoute.LogPage:
-        updateAppBarTitle(AppRoute.LogPage.title);
-        updateAppBarIcon(OMIcons.home);
-        break;
-      default:
-    }
-  }
-
-  @observable
-  String appBarTitle = AppRoute.Home.title;
-
-  @action
-  void updateAppBarTitle(String title) => appBarTitle = title;
-
-  @observable
-  IconData appBarIcon = OMIcons.settings;
-
-  @action
-  void updateAppBarIcon(IconData icon) => appBarIcon = icon;
+  void updateCurrentAppRoute(AppRoute appRoute) => currentAppRoute = appRoute;
 
   @observable
   AppTheme currentTheme = AppTheme.Light;

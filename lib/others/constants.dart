@@ -1,17 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/utils.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet/widgets/common.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
-import 'native.dart';
+import '../imports.dart';
 
 const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
 const String dataDir = "/data/data/$pkgName/files";
@@ -25,6 +12,8 @@ const String zeronet = '$zeronetDir/zeronet.py';
 const String defZeroNetUrl = 'http://127.0.0.1:43110/';
 const String downloading = 'Downloading Files';
 const String installing = 'Installing ZeroNet Files';
+const String facebookLink = 'https://facebook.com';
+const String twitterLink = 'https://twitter.com';
 const String githubLink = 'https://github.com';
 const String rawGithubLink = 'https://raw.githubusercontent.com';
 const String canewsInRepo = '/canewsin/ZeroNet';
@@ -45,6 +34,7 @@ const bool kEnableDynamicModules = !kDebugMode;
 const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
+  // Feature.IN_APP_UPDATES,
 ];
 const List<String> binDirs = [
   'usr',
@@ -56,6 +46,24 @@ const List<String> soDirs = [
   'usr/lib',
   'usr/lib/python3.8/lib-dynload',
   'usr/lib/python3.8/site-packages',
+];
+const List<AppDeveloper> appDevelopers = [
+  AppDeveloper(
+    name: 'PramUkesh',
+    developerType: 'developer',
+    profileIconLink: 'assets/developers/pramukesh.jpg',
+    githubLink: '$githubLink/PramUkesh/',
+    facebookLink: '$facebookLink/n.bhargavvenky',
+    twitterLink: '$twitterLink/PramukeshVenky',
+  ),
+  AppDeveloper(
+    name: 'CANewsIn',
+    developerType: 'organisation',
+    profileIconLink: 'assets/developers/canewsin.jpg',
+    githubLink: '$githubLink/canewsin/',
+    facebookLink: '$facebookLink/canews.in',
+    twitterLink: '$twitterLink/canewsin',
+  ),
 ];
 
 const String profileSwitcher = 'Profile Switcher';
@@ -414,4 +422,5 @@ extension MapOptionExt on MapOptions {
 enum Feature {
   SITE_PAUSE_RESUME,
   SITE_DELETE,
+  IN_APP_UPDATES,
 }

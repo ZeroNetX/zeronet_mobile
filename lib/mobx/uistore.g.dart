@@ -26,6 +26,40 @@ mixin _$UiStore on _UiStore, Store {
     }, _$appUpdateAtom, name: '${_$appUpdateAtom.name}_set');
   }
 
+  final _$oneTimePurchasesAtom = Atom(name: '_UiStore.oneTimePurchases');
+
+  @override
+  ObservableList<ProductDetails> get oneTimePurchases {
+    _$oneTimePurchasesAtom.context.enforceReadPolicy(_$oneTimePurchasesAtom);
+    _$oneTimePurchasesAtom.reportObserved();
+    return super.oneTimePurchases;
+  }
+
+  @override
+  set oneTimePurchases(ObservableList<ProductDetails> value) {
+    _$oneTimePurchasesAtom.context.conditionallyRunInAction(() {
+      super.oneTimePurchases = value;
+      _$oneTimePurchasesAtom.reportChanged();
+    }, _$oneTimePurchasesAtom, name: '${_$oneTimePurchasesAtom.name}_set');
+  }
+
+  final _$subscriptionsAtom = Atom(name: '_UiStore.subscriptions');
+
+  @override
+  ObservableList<ProductDetails> get subscriptions {
+    _$subscriptionsAtom.context.enforceReadPolicy(_$subscriptionsAtom);
+    _$subscriptionsAtom.reportObserved();
+    return super.subscriptions;
+  }
+
+  @override
+  set subscriptions(ObservableList<ProductDetails> value) {
+    _$subscriptionsAtom.context.conditionallyRunInAction(() {
+      super.subscriptions = value;
+      _$subscriptionsAtom.reportChanged();
+    }, _$subscriptionsAtom, name: '${_$subscriptionsAtom.name}_set');
+  }
+
   final _$showSnackReplyAtom = Atom(name: '_UiStore.showSnackReply');
 
   @override
@@ -87,45 +121,11 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   @override
-  set currentAppRoute(dynamic value) {
+  set currentAppRoute(AppRoute value) {
     _$currentAppRouteAtom.context.conditionallyRunInAction(() {
       super.currentAppRoute = value;
       _$currentAppRouteAtom.reportChanged();
     }, _$currentAppRouteAtom, name: '${_$currentAppRouteAtom.name}_set');
-  }
-
-  final _$appBarTitleAtom = Atom(name: '_UiStore.appBarTitle');
-
-  @override
-  String get appBarTitle {
-    _$appBarTitleAtom.context.enforceReadPolicy(_$appBarTitleAtom);
-    _$appBarTitleAtom.reportObserved();
-    return super.appBarTitle;
-  }
-
-  @override
-  set appBarTitle(dynamic value) {
-    _$appBarTitleAtom.context.conditionallyRunInAction(() {
-      super.appBarTitle = value;
-      _$appBarTitleAtom.reportChanged();
-    }, _$appBarTitleAtom, name: '${_$appBarTitleAtom.name}_set');
-  }
-
-  final _$appBarIconAtom = Atom(name: '_UiStore.appBarIcon');
-
-  @override
-  IconData get appBarIcon {
-    _$appBarIconAtom.context.enforceReadPolicy(_$appBarIconAtom);
-    _$appBarIconAtom.reportObserved();
-    return super.appBarIcon;
-  }
-
-  @override
-  set appBarIcon(IconData value) {
-    _$appBarIconAtom.context.conditionallyRunInAction(() {
-      super.appBarIcon = value;
-      _$appBarIconAtom.reportChanged();
-    }, _$appBarIconAtom, name: '${_$appBarIconAtom.name}_set');
   }
 
   final _$currentThemeAtom = Atom(name: '_UiStore.currentTheme');
@@ -155,7 +155,7 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   @override
-  set zeroNetStatus(dynamic value) {
+  set zeroNetStatus(ZeroNetStatus value) {
     _$zeroNetStatusAtom.context.conditionallyRunInAction(() {
       super.zeroNetStatus = value;
       _$zeroNetStatusAtom.reportChanged();
@@ -169,6 +169,26 @@ mixin _$UiStore on _UiStore, Store {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.updateInAppUpdateAvailable(available);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addOneTimePuchases(List<ProductDetails> details) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.addOneTimePuchases(details);
+    } finally {
+      _$_UiStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addSubscriptions(List<ProductDetails> details) {
+    final _$actionInfo = _$_UiStoreActionController.startAction();
+    try {
+      return super.addSubscriptions(details);
     } finally {
       _$_UiStoreActionController.endAction(_$actionInfo);
     }
@@ -205,30 +225,10 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   @override
-  void updateCurrentAppRoute(dynamic appRoute) {
+  void updateCurrentAppRoute(AppRoute appRoute) {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.updateCurrentAppRoute(appRoute);
-    } finally {
-      _$_UiStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void updateAppBarTitle(dynamic title) {
-    final _$actionInfo = _$_UiStoreActionController.startAction();
-    try {
-      return super.updateAppBarTitle(title);
-    } finally {
-      _$_UiStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void updateAppBarIcon(IconData icon) {
-    final _$actionInfo = _$_UiStoreActionController.startAction();
-    try {
-      return super.updateAppBarIcon(icon);
     } finally {
       _$_UiStoreActionController.endAction(_$actionInfo);
     }
@@ -245,7 +245,7 @@ mixin _$UiStore on _UiStore, Store {
   }
 
   @override
-  void setZeroNetStatus(dynamic status) {
+  void setZeroNetStatus(ZeroNetStatus status) {
     final _$actionInfo = _$_UiStoreActionController.startAction();
     try {
       return super.setZeroNetStatus(status);

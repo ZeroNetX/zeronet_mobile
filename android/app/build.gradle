@@ -93,6 +93,9 @@ flutter {
 }
 
 dependencies {
+    def billing_version = "3.0.0"
+    implementation 'com.android.billingclient:billing:$billing_version'
+    
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.gms:play-services-base:17.2.0'
 

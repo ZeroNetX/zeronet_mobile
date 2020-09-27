@@ -1,21 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:in_app_update/in_app_update.dart';
-import 'package:zeronet/core/site/site_manager.dart';
-import 'package:zeronet/core/user/user_manager.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import '../mobx/varstore.dart';
-import '../models/models.dart';
-import '../others/utils.dart';
-import 'common.dart';
-import 'constants.dart';
-import 'extensions.dart';
-import 'native.dart';
+import '../imports.dart';
 
 Future checkInitStatus() async {
   loadSitesFromFileSystem();
@@ -76,7 +59,7 @@ loadUsersFromFileSystem() {
 
 setZeroBrowserThemeValues() {
   if (usersAvailable.length > 0)
-    zeroBrowserTheme = usersAvailable.first.settings.theme;
+    zeroBrowserTheme = usersAvailable.first.settings.theme ?? 'light';
 }
 
 runTorEngine() {

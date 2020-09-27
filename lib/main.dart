@@ -1,26 +1,10 @@
-import 'dart:async';
+import 'imports.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/others/native.dart';
-import 'package:zeronet/widgets/home_page.dart';
-import 'package:zeronet/widgets/loading_page.dart';
-import 'package:zeronet/widgets/log_page.dart';
-import 'package:zeronet/widgets/settings_page.dart';
-import 'package:zeronet/widgets/shortcut_loading_page.dart';
-import 'package:zeronet/widgets/zerobrowser_page.dart';
-import 'models/enums.dart';
-import 'others/common.dart';
-import 'others/utils.dart';
-import 'others/zeronet_utils.dart';
-
-//TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
+  //TODO: Check For Google Play Store Install.
+  InAppPurchaseConnection.enablePendingPurchases();
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -48,6 +32,7 @@ class MyApp extends StatelessWidget {
           builder: (context) {
             if (varStore.zeroNetInstalled) {
               if (firstTime) {
+                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
               }
@@ -67,11 +52,25 @@ class MyApp extends StatelessWidget {
               return Observer(
                 builder: (ctx) {
                   switch (uiStore.currentAppRoute) {
+                    case AppRoute.AboutPage:
+                      return WillPopScope(
+                          onWillPop: () {
+                            uiStore.updateCurrentAppRoute(AppRoute.Home);
+                            return Future.value(false);
+                          },
+                          child: AboutPage());
+                      break;
                     case AppRoute.Home:
                       return HomePage();
                       break;
                     case AppRoute.Settings:
-                      return SettingsPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: SettingsPage(),
+                      );
                       break;
                     case AppRoute.ShortcutLoadingPage:
                       return ShortcutLoadingPage();
@@ -80,7 +79,13 @@ class MyApp extends StatelessWidget {
                       return ZeroBrowser();
                       break;
                     case AppRoute.LogPage:
-                      return ZeroNetLogPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: ZeroNetLogPage(),
+                      );
                       break;
                     default:
                       return Container();

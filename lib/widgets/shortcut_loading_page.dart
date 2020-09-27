@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:zeronet/others/common.dart';
+import '../imports.dart';
 
 class ShortcutLoadingPage extends StatelessWidget {
   @override

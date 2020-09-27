@@ -1,21 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:archive/archive.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:package_info/package_info.dart';
-import 'package:random_string/random_string.dart';
 
-import 'common.dart';
-import 'constants.dart';
-import '../mobx/varstore.dart';
-import '../models/models.dart';
-import '../others/native.dart';
+import '../imports.dart';
 
 debugTime(Function func) {
   var start = DateTime.now();
@@ -24,7 +11,9 @@ debugTime(Function func) {
 }
 
 printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {
-  if (kDebugMode || appVersion.contains('beta')) {
+  if (kDebugMode ||
+      appVersion.contains('beta') ||
+      appVersion.contains('internal')) {
     var breaks = '';
     for (var i = 0; i < lineBreaks; i++) breaks = breaks + '\n';
     if (isNative)
