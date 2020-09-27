@@ -9,6 +9,7 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
+bool kIsPlayStoreInstall = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -56,6 +57,7 @@ List<String> files(String arch) => [
 
 init() async {
   getArch();
+  kIsPlayStoreInstall = await isPlayStoreInstall();
   zeroNetNativeDir = await getNativeDir();
   tempDir = await getTemporaryDirectory();
   appPrivDir = await getExternalStorageDirectory();
