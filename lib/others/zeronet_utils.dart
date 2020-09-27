@@ -59,7 +59,7 @@ loadUsersFromFileSystem() {
 
 setZeroBrowserThemeValues() {
   if (usersAvailable.length > 0)
-    zeroBrowserTheme = usersAvailable.first.settings.theme;
+    zeroBrowserTheme = usersAvailable.first.settings.theme ?? 'light';
 }
 
 runTorEngine() {
