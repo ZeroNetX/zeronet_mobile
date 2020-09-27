@@ -137,14 +137,13 @@ extension AppUpdateExt on AppUpdate {
     switch (uiStore.appUpdate) {
       case AppUpdate.AVAILABLE:
         {
-          InAppUpdate.performImmediateUpdate().then((value) =>
-              uiStore.updateInAppUpdateAvailable(AppUpdate.NOT_AVAILABLE));
+          // InAppUpdate.performImmediateUpdate().then((value) =>
+          //     uiStore.updateInAppUpdateAvailable(AppUpdate.NOT_AVAILABLE));
           //TODO: Switch to startFlexibleUpdate() when below issue is Fixed.
           //https://github.com/feilfeilundfeil/flutter_in_app_update/issues/42
-          //
-          // InAppUpdate.startFlexibleUpdate().then((value) =>
-          //     uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADED));
-          // uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADING);
+          InAppUpdate.startFlexibleUpdate().then((value) =>
+              uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADED));
+          uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADING);
         }
         break;
       case AppUpdate.DOWNLOADED:

@@ -106,6 +106,9 @@ class AboutPage extends StatelessWidget {
                         fontSize: 18.0,
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                    ),
                   ],
                 ),
               )
@@ -157,8 +160,16 @@ class DonationWidget extends StatelessWidget {
                         color: Color(0xFF8663FF),
                         decoration: TextDecoration.underline,
                       ),
-                      onClick: () =>
-                          FlutterClipboard.copy(donationsAddressMap[crypto]),
+                      onClick: () {
+                        FlutterClipboard.copy(donationsAddressMap[crypto]);
+                        Scaffold.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '$crypto Donation Address Copied to Clipboard',
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     Padding(
                       padding: const EdgeInsets.all(6.0),
@@ -194,7 +205,7 @@ class DonationWidget extends StatelessWidget {
             "these are just an encouragement to me to work more on the app. "
             "Pro-features will be made available to general public after certain time, "
             "thus you don't need to worry about exclusiveness of a feature. "
-            "If you purchase from any source other than Google Play Purchase, "
+            "If you donate from any source other than Google Play Purchase, "
             "just send your transaction id to canews.in@gmail.com / ZeroMail: zeromepro, "
             "so than I can send activation code to activate pro-features.",
             style: GoogleFonts.roboto(
@@ -322,7 +333,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
         children: [
           Text.rich(
             TextSpan(
-              text: 'Direct Donation ',
+              text: 'Google Play Purchases ',
               children: [
                 TextSpan(
                   text: '(30% taken by Google) :',
