@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
           builder: (context) {
             if (varStore.zeroNetInstalled) {
               if (firstTime) {
+                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
               }
