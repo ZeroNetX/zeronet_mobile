@@ -11,7 +11,9 @@ debugTime(Function func) {
 }
 
 printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {
-  if (kDebugMode || appVersion.contains('beta')) {
+  if (kDebugMode ||
+      appVersion.contains('beta') ||
+      appVersion.contains('internal')) {
     var breaks = '';
     for (var i = 0; i < lineBreaks; i++) breaks = breaks + '\n';
     if (isNative)

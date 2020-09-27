@@ -1,5 +1,4 @@
 include ':app'
-include ':nativelibs'
 include ':common'
 include ':arm64'
 include ':arm'
