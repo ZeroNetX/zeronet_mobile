@@ -195,6 +195,16 @@ bool isZeroNetUserDataExists() {
   return getZeroNetUsersFilePath().isNotEmpty;
 }
 
+bool isZeroNetUsersFileExists() {
+  var dataDir = getZeroNetDataDir();
+  if (dataDir.existsSync()) {
+    File f = File(dataDir.path + '/users.json');
+    return f.existsSync();
+  } else {
+    return false;
+  }
+}
+
 String getZeroNetUsersFilePath() {
   var dataDir = getZeroNetDataDir();
   if (dataDir.existsSync()) {
@@ -203,13 +213,8 @@ String getZeroNetUsersFilePath() {
     if (exists) {
       return f.path;
     }
-    return zeroNetDir + '/data/users.json';
-  } else {
-    dataDir.createSync(recursive: true);
-    File f = File(dataDir.path + '/users.json');
-    f.createSync(recursive: true);
-    return f.path;
   }
+  return '';
 }
 
 Directory getZeroNetDataDir() => Directory(

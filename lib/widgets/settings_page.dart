@@ -26,6 +26,10 @@ class SettingsPage extends StatelessWidget {
                     itemBuilder: (ctx, i) {
                       Setting current = Utils()
                           .defSettings[Utils().defSettings.keys.toList()[i]];
+                      if (current.name == profileSwitcher) {
+                        bool isUsersFileExists = isZeroNetUsersFileExists();
+                        if (!isUsersFileExists) return Container();
+                      }
                       return SettingsCard(
                         setting: current,
                       );

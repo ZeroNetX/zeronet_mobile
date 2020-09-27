@@ -28,12 +28,12 @@ class HomePage extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
                   ),
-                  if (!unImplementedFeatures.contains(Feature.IN_APP_UPDATES))
-                    InAppUpdateWidget(),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                  ),
-                  RatingButtonWidget(),
+                  InAppUpdateWidget(),
+                  if (kIsPlayStoreInstall)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                    ),
+                  if (kIsPlayStoreInstall) RatingButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -120,7 +120,6 @@ class RatingButtonWidget extends StatelessWidget {
     return RaisedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
-        final kIsPlayStoreInstall = await isPlayStoreInstall();
         //TODO: remove this once we support non playstore reviews.
         if (await inAppReview.isAvailable() && kIsPlayStoreInstall) {
           inAppReview.requestReview();
@@ -186,6 +185,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
               return InkWell(
                 onTap: uiStore.zeroNetStatus.onAction,
                 child: Chip(
+                  elevation: 8.0,
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
