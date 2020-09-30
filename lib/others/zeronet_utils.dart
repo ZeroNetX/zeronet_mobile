@@ -19,8 +19,9 @@ Future checkInitStatus() async {
     testUrl();
   } catch (e) {
     if (launchUrl.isNotEmpty ||
-        !firstTime &&
-            (varStore.settings[autoStartZeroNet] as ToggleSetting).value) {
+        ((varStore.settings[autoStartZeroNet] as ToggleSetting).value &&
+                !firstTime) &&
+            !manuallyStoppedZeroNet) {
       //TODO: Remember this!
       runZeroNet();
     }
@@ -38,10 +39,12 @@ checkForAppUpdates() async {
   var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
   //TODO: Update this checking to days instead of seconds after testing completed;
-  if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
-    AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-    if (info.updateAvailable && info.flexibleUpdateAllowed)
-      uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
+  if (time.difference(updateTime).inDays > 3 && !kDebugMode) {
+    if (kIsPlayStoreInstall) {
+      AppUpdateInfo info = await InAppUpdate.checkForUpdate();
+      if (info.updateAvailable && info.flexibleUpdateAllowed)
+        uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
+    }
   }
 }
 

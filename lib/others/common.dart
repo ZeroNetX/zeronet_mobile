@@ -10,6 +10,8 @@ bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
 bool kIsPlayStoreInstall = false;
+bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
+bool manuallyStoppedZeroNet = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -29,8 +31,7 @@ String browserUrl = 'https://google.com';
 Map<String, Site> sitesAvailable = {};
 List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
-// Color zeroBrowserPrimaryColor;
-// Color zeroBrowserAccentColor;
+String snackMessage = '';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 

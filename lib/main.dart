@@ -3,8 +3,7 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  //TODO: Check For Google Play Store Install.
-  InAppPurchaseConnection.enablePendingPurchases();
+  if (kEnableInAppPurchases) InAppPurchaseConnection.enablePendingPurchases();
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -36,7 +35,8 @@ class MyApp extends StatelessWidget {
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 makeExecHelper();
               }
-              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
+                  !manuallyStoppedZeroNet) {
                 checkInitStatus();
               }
               if (launchUrl.isNotEmpty) {
@@ -54,11 +54,12 @@ class MyApp extends StatelessWidget {
                   switch (uiStore.currentAppRoute) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
-                          onWillPop: () {
-                            uiStore.updateCurrentAppRoute(AppRoute.Home);
-                            return Future.value(false);
-                          },
-                          child: AboutPage());
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: AboutPage(),
+                      );
                       break;
                     case AppRoute.Home:
                       return HomePage();

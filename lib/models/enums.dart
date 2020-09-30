@@ -57,6 +57,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
+        manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
         uiStore.updateCurrentAppRoute(AppRoute.LogPage);

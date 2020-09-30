@@ -195,7 +195,7 @@ class DonationWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
         ),
-        GooglePlayInAppPurchases(),
+        if (kEnableInAppPurchases) GooglePlayInAppPurchases(),
         Padding(
           padding: const EdgeInsets.all(8.0),
         ),

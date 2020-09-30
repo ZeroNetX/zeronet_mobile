@@ -239,7 +239,14 @@ class PopularZeroNetSites extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> zeroSites = [];
-    for (var key in Utils.initialSites.keys) {
+    List<String> siteKeys = Utils.initialSites.keys.toList();
+    siteKeys.sort((item1, item2) {
+      bool isZite1Exists = isZiteExitsLocally(
+        Utils.initialSites[item1]['btcAddress'],
+      );
+      return isZite1Exists ? -1 : 1;
+    });
+    for (var key in siteKeys) {
       var name = key;
       zeroSites.add(
         SiteDetailCard(name: name),
@@ -379,10 +386,21 @@ class SiteDetailCard extends StatelessWidget {
                       size: 36,
                       color: Color(isZiteExists ? 0xFF6EB69E : 0xDF6EB69E),
                     ),
-                    onTap: () {
-                      browserUrl = zeroNetUrl + Utils.initialSites[name]['url'];
-                      uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-                    },
+                    onTap: uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING
+                        ? () {
+                            Scaffold.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please Start ZeroNet First to Browse this Zite',
+                                ),
+                              ),
+                            );
+                          }
+                        : () {
+                            browserUrl =
+                                zeroNetUrl + Utils.initialSites[name]['url'];
+                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                          },
                   ),
                 ],
               )
@@ -444,26 +462,37 @@ class SiteDetailsSheet extends StatelessWidget {
                         Utils.initialSites[name]['url'],
                       ),
                     ),
-                    RaisedButton(
-                      color: Color(0xFF009764),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      onPressed: () {
-                        browserUrl =
-                            zeroNetUrl + Utils.initialSites[name]['url'];
-                        uiStore.currentBottomSheetController?.close();
-                        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-                      },
-                      child: Text(
-                        isZiteExists ? 'OPEN' : 'DOWNLOAD',
-                        maxLines: 1,
-                        style: GoogleFonts.roboto(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                    Observer(builder: (context) {
+                      return RaisedButton(
+                        color: Color(0xFF009764),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0)),
+                        onPressed: uiStore.zeroNetStatus ==
+                                ZeroNetStatus.NOT_RUNNING
+                            ? () {
+                                snackMessage =
+                                    'Please Start ZeroNet First to Browse this Zite';
+                                uiStore.updateShowSnackReply(true);
+                              }
+                            : () {
+                                browserUrl = zeroNetUrl +
+                                    Utils.initialSites[name]['url'];
+                                uiStore.currentBottomSheetController?.close();
+                                uiStore.updateCurrentAppRoute(
+                                  AppRoute.ZeroBrowser,
+                                );
+                              },
+                        child: Text(
+                          isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                          maxLines: 1,
+                          style: GoogleFonts.roboto(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 )
               ],
@@ -485,7 +514,8 @@ class SiteDetailsSheet extends StatelessWidget {
                 RaisedButton(
                   color: Color(0xFF008297),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0)),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
                         "/${Utils.initialSites[name]['btcAddress']}/img/logo.png");
@@ -501,6 +531,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       logoPath,
                     );
                     if (added) {
+                      snackMessage = '$name shortcut added to  HomeScreen';
                       uiStore.updateShowSnackReply(true);
                     }
                   },
@@ -603,7 +634,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Center(
                         child: Text(
-                          '$name shortcut added to  HomeScreen',
+                          snackMessage,
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
