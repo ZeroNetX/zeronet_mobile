@@ -380,7 +380,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                 );
               }
               return Wrap(
-                children: [],
+                children: children,
               );
             } else
               return Container();
