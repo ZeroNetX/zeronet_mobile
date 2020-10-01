@@ -1,8 +1,6 @@
 import 'dart:ui';
 
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/gestures.dart';
-import 'package:zeronet/others/donation_const.dart';
 
 import '../imports.dart';
 
@@ -323,10 +321,6 @@ class DeveloperWidget extends StatelessWidget {
 class GooglePlayInAppPurchases extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    getGooglePlayOneTimePurchases()
-        .then((value) => uiStore.addOneTimePuchases(value));
-    getGooglePlaySubscriptions()
-        .then((value) => uiStore.addSubscriptions(value));
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,7 +405,18 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                         ),
                       ),
                       color: c,
-                      onPressed: () {},
+                      onPressed: () {
+                        final ProductDetails productDetails = item;
+                        final PurchaseParam purchaseParam =
+                            PurchaseParam(productDetails: productDetails);
+                        if (item.id.contains('one_time')) {
+                          InAppPurchaseConnection.instance
+                              .buyConsumable(purchaseParam: purchaseParam);
+                        } else {
+                          InAppPurchaseConnection.instance
+                              .buyNonConsumable(purchaseParam: purchaseParam);
+                        }
+                      },
                     ),
                   );
                 }

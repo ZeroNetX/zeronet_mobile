@@ -9,6 +9,7 @@ export 'package:flutter/gestures.dart';
 export 'package:flutter/material.dart';
 export 'package:flutter/services.dart';
 
+export 'package:clipboard/clipboard.dart';
 export 'package:crypto/crypto.dart';
 export 'package:device_info/device_info.dart';
 export 'package:equatable/equatable.dart';
@@ -41,6 +42,7 @@ export 'mobx/uistore.dart';
 export 'mobx/varstore.dart';
 export 'others/common.dart';
 export 'others/constants.dart';
+export 'others/donation_const.dart';
 export 'others/extensions.dart';
 export 'others/native.dart';
 export 'others/utils.dart';

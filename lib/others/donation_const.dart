@@ -84,3 +84,33 @@ Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
     return response.productDetails;
   }
 }
+
+void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
+  purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
+    if (purchaseDetails.status == PurchaseStatus.pending) {
+      // showPendingUI();
+    } else {
+      if (purchaseDetails.status == PurchaseStatus.error) {
+        // handleError(purchaseDetails.error);
+      } else if (purchaseDetails.status == PurchaseStatus.purchased) {
+        // bool valid = await _verifyPurchase(purchaseDetails);
+        // if (valid) {
+        //   deliverProduct(purchaseDetails);
+        // } else {
+        //   _handleInvalidPurchase(purchaseDetails);
+        //   return;
+        // }
+      }
+      if (Platform.isAndroid) {
+        // if (!kAutoConsume && purchaseDetails.productID == _kConsumableId) {
+        //   await InAppPurchaseConnection.instance
+        //       .consumePurchase(purchaseDetails);
+        // }
+      }
+      if (purchaseDetails.pendingCompletePurchase) {
+        await InAppPurchaseConnection.instance
+            .completePurchase(purchaseDetails);
+      }
+    }
+  });
+}

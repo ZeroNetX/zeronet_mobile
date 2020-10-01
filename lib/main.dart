@@ -3,7 +3,21 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  if (kEnableInAppPurchases) InAppPurchaseConnection.enablePendingPurchases();
+  if (kEnableInAppPurchases) {
+    InAppPurchaseConnection.enablePendingPurchases();
+    getGooglePlayOneTimePurchases().then(
+      (value) => uiStore.addOneTimePuchases(value),
+    );
+    getGooglePlaySubscriptions().then(
+      (value) => uiStore.addSubscriptions(value),
+    );
+    final Stream purchaseUpdates =
+        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    purchaseUpdates.listen((purchases) {
+      print('purchases');
+      listenToPurchaseUpdated(purchases);
+    });
+  }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
