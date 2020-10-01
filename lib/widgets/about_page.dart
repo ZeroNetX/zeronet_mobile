@@ -349,41 +349,86 @@ class GooglePlayInAppPurchases extends StatelessWidget {
             ),
           ),
           Observer(builder: (ctx) {
-            List<ProductDetails> oneTimePurchases = uiStore.oneTimePurchases;
-            if (oneTimePurchases.length > 0) {
-              List<Widget> children = [];
-              for (var item in oneTimePurchases) {
-                var i = oneTimePurchases.indexOf(item);
-                Color c = Color(0xFF);
-                String label = '';
-                switch (i) {
-                  case 0:
-                    label = 'Tip';
-                    c = Color(0xFF06CAB6);
-                    break;
-                  case 1:
-                    label = 'Coffee';
-                    c = Color(0xFF0696CA);
-                    break;
-                  case 2:
-                    label = 'Lunch';
-                    c = Color(0xFFCA067B);
-                    break;
-                  default:
+            List<Widget> mChildren = [];
+            Map<String, List> googlePurchasesTypes = {
+              'One Time': uiStore.oneTimePurchases,
+              'Monthly Subscriptions': uiStore.subscriptions,
+            };
+            for (var item in googlePurchasesTypes.keys) {
+              List<ProductDetails> purchases = googlePurchasesTypes[item];
+              if (purchases.length > 0) {
+                List<Widget> children = [];
+                for (var item in purchases) {
+                  var i = purchases.indexOf(item);
+                  Color c = Color(0xFF);
+                  String label = '';
+                  switch (i) {
+                    case 0:
+                      label = 'Tip';
+                      c = Color(0xFF06CAB6);
+                      break;
+                    case 1:
+                      label = 'Coffee';
+                      c = Color(0xFF0696CA);
+                      break;
+                    case 2:
+                      label = 'Lunch';
+                      c = Color(0xFFCA067B);
+                      break;
+                    default:
+                  }
+                  children.add(
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 22.0,
+                          right: 22.0,
+                          top: 8.0,
+                          bottom: 8.0,
+                        ),
+                        child: Text(
+                          "$label(${item.price})",
+                          style: GoogleFonts.roboto(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      color: c,
+                      onPressed: () {},
+                    ),
+                  );
                 }
-                children.add(
-                  RaisedButton(
-                    child: Text("$label(${item.price})"),
-                    color: c,
-                    onPressed: () {},
+                mChildren.add(
+                  Column(
+                    children: [
+                      Padding(padding: const EdgeInsets.all(8.0)),
+                      Text(
+                        item,
+                        style: GoogleFonts.roboto(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Padding(padding: const EdgeInsets.all(8.0)),
+                      Wrap(
+                        spacing: 70.0,
+                        runSpacing: 10.0,
+                        alignment: WrapAlignment.spaceAround,
+                        children: children,
+                      )
+                    ],
                   ),
                 );
               }
-              return Wrap(
-                children: children,
-              );
-            } else
-              return Container();
+            }
+            return Column(
+              children: mChildren,
+            );
           })
         ],
       ),

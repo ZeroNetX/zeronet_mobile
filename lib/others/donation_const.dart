@@ -20,19 +20,67 @@ const Set<String> kGooglePlayPurchaseSubscriptionIds = {
 };
 
 Future<List<ProductDetails>> getGooglePlaySubscriptions() async {
-  final ProductDetailsResponse response = await InAppPurchaseConnection.instance
-      .queryProductDetails(kGooglePlayPurchaseSubscriptionIds);
-  if (response.notFoundIDs.isNotEmpty) {
-    print(response.notFoundIDs);
+  if (kDebugMode) {
+    return [
+      ProductDetails(
+        id: 'zeronet_one_1.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$1',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_5.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$5',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_15.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$15',
+      ),
+    ];
+  } else {
+    final ProductDetailsResponse response = await InAppPurchaseConnection
+        .instance
+        .queryProductDetails(kGooglePlayPurchaseSubscriptionIds);
+    if (response.notFoundIDs.isNotEmpty) {
+      print(response.notFoundIDs);
+    }
+    return response.productDetails;
   }
-  return response.productDetails;
 }
 
 Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
-  final ProductDetailsResponse response = await InAppPurchaseConnection.instance
-      .queryProductDetails(kGooglePlayPurchaseOneTimeIds);
-  if (response.notFoundIDs.isNotEmpty) {
-    print(response.notFoundIDs);
+  if (kDebugMode) {
+    return [
+      ProductDetails(
+        id: 'zeronet_one_1.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$1',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_5.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$5',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_15.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$15',
+      ),
+    ];
+  } else {
+    final ProductDetailsResponse response = await InAppPurchaseConnection
+        .instance
+        .queryProductDetails(kGooglePlayPurchaseOneTimeIds);
+    if (response.notFoundIDs.isNotEmpty) {
+      print(response.notFoundIDs);
+    }
+    return response.productDetails;
   }
-  return response.productDetails;
 }

@@ -30,12 +30,22 @@ abstract class _UiStore with Store {
 
   @action
   void addOneTimePuchases(List<ProductDetails> details) {
-    oneTimePurchases.addAll(details);
+    for (var item in details) {
+      bool exists = oneTimePurchases.any((element) => element.id == item.id);
+      if (!exists) {
+        oneTimePurchases.add(item);
+      }
+    }
   }
 
   @action
   void addSubscriptions(List<ProductDetails> details) {
-    subscriptions.addAll(details);
+    for (var item in details) {
+      bool exists = subscriptions.any((element) => element.id == item.id);
+      if (!exists) {
+        subscriptions.add(item);
+      }
+    }
   }
 
   @observable
