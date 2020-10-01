@@ -26,19 +26,19 @@ Future<List<ProductDetails>> getGooglePlaySubscriptions() async {
         id: 'zeronet_one_1.00',
         title: 'One Time Purchase.',
         description: 'ZeroNet Mobile Pro Features.',
-        price: '\$1',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_5.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$5',
+        price: '\$1.00',
       ),
       ProductDetails(
         id: 'zeronet_one_15.00',
         title: 'One Time Purchase.',
         description: 'ZeroNet Mobile Pro Features.',
-        price: '\$15',
+        price: '\$15.00',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_5.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$5.00',
       ),
     ];
   } else {
@@ -59,19 +59,19 @@ Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
         id: 'zeronet_one_1.00',
         title: 'One Time Purchase.',
         description: 'ZeroNet Mobile Pro Features.',
-        price: '\$1',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_5.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$5',
+        price: '\$1.00',
       ),
       ProductDetails(
         id: 'zeronet_one_15.00',
         title: 'One Time Purchase.',
         description: 'ZeroNet Mobile Pro Features.',
-        price: '\$15',
+        price: '\$15.00',
+      ),
+      ProductDetails(
+        id: 'zeronet_one_5.00',
+        title: 'One Time Purchase.',
+        description: 'ZeroNet Mobile Pro Features.',
+        price: '\$5.00',
       ),
     ];
   } else {

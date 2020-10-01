@@ -107,7 +107,7 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(4.0),
+                      padding: const EdgeInsets.all(8.0),
                     ),
                   ],
                 ),
@@ -356,6 +356,18 @@ class GooglePlayInAppPurchases extends StatelessWidget {
             };
             for (var item in googlePurchasesTypes.keys) {
               List<ProductDetails> purchases = googlePurchasesTypes[item];
+              purchases
+                ..sort((item1, item2) {
+                  int item1I1 = item1.id.lastIndexOf('_') + 1;
+                  int item1I2 = item1.id.lastIndexOf('.');
+                  String item1PriceStr = item1.id.substring(item1I1, item1I2);
+                  int item1Price = int.parse(item1PriceStr);
+                  int item2I1 = item2.id.lastIndexOf('_') + 1;
+                  int item2I2 = item2.id.lastIndexOf('.');
+                  String item2PriceStr = item2.id.substring(item2I1, item2I2);
+                  int item2Price = int.parse(item2PriceStr);
+                  return item1Price < item2Price ? -1 : 1;
+                });
               if (purchases.length > 0) {
                 List<Widget> children = [];
                 for (var item in purchases) {
@@ -384,8 +396,8 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
-                          left: 22.0,
-                          right: 22.0,
+                          left: 16.0,
+                          right: 16.0,
                           top: 8.0,
                           bottom: 8.0,
                         ),
@@ -415,11 +427,13 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                         ),
                       ),
                       Padding(padding: const EdgeInsets.all(8.0)),
-                      Wrap(
-                        spacing: 70.0,
-                        runSpacing: 10.0,
-                        alignment: WrapAlignment.spaceAround,
-                        children: children,
+                      Center(
+                        child: Wrap(
+                          spacing: 40.0,
+                          runSpacing: 10.0,
+                          alignment: WrapAlignment.spaceEvenly,
+                          children: children,
+                        ),
                       )
                     ],
                   ),
