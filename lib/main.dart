@@ -5,12 +5,6 @@ Future main() async {
   await init();
   if (kEnableInAppPurchases) {
     InAppPurchaseConnection.enablePendingPurchases();
-    getGooglePlayOneTimePurchases().then(
-      (value) => uiStore.addOneTimePuchases(value),
-    );
-    getGooglePlaySubscriptions().then(
-      (value) => uiStore.addSubscriptions(value),
-    );
     final Stream purchaseUpdates =
         InAppPurchaseConnection.instance.purchaseUpdatedStream;
     purchaseUpdates.listen((purchases) {
@@ -76,6 +70,12 @@ class MyApp extends StatelessWidget {
                       );
                       break;
                     case AppRoute.Home:
+                      getGooglePlayOneTimePurchases().then(
+                        (value) => uiStore.addOneTimePuchases(value),
+                      );
+                      getGooglePlaySubscriptions().then(
+                        (value) => uiStore.addSubscriptions(value),
+                      );
                       return HomePage();
                       break;
                     case AppRoute.Settings:

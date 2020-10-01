@@ -1,4 +1,5 @@
 # ZeroNet Mobile
+[![Codemagic build status](https://api.codemagic.io/apps/5f755f0647fecf7a4f25751a/5f75609747fecf958ea171b0/status_badge.svg)](https://codemagic.io/apps/5f755f0647fecf7a4f25751a/5f75609747fecf958ea171b0/latest_build)
 
 ZeroNet Mobile is an Android Client for [ZeroNet](https://zeronet.io), a platform for decentralized websites using Bitcoin crypto and the BitTorrent network. you can learn more about ZeroNet at https://zeronet.io/.
 
