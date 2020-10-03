@@ -9,14 +9,14 @@ ZeroNet Mobile is an Android Client for [ZeroNet](https://zeronet.io), a platfor
 
 ## Installation
 
-You need a Flutter Framework to compile this App from Source.
-
 ### From Google PlayStore :
 #### Android (arm, arm64, x86)
  - minimum Android version supported 16 (JellyBean).
  - Google Play Store Link https://play.google.com/store/apps/details?id=in.canews.zeronet
 
 #### Compiling Source : 
+
+You need Flutter Framework to compile this App from Source.
 
 #### Installing Flutter : https://flutter.dev/docs/get-started/install
 

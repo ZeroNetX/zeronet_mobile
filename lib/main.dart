@@ -7,10 +7,7 @@ Future main() async {
     InAppPurchaseConnection.enablePendingPurchases();
     final Stream purchaseUpdates =
         InAppPurchaseConnection.instance.purchaseUpdatedStream;
-    purchaseUpdates.listen((purchases) {
-      print('purchases');
-      listenToPurchaseUpdated(purchases);
-    });
+    purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
   }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());

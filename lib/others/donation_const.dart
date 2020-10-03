@@ -1,3 +1,5 @@
+import 'package:zeronet/mobx/purchasesstore.dart';
+
 import '../imports.dart';
 
 const Map<String, String> donationsAddressMap = {
@@ -86,6 +88,8 @@ Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
 }
 
 void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
+  print('purchaseDetailsList');
+  print(purchaseDetailsList);
   purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
     if (purchaseDetails.status == PurchaseStatus.pending) {
       // showPendingUI();
@@ -93,19 +97,17 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.error) {
         // handleError(purchaseDetails.error);
       } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-        // bool valid = await _verifyPurchase(purchaseDetails);
-        // if (valid) {
-        //   deliverProduct(purchaseDetails);
-        // } else {
-        //   _handleInvalidPurchase(purchaseDetails);
-        //   return;
-        // }
+        bool valid = await _verifyPurchase(purchaseDetails);
+        if (valid) {
+          deliverProduct(purchaseDetails);
+        } else {
+          // _handleInvalidPurchase(purchaseDetails);
+          return;
+        }
       }
-      if (Platform.isAndroid) {
-        // if (!kAutoConsume && purchaseDetails.productID == _kConsumableId) {
-        //   await InAppPurchaseConnection.instance
-        //       .consumePurchase(purchaseDetails);
-        // }
+      if (purchaseDetails.productID.contains('zeronet_one')) {
+        await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
+        purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
       }
       if (purchaseDetails.pendingCompletePurchase) {
         await InAppPurchaseConnection.instance
@@ -113,4 +115,16 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
       }
     }
   });
+}
+
+_verifyPurchase(PurchaseDetails purchaseDetails) {
+  print(purchaseDetails.verificationData.localVerificationData);
+  return Future<bool>.value(true);
+}
+
+void deliverProduct(PurchaseDetails purchaseDetails) async {
+  // IMPORTANT!! Always verify a purchase purchase details before delivering the product.
+  if (purchaseDetails.productID.contains('zeronet_one')) {
+    purchasesStore.addPurchases(purchaseDetails.purchaseID);
+  } else {}
 }
