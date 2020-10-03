@@ -16,11 +16,9 @@ abstract class _PurchasesStore with Store {
   ObservableList<String> purchases = ObservableList();
 
   @action
-  void addPurchases(List<String> purchaseIds) {
-    for (var id in purchaseIds) {
-      if (!purchases.contains(id)) {
-        purchases.add(id);
-      }
+  void addPurchases(String purchaseIds) {
+    if (!purchases.contains(purchaseIds)) {
+      purchases.add(purchaseIds);
     }
   }
 
@@ -28,11 +26,9 @@ abstract class _PurchasesStore with Store {
   ObservableList<String> consumedPurchases = ObservableList();
 
   @action
-  void addConsumedPurchases(List<String> purchaseIds) {
-    for (var id in purchaseIds) {
-      if (!consumedPurchases.contains(id)) {
-        consumedPurchases.add(id);
-      }
+  void addConsumedPurchases(String purchaseIds) {
+    if (!consumedPurchases.contains(purchaseIds)) {
+      consumedPurchases.add(purchaseIds);
     }
   }
 }

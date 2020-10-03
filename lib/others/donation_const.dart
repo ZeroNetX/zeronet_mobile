@@ -105,6 +105,8 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
           return;
         }
       }
+      print('purchaseDetails.productID');
+      print(purchaseDetails.productID);
       if (purchaseDetails.productID.contains('zeronet_one')) {
         await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
         purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
