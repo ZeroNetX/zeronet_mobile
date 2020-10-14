@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
         body: Observer(
           builder: (context) {
             if (varStore.zeroNetInstalled) {
+              scaffoldState = Scaffold.of(context);
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
@@ -67,12 +68,7 @@ class MyApp extends StatelessWidget {
                       );
                       break;
                     case AppRoute.Home:
-                      getGooglePlayOneTimePurchases().then(
-                        (value) => uiStore.addOneTimePuchases(value),
-                      );
-                      getGooglePlaySubscriptions().then(
-                        (value) => uiStore.addSubscriptions(value),
-                      );
+                      getInAppPurchases();
                       return HomePage();
                       break;
                     case AppRoute.Settings:

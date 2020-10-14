@@ -69,9 +69,8 @@ class Site {
     downloaded = jsonStr['downloaded']?.toInt();
     modified = jsonStr['modified']?.toInt();
     optionalDownloaded = jsonStr['optional_downloaded'];
-    optionalHelp = jsonStr['optional_help'] != null
-        ? json.decode(jsonStr['optional_help'])
-        : null;
+    optionalHelp =
+        jsonStr['optional_help'] != null ? jsonStr['optional_help'] : null;
     own = jsonStr['own'];
     peers = jsonStr['peers'];
     permissions = jsonStr['permissions'].cast<String>();

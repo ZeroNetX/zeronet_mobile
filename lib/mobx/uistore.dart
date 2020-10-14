@@ -21,34 +21,6 @@ abstract class _UiStore with Store {
   void updateInAppUpdateAvailable(AppUpdate available) => appUpdate = available;
 
   @observable
-  ObservableList<ProductDetails> oneTimePurchases =
-      ObservableList<ProductDetails>();
-
-  @observable
-  ObservableList<ProductDetails> subscriptions =
-      ObservableList<ProductDetails>();
-
-  @action
-  void addOneTimePuchases(List<ProductDetails> details) {
-    for (var item in details) {
-      bool exists = oneTimePurchases.any((element) => element.id == item.id);
-      if (!exists) {
-        oneTimePurchases.add(item);
-      }
-    }
-  }
-
-  @action
-  void addSubscriptions(List<ProductDetails> details) {
-    for (var item in details) {
-      bool exists = subscriptions.any((element) => element.id == item.id);
-      if (!exists) {
-        subscriptions.add(item);
-      }
-    }
-  }
-
-  @observable
   bool showSnackReply = false;
 
   @action

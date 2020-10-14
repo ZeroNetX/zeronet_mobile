@@ -40,6 +40,7 @@ export 'models/enums.dart';
 export 'models/models.dart';
 export 'mobx/uistore.dart';
 export 'mobx/varstore.dart';
+export 'mobx/purchasesstore.dart';
 export 'others/common.dart';
 export 'others/constants.dart';
 export 'others/donation_const.dart';

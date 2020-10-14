@@ -1,3 +1,5 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 import '../imports.dart';
 
 Directory appPrivDir;
@@ -33,6 +35,7 @@ List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
+ScaffoldState scaffoldState;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 String downloadLink(String item) =>
@@ -67,6 +70,7 @@ init() async {
   if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
   initNotifications();
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
+  Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
 }
 
 Map<String, Setting> defSettings = {

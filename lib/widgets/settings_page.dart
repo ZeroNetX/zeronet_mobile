@@ -261,7 +261,8 @@ class SettingsCard extends StatelessWidget {
             if (file.existsSync()) {
               file.renameSync(getZeroNetDataDir().path + '/users.json');
               // _reload();
-              ZeroNet.instance.shutDown();
+              if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING)
+                ZeroNet.instance.shutDown();
               runZeroNet();
               Navigator.pop(context);
             }

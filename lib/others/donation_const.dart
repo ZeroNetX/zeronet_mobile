@@ -1,4 +1,4 @@
-import 'package:zeronet/mobx/purchasesstore.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
@@ -21,81 +21,68 @@ const Set<String> kGooglePlayPurchaseSubscriptionIds = {
   'zeronet_sub_15.00'
 };
 
-Future<List<ProductDetails>> getGooglePlaySubscriptions() async {
-  if (kDebugMode) {
-    return [
-      ProductDetails(
-        id: 'zeronet_one_1.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$1.00',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_15.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$15.00',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_5.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$5.00',
-      ),
-    ];
-  } else {
-    final ProductDetailsResponse response = await InAppPurchaseConnection
-        .instance
-        .queryProductDetails(kGooglePlayPurchaseSubscriptionIds);
-    if (response.notFoundIDs.isNotEmpty) {
-      print(response.notFoundIDs);
-    }
-    return response.productDetails;
+Future getInAppPurchases() async {
+  Offerings offerings = await Purchases.getOfferings();
+  if (offerings.current != null) {
+    var onetimePurchases = (offerings.current.availablePackages.where(
+      (element) => element.identifier.contains('zeronet_one'),
+    )).toList();
+    purchasesStore.addOneTimePuchases(onetimePurchases);
+
+    var subscriptions = (offerings.current.availablePackages.where(
+      (element) => element.identifier.contains('zeronet_sub'),
+    )).toList();
+    purchasesStore.addSubscriptions(subscriptions);
   }
 }
 
-Future<List<ProductDetails>> getGooglePlayOneTimePurchases() async {
-  if (kDebugMode) {
-    return [
-      ProductDetails(
-        id: 'zeronet_one_1.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$1.00',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_15.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$15.00',
-      ),
-      ProductDetails(
-        id: 'zeronet_one_5.00',
-        title: 'One Time Purchase.',
-        description: 'ZeroNet Mobile Pro Features.',
-        price: '\$5.00',
-      ),
-    ];
-  } else {
-    final ProductDetailsResponse response = await InAppPurchaseConnection
-        .instance
-        .queryProductDetails(kGooglePlayPurchaseOneTimeIds);
-    if (response.notFoundIDs.isNotEmpty) {
-      print(response.notFoundIDs);
+Future<bool> isProUser() async {
+  try {
+    final userName = getZeroIdUserName();
+    PurchaserInfo purchaserInfo;
+    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    purchaserInfo = await Purchases.getPurchaserInfo();
+    if (purchaserInfo.entitlements.active.length > 0) return true;
+  } on PlatformException catch (e) {
+    // Error fetching purchaser info
+  }
+  return false;
+}
+
+void purchasePackage(Package package) async {
+  try {
+    PurchaserInfo purchaserInfo;
+    final userName = getZeroIdUserName();
+    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    purchaserInfo = await Purchases.purchasePackage(package);
+
+    var isPro = await isProUser();
+    if (isPro) {
+      // Unlock that great "pro" content
     }
-    return response.productDetails;
+    print(purchaserInfo);
+  } on PlatformException catch (e) {
+    var errorCode = PurchasesErrorHelper.getErrorCode(e);
+    if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+      // showError(e);
+    }
   }
 }
 
 void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
-  print('purchaseDetailsList');
-  print(purchaseDetailsList);
   purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
     if (purchaseDetails.status == PurchaseStatus.pending) {
       // showPendingUI();
     } else {
       if (purchaseDetails.status == PurchaseStatus.error) {
-        // handleError(purchaseDetails.error);
+        scaffoldState.showSnackBar(
+          SnackBar(
+            content: Text(
+              //!TODO Improve Error Messages sp that user can understand easily.
+              'PurchaseStatus.error :: ${purchaseDetails.error.message}',
+            ),
+          ),
+        );
       } else if (purchaseDetails.status == PurchaseStatus.purchased) {
         bool valid = await _verifyPurchase(purchaseDetails);
         if (valid) {
@@ -105,9 +92,9 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
           return;
         }
       }
-      print('purchaseDetails.productID');
-      print(purchaseDetails.productID);
-      if (purchaseDetails.productID.contains('zeronet_one')) {
+
+      if (purchaseDetails.productID != null &&
+          purchaseDetails.productID.contains('zeronet_one')) {
         await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
         purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
       }

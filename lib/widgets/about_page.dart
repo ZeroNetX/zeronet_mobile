@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
@@ -344,28 +344,30 @@ class GooglePlayInAppPurchases extends StatelessWidget {
           ),
           Observer(builder: (ctx) {
             List<Widget> mChildren = [];
-            Map<String, List> googlePurchasesTypes = {
-              'One Time': uiStore.oneTimePurchases,
-              'Monthly Subscriptions': uiStore.subscriptions,
+            Map<String, List<Package>> googlePurchasesTypes = {
+              'One Time': purchasesStore.oneTimePurchases,
+              'Monthly Subscriptions': purchasesStore.subscriptions,
             };
             for (var item in googlePurchasesTypes.keys) {
-              List<ProductDetails> purchases = googlePurchasesTypes[item];
+              List<Package> purchases = googlePurchasesTypes[item];
               purchases
                 ..sort((item1, item2) {
-                  int item1I1 = item1.id.lastIndexOf('_') + 1;
-                  int item1I2 = item1.id.lastIndexOf('.');
-                  String item1PriceStr = item1.id.substring(item1I1, item1I2);
+                  int item1I1 = item1.identifier.lastIndexOf('_') + 1;
+                  int item1I2 = item1.identifier.lastIndexOf('.');
+                  String item1PriceStr =
+                      item1.identifier.substring(item1I1, item1I2);
                   int item1Price = int.parse(item1PriceStr);
-                  int item2I1 = item2.id.lastIndexOf('_') + 1;
-                  int item2I2 = item2.id.lastIndexOf('.');
-                  String item2PriceStr = item2.id.substring(item2I1, item2I2);
+                  int item2I1 = item2.identifier.lastIndexOf('_') + 1;
+                  int item2I2 = item2.identifier.lastIndexOf('.');
+                  String item2PriceStr =
+                      item2.identifier.substring(item2I1, item2I2);
                   int item2Price = int.parse(item2PriceStr);
                   return item1Price < item2Price ? -1 : 1;
                 });
               if (purchases.length > 0) {
                 List<Widget> children = [];
-                for (var item in purchases) {
-                  var i = purchases.indexOf(item);
+                for (var package in purchases) {
+                  var i = purchases.indexOf(package);
                   Color c = Color(0xFF);
                   String label = '';
                   switch (i) {
@@ -396,7 +398,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                           bottom: 8.0,
                         ),
                         child: Text(
-                          "$label(${item.price})",
+                          "$label(${package.product.priceString})",
                           style: GoogleFonts.roboto(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500,
@@ -405,18 +407,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                         ),
                       ),
                       color: c,
-                      onPressed: () {
-                        final ProductDetails productDetails = item;
-                        final PurchaseParam purchaseParam =
-                            PurchaseParam(productDetails: productDetails);
-                        if (item.id.contains('one_time')) {
-                          InAppPurchaseConnection.instance
-                              .buyConsumable(purchaseParam: purchaseParam);
-                        } else {
-                          InAppPurchaseConnection.instance
-                              .buyNonConsumable(purchaseParam: purchaseParam);
-                        }
-                      },
+                      onPressed: () => purchasePackage(package),
                     ),
                   );
                 }
@@ -434,7 +425,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                       Padding(padding: const EdgeInsets.all(8.0)),
                       Center(
                         child: Wrap(
-                          spacing: 40.0,
+                          spacing: 25.0,
                           runSpacing: 10.0,
                           alignment: WrapAlignment.spaceEvenly,
                           children: children,
