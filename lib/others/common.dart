@@ -130,19 +130,26 @@ Map<String, Setting> defSettings = {
 };
 
 Future<File> pickUserJsonFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'json',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['json']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
 }
 
 Future<File> pickPluginZipFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'zip',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['zip']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
+}
+
+Future<FilePickerResult> pickFile({List<String> fileExts}) async {
+  FilePickerResult result = await FilePicker.platform.pickFiles(
+    type: FileType.any,
+    allowedExtensions: fileExts,
+  );
+
+  return result;
 }
 
 Future<void> backUpUserJsonFile(BuildContext context) async {

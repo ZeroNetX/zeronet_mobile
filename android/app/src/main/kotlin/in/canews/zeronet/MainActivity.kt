@@ -56,9 +56,13 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null){
+        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null) {
             mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
         }
+    }
+
+    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine)
         MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
@@ -95,10 +99,6 @@ class MainActivity : FlutterActivity() {
                 "uninstallModules" -> uninstallModules()
             }
         }
-    }
-
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
         EventChannel(flutterEngine.dartExecutor, EVENT_CHANNEL).setStreamHandler(
                 object : StreamHandler {
                     lateinit var events: EventChannel.EventSink

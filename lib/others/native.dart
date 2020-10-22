@@ -129,7 +129,9 @@ initNotifications() {
       AndroidInitializationSettings('app_icon');
   final initializationSettingsIOS = IOSInitializationSettings();
   final initializationSettings = InitializationSettings(
-      initializationSettingsAndroid, initializationSettingsIOS);
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
+  );
   // final categories = [
   //   NotificationCategory(
   //     notificationCategory,
@@ -177,8 +179,8 @@ Future<void> showZeroNetRunningNotification({
   );
   var iosDetails = IOSNotificationDetails();
   var details = NotificationDetails(
-    androidDetails,
-    iosDetails,
+    android: androidDetails,
+    iOS: iosDetails,
   );
   await flutterLocalNotificationsPlugin.show(
     0,
