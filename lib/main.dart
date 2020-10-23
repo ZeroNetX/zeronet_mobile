@@ -39,7 +39,11 @@ class MyApp extends StatelessWidget {
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                makeExecHelper();
+                if (!isExecPermitted)
+                  makeExecHelper().then(
+                    (value) => isExecPermitted = value,
+                  );
+                firstTime = false;
               }
               if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
                   !manuallyStoppedZeroNet) {

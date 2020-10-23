@@ -137,7 +137,7 @@ bindUnZipIsolate() {
     var nooffiles = files(arch).length;
     if (percentUnZip == nooffiles * 100) {
       printOut('Installation Completed', isNative: true);
-      makeExecHelper();
+      makeExecHelper().then((value) => isExecPermitted = value);
       uninstallModules();
       check();
     }
@@ -340,7 +340,13 @@ Future<bool> makeExecHelper() async {
   for (var item in soDirs) {
     var dir = Directory(dataDir + '/$item');
     if (dir.existsSync()) {
-      var list = dir.listSync();
+      var list = dir.listSync().where((element) {
+        if (element is File) {
+          if (element.path.contains('so')) return true;
+          return false;
+        }
+        return false;
+      });
       for (var item in list) {
         if (item is File) {
           printOut(item.path);

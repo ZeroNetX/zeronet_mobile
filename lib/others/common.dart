@@ -14,6 +14,7 @@ bool firstTime = false;
 bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = true; //!kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;
+bool isExecPermitted = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
