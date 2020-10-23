@@ -6,58 +6,52 @@ part of 'purchasesstore.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$PurchasesStore on _PurchasesStore, Store {
   final _$oneTimePurchasesAtom = Atom(name: '_PurchasesStore.oneTimePurchases');
 
   @override
   ObservableList<purchases_flutter.Package> get oneTimePurchases {
-    _$oneTimePurchasesAtom.context.enforceReadPolicy(_$oneTimePurchasesAtom);
-    _$oneTimePurchasesAtom.reportObserved();
+    _$oneTimePurchasesAtom.reportRead();
     return super.oneTimePurchases;
   }
 
   @override
   set oneTimePurchases(ObservableList<purchases_flutter.Package> value) {
-    _$oneTimePurchasesAtom.context.conditionallyRunInAction(() {
+    _$oneTimePurchasesAtom.reportWrite(value, super.oneTimePurchases, () {
       super.oneTimePurchases = value;
-      _$oneTimePurchasesAtom.reportChanged();
-    }, _$oneTimePurchasesAtom, name: '${_$oneTimePurchasesAtom.name}_set');
+    });
   }
 
   final _$subscriptionsAtom = Atom(name: '_PurchasesStore.subscriptions');
 
   @override
   ObservableList<purchases_flutter.Package> get subscriptions {
-    _$subscriptionsAtom.context.enforceReadPolicy(_$subscriptionsAtom);
-    _$subscriptionsAtom.reportObserved();
+    _$subscriptionsAtom.reportRead();
     return super.subscriptions;
   }
 
   @override
   set subscriptions(ObservableList<purchases_flutter.Package> value) {
-    _$subscriptionsAtom.context.conditionallyRunInAction(() {
+    _$subscriptionsAtom.reportWrite(value, super.subscriptions, () {
       super.subscriptions = value;
-      _$subscriptionsAtom.reportChanged();
-    }, _$subscriptionsAtom, name: '${_$subscriptionsAtom.name}_set');
+    });
   }
 
   final _$purchasesAtom = Atom(name: '_PurchasesStore.purchases');
 
   @override
   ObservableList<String> get purchases {
-    _$purchasesAtom.context.enforceReadPolicy(_$purchasesAtom);
-    _$purchasesAtom.reportObserved();
+    _$purchasesAtom.reportRead();
     return super.purchases;
   }
 
   @override
   set purchases(ObservableList<String> value) {
-    _$purchasesAtom.context.conditionallyRunInAction(() {
+    _$purchasesAtom.reportWrite(value, super.purchases, () {
       super.purchases = value;
-      _$purchasesAtom.reportChanged();
-    }, _$purchasesAtom, name: '${_$purchasesAtom.name}_set');
+    });
   }
 
   final _$consumedPurchasesAtom =
@@ -65,17 +59,15 @@ mixin _$PurchasesStore on _PurchasesStore, Store {
 
   @override
   ObservableList<String> get consumedPurchases {
-    _$consumedPurchasesAtom.context.enforceReadPolicy(_$consumedPurchasesAtom);
-    _$consumedPurchasesAtom.reportObserved();
+    _$consumedPurchasesAtom.reportRead();
     return super.consumedPurchases;
   }
 
   @override
   set consumedPurchases(ObservableList<String> value) {
-    _$consumedPurchasesAtom.context.conditionallyRunInAction(() {
+    _$consumedPurchasesAtom.reportWrite(value, super.consumedPurchases, () {
       super.consumedPurchases = value;
-      _$consumedPurchasesAtom.reportChanged();
-    }, _$consumedPurchasesAtom, name: '${_$consumedPurchasesAtom.name}_set');
+    });
   }
 
   final _$_PurchasesStoreActionController =
@@ -83,7 +75,8 @@ mixin _$PurchasesStore on _PurchasesStore, Store {
 
   @override
   void addOneTimePuchases(List<purchases_flutter.Package> details) {
-    final _$actionInfo = _$_PurchasesStoreActionController.startAction();
+    final _$actionInfo = _$_PurchasesStoreActionController.startAction(
+        name: '_PurchasesStore.addOneTimePuchases');
     try {
       return super.addOneTimePuchases(details);
     } finally {
@@ -93,7 +86,8 @@ mixin _$PurchasesStore on _PurchasesStore, Store {
 
   @override
   void addSubscriptions(List<purchases_flutter.Package> details) {
-    final _$actionInfo = _$_PurchasesStoreActionController.startAction();
+    final _$actionInfo = _$_PurchasesStoreActionController.startAction(
+        name: '_PurchasesStore.addSubscriptions');
     try {
       return super.addSubscriptions(details);
     } finally {
@@ -103,7 +97,8 @@ mixin _$PurchasesStore on _PurchasesStore, Store {
 
   @override
   void addPurchases(String purchaseIds) {
-    final _$actionInfo = _$_PurchasesStoreActionController.startAction();
+    final _$actionInfo = _$_PurchasesStoreActionController.startAction(
+        name: '_PurchasesStore.addPurchases');
     try {
       return super.addPurchases(purchaseIds);
     } finally {
@@ -113,11 +108,22 @@ mixin _$PurchasesStore on _PurchasesStore, Store {
 
   @override
   void addConsumedPurchases(String purchaseIds) {
-    final _$actionInfo = _$_PurchasesStoreActionController.startAction();
+    final _$actionInfo = _$_PurchasesStoreActionController.startAction(
+        name: '_PurchasesStore.addConsumedPurchases');
     try {
       return super.addConsumedPurchases(purchaseIds);
     } finally {
       _$_PurchasesStoreActionController.endAction(_$actionInfo);
     }
+  }
+
+  @override
+  String toString() {
+    return '''
+oneTimePurchases: ${oneTimePurchases},
+subscriptions: ${subscriptions},
+purchases: ${purchases},
+consumedPurchases: ${consumedPurchases}
+    ''';
   }
 }

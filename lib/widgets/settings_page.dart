@@ -153,11 +153,11 @@ class SettingsCard extends StatelessWidget {
                       if (setting is ToggleSetting)
                         Observer(
                           builder: (context) {
+                            bool enabled = (varStore.settings[setting.name]
+                                    as ToggleSetting)
+                                .value;
                             return Switch(
-                              value: (varStore.settings[
-                                          (setting as ToggleSetting).name]
-                                      as ToggleSetting)
-                                  .value,
+                              value: enabled,
                               activeColor: Color(0xFF5380FF),
                               onChanged: (setting as ToggleSetting).onChanged,
                             );
