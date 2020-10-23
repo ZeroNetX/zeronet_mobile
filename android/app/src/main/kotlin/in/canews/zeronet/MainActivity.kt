@@ -234,7 +234,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun resultSuccess(msg : Any) {
-        result.success(msg).runCatching{}.onFailure {
+        result.runCatching {
+            success(msg)
+        }.onFailure {
             if (it is IllegalStateException) {
                 Log.e("MainActivity>resultSuc>", it.message)
             }
