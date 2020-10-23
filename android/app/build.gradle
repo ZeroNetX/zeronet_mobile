@@ -74,7 +74,7 @@ android {
         }
 
         debug {
-//            applicationIdSuffix '.debug'
+            applicationIdSuffix '.debug'
             signingConfig signingConfigs.release
             locallyDynamic {
                 enabled = true
