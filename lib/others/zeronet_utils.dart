@@ -266,3 +266,12 @@ bool isZiteExitsLocally(String address) {
   String path = getZeroNetDataDir().path + '/$address';
   return Directory(path).existsSync();
 }
+
+bool isLocalZitesExists() {
+  String path = getZeroNetDataDir().path;
+  List paths = Directory(path)
+      .listSync()
+      .where((element) => (element is Directory) ? true : false)
+      .toList();
+  return paths.isNotEmpty;
+}

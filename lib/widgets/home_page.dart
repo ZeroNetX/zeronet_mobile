@@ -240,12 +240,14 @@ class PopularZeroNetSites extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> zeroSites = [];
     List<String> siteKeys = Utils.initialSites.keys.toList();
-    siteKeys.sort((item1, item2) {
-      bool isZite1Exists = isZiteExitsLocally(
-        Utils.initialSites[item1]['btcAddress'],
-      );
-      return isZite1Exists ? -1 : 1;
-    });
+    if (isLocalZitesExists()) {
+      siteKeys.sort((item1, item2) {
+        bool isZite1Exists = isZiteExitsLocally(
+          Utils.initialSites[item1]['btcAddress'],
+        );
+        return isZite1Exists ? 0 : 1;
+      });
+    }
     for (var key in siteKeys) {
       var name = key;
       zeroSites.add(
