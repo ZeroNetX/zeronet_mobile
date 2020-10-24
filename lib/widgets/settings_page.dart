@@ -263,7 +263,7 @@ class SettingsCard extends StatelessWidget {
               // _reload();
               if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING)
                 ZeroNet.instance.shutDown();
-              runZeroNet();
+              service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             }
           },

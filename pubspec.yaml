@@ -17,7 +17,8 @@ dependencies:
   flutter_absolute_path: 
     # path: ../flutter_absolute_path
     git:
-      url : https://github.com/canewsin/flutter_absolute_path.git
+      url: https://github.com/canewsin/flutter_absolute_path.git
+      ref: android-v2
   flutter_downloader: 1.5.1
   flutter_mobx: 0.3.3+3
   http: 0.12.2
@@ -27,7 +28,7 @@ dependencies:
   in_app_review: 0.2.1+1
   in_app_update: #1.1.11
     git:
-      url : https://github.com/canewsin/flutter_in_app_update.git
+      url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: 0.1.1
   equatable: 1.2.5
   time_ago_provider: 2.3.1
@@ -37,14 +38,11 @@ dependencies:
   random_string: 2.1.0
   share: 0.6.5+3
   url_launcher: 5.7.6
+  flutter_background_service: 0.0.1+15
   flutter_webview_plugin: #0.3.11
     git:
       url: https://github.com/canewsin/flutter_webview_plugin
       ref: fullscreen-support
-  flutter_local_notifications: 3.0.0
-    # git:
-    #   url: https://github.com/canewsin/flutter_local_notifications
-    #   ref: actions
   web_socket_channel: 1.1.0
   zeronet_ws:
     # path: ../zeronet_ws

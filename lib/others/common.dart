@@ -15,6 +15,8 @@ bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;
 bool isExecPermitted = false;
+bool debugZeroNetCode = false;
+bool vibrateonZeroNetStart = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -37,7 +39,7 @@ String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
 ScaffoldState scaffoldState;
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
@@ -68,8 +70,15 @@ init() async {
   appPrivDir = await getExternalStorageDirectory();
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
-  if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
-  initNotifications();
+  if (isZeroNetInstalledm) {
+    varStore.isZeroNetInstalled(isZeroNetInstalledm);
+    FlutterBackgroundService.initialize(runBgIsolate).then((value) {
+      if (value) {
+        service = FlutterBackgroundService();
+        service.onDataReceived.listen(onBgServiceDataReceived);
+      }
+    });
+  }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
 }
@@ -259,24 +268,19 @@ printToConsole(Object object) {
           object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
       if (object.contains('ConnServer Closed port') ||
           object.contains('All server stopped')) {
         zeroNetUrl = '';
         uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
-        flutterLocalNotificationsPlugin.cancelAll();
       }
       log = log + object + '\n';
     } else {
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
       log = log + '\n';
     }
