@@ -26,9 +26,9 @@ dependencies:
   google_fonts: 1.1.1
   in_app_purchase: 0.3.4+15
   in_app_review: 0.2.1+1
-  in_app_update: #1.1.11
-    git:
-      url: https://github.com/canewsin/flutter_in_app_update.git
+  in_app_update: 1.1.12
+    # git:
+    #   url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: 0.1.1
   equatable: 1.2.5
   time_ago_provider: 2.3.1

@@ -37,7 +37,13 @@ checkForAppUpdates() async {
   DateTime time = DateTime.now();
   var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
-  if (time.difference(updateTime).inDays > 2 && !kDebugMode) {
+  int updateDays;
+  if (appVersion.contains('internal')) {
+    updateDays = time.difference(updateTime).inSeconds;
+  } else {
+    updateDays = time.difference(updateTime).inDays;
+  }
+  if (updateDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailable && info.flexibleUpdateAllowed)
