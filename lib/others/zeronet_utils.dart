@@ -339,9 +339,15 @@ bool isZiteExitsLocally(String address) {
 
 bool isLocalZitesExists() {
   String path = getZeroNetDataDir().path;
-  List paths = Directory(path)
-      .listSync()
-      .where((element) => (element is Directory) ? true : false)
-      .toList();
+  Directory dir = Directory(path);
+
+  List paths;
+  if (dir.existsSync())
+    paths = dir
+        .listSync()
+        .where((element) => (element is Directory) ? true : false)
+        .toList();
+  else
+    return false;
   return paths.isNotEmpty;
 }
