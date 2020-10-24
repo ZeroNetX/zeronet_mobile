@@ -4,7 +4,6 @@ Future checkInitStatus() async {
   loadSitesFromFileSystem();
   loadUsersFromFileSystem();
   setZeroBrowserThemeValues();
-  checkForAppUpdates();
   try {
     String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
     String key = await ZeroNet.instance.getWrapperKey(url);
@@ -38,7 +37,7 @@ checkForAppUpdates() async {
   DateTime time = DateTime.now();
   var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
-  if (time.difference(updateTime).inDays > 3 && !kDebugMode) {
+  if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailable && info.flexibleUpdateAllowed)

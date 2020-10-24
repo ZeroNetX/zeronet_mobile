@@ -72,6 +72,7 @@ init() async {
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
+    checkForAppUpdates();
     FlutterBackgroundService.initialize(runBgIsolate).then((value) {
       if (value) {
         service = FlutterBackgroundService();
