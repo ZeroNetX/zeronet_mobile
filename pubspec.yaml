@@ -38,7 +38,7 @@ dependencies:
   random_string: 2.1.0
   share: 0.6.5+3
   url_launcher: 5.7.6
-  flutter_background_service: 0.0.1+15
+  flutter_background_service: 0.0.1+16
   flutter_webview_plugin: #0.3.11
     git:
       url: https://github.com/canewsin/flutter_webview_plugin

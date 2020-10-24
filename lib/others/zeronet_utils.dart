@@ -38,7 +38,7 @@ checkForAppUpdates() async {
   DateTime time = DateTime.now();
   var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
-  if (time.difference(updateTime).inSeconds > 3 && !kDebugMode) {
+  if (time.difference(updateTime).inDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailable && info.flexibleUpdateAllowed)
@@ -175,7 +175,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
         title: "ZeroNet Mobile is Running",
         content: "Click Here on this Notification to open app",
       );
-      service.setForegroundMode(false);
+      // service.setForegroundMode(false);
     }
   }
 }
