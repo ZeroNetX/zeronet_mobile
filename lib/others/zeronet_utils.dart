@@ -97,7 +97,8 @@ runTorEngine() {
 }
 
 runZeroNet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING ||
+      uiStore.zeroNetStatus == ZeroNetStatus.ERROR) {
     uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     service.sendData({'ZeroNetStatus': 'INITIALISING'});
     runTorEngine();
@@ -157,6 +158,21 @@ void runBgIsolate() {
   service = FlutterBackgroundService();
   service.onDataReceived.listen(onBgServiceDataReceivedForIsolate);
   service.sendData({'status': 'Started Background Service Successfully'});
+  Timer(Duration(milliseconds: 500), () {
+    if (zeroNetStartedFromBoot) {
+      setBgServiceRunningNotification();
+      if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
+        loadSettings();
+        loadDataFile();
+        debugZeroNetCode =
+            (varStore.settings[debugZeroNet] as ToggleSetting).value;
+        vibrateonZeroNetStart =
+            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
+        runZeroNet();
+        setZeroNetRunningNotification();
+      }
+    }
+  });
 }
 
 void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
@@ -172,40 +188,51 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
     }
   } else if (data.keys.first == 'init') {
     Map initMap = data['init'];
-    // zeroNetNativeDir = initMap['zeroNetNativeDir'];
+    zeroNetNativeDir = initMap['zeroNetNativeDir'];
     debugZeroNetCode = initMap['debugZeroNetCode'];
+    zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
-    if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
-      loadSettings();
-      loadDataFile();
-    }
-    service.setNotificationInfo(
-      title: "ZeroNet Mobile is Not Running",
-      content: "Open ZeroNet Mobile App and click start to run ZeroNet",
-    );
+    setBgServiceRunningNotification();
   } else if (data.keys.first == 'notification') {
     if (data.values.first == 'ZeroNetStatus.RUNNING') {
-      service.setNotificationInfo(
-        title: "ZeroNet Mobile is Running",
-        content: "Click Here on this Notification to open app",
-      );
-      // service.setForegroundMode(false);
+      setZeroNetRunningNotification();
+    } else if (data.values.first == 'BgService.RUNNING') {
+      setBgServiceRunningNotification();
     }
   }
 }
 
+setZeroNetRunningNotification() {
+  service.setNotificationInfo(
+    title: "ZeroNet Mobile is Running",
+    content: "Click Here on this Notification to open app",
+  );
+}
+
+setBgServiceRunningNotification() {
+  service.setNotificationInfo(
+    title: "ZeroNet Mobile is Not Running",
+    content: "Open ZeroNet Mobile App and click start to run ZeroNet",
+  );
+}
+
 void onBgServiceDataReceived(Map<String, dynamic> data) {
   if (data.keys.first == 'status') {
+    service.sendData({'notification': 'BgService.RUNNING'});
     service.sendData({
       'init': {
         'zeroNetNativeDir': zeroNetNativeDir,
+        'zeroNetStartedFromBoot': false,
         'debugZeroNetCode':
             (varStore.settings[debugZeroNet] as ToggleSetting).value,
         'vibrateOnZeroNetStart':
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value,
       }
     });
-    if ((varStore.settings[autoStartZeroNet] as ToggleSetting).value == true) {
+    if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
+      printToConsole('zeroNetNativeDir is Empty');
+    } else if ((varStore.settings[autoStartZeroNet] as ToggleSetting).value ==
+        true) {
       service.sendData({'cmd': 'runZeroNet'});
     }
   } else if (data.keys.first == 'ZeroNetStatus') {

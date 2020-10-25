@@ -14,6 +14,7 @@ bool firstTime = false;
 bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;
+bool zeroNetStartedFromBoot = true;
 bool isExecPermitted = false;
 bool debugZeroNetCode = false;
 bool vibrateonZeroNetStart = false;
