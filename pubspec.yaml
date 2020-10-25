@@ -26,7 +26,7 @@ dependencies:
   google_fonts: 1.1.1
   in_app_purchase: 0.3.4+15
   in_app_review: 0.2.1+1
-  in_app_update: 1.1.12
+  in_app_update: 1.1.13
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: 0.1.1
@@ -38,7 +38,11 @@ dependencies:
   random_string: 2.1.0
   share: 0.6.5+3
   url_launcher: 5.7.6
-  flutter_background_service: 0.0.1+16
+  flutter_background_service: #0.0.1+16
+    # path: ../flutter_background_service
+    git:
+      url: https://github.com/canewsin/flutter_background_service
+      ref: auto-start-pref
   flutter_webview_plugin: #0.3.11
     git:
       url: https://github.com/canewsin/flutter_webview_plugin

@@ -133,12 +133,14 @@ runZeroNet() {
         }
         uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
         service.sendData({'ZeroNetStatus': 'ERROR'});
+        service.sendData({'console': e.toString()});
       });
     } else {
       //TODO: Improve Error Trace here
       service.sendData({'console': 'Python Binary Not Found'});
       uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
       service.sendData({'ZeroNetStatus': 'ERROR'});
+      service.sendData({'console': 'zeroNetNativeDir : $zeroNetNativeDir'});
       var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
       for (var item in contents) {
         service.sendData({'console': item.name()});
@@ -163,13 +165,20 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
       case 'runZeroNet':
         runZeroNet();
         break;
+      case 'shutDownZeronet':
+        //TODO: iMPLEMENT THIS.
+        break;
       default:
     }
   } else if (data.keys.first == 'init') {
     Map initMap = data['init'];
-    zeroNetNativeDir = initMap['zeroNetNativeDir'];
+    // zeroNetNativeDir = initMap['zeroNetNativeDir'];
     debugZeroNetCode = initMap['debugZeroNetCode'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
+    if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
+      loadSettings();
+      loadDataFile();
+    }
     service.setNotificationInfo(
       title: "ZeroNet Mobile is Not Running",
       content: "Open ZeroNet Mobile App and click start to run ZeroNet",
@@ -226,6 +235,7 @@ shutDownZeronet() {
         printOut(e);
       }
     }
+    service.sendData({'cmd': 'shutDownZeronet'});
     zeroNetUrl = '';
     uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
   }

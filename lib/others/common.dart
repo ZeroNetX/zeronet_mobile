@@ -73,10 +73,16 @@ init() async {
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
-    FlutterBackgroundService.initialize(runBgIsolate).then((value) {
+    bool autoStart =
+        (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+    FlutterBackgroundService.initialize(
+      runBgIsolate,
+      autoStart: autoStart,
+    ).then((value) {
       if (value) {
         service = FlutterBackgroundService();
         service.onDataReceived.listen(onBgServiceDataReceived);
+        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
       }
     });
   }
@@ -182,6 +188,21 @@ void zeronetNotInit(BuildContext context) => showDialogC(
       body: "ZeroNet should be used atleast once (run it from home screen), "
           "before using this option",
     );
+
+saveDataFile() {
+  Map<String, String> dataMap = {
+    'zeroNetNativeDir': zeroNetNativeDir,
+  };
+  File f = File(dataDir + '/data.json');
+  f.writeAsStringSync(json.encode(dataMap));
+}
+
+loadDataFile() {
+  File f = File(dataDir + '/data.json');
+  Map m = json.decode(f.readAsStringSync());
+  print(m);
+  zeroNetNativeDir = m['zeroNetNativeDir'];
+}
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');
