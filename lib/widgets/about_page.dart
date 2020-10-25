@@ -1,8 +1,6 @@
 import 'dart:ui';
 
-import 'package:clipboard/clipboard.dart';
-import 'package:flutter/gestures.dart';
-import 'package:zeronet/others/donation_const.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
@@ -107,7 +105,7 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(4.0),
+                      padding: const EdgeInsets.all(8.0),
                     ),
                   ],
                 ),
@@ -195,7 +193,7 @@ class DonationWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
         ),
-        GooglePlayInAppPurchases(),
+        if (kEnableInAppPurchases) GooglePlayInAppPurchases(),
         Padding(
           padding: const EdgeInsets.all(8.0),
         ),
@@ -323,10 +321,6 @@ class DeveloperWidget extends StatelessWidget {
 class GooglePlayInAppPurchases extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    getGooglePlayOneTimePurchases()
-        .then((value) => uiStore.addOneTimePuchases(value));
-    getGooglePlaySubscriptions()
-        .then((value) => uiStore.addSubscriptions(value));
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,41 +343,102 @@ class GooglePlayInAppPurchases extends StatelessWidget {
             ),
           ),
           Observer(builder: (ctx) {
-            List<ProductDetails> oneTimePurchases = uiStore.oneTimePurchases;
-            if (oneTimePurchases.length > 0) {
-              List<Widget> children = [];
-              for (var item in oneTimePurchases) {
-                var i = oneTimePurchases.indexOf(item);
-                Color c = Color(0xFF);
-                String label = '';
-                switch (i) {
-                  case 0:
-                    label = 'Tip';
-                    c = Color(0xFF06CAB6);
-                    break;
-                  case 1:
-                    label = 'Coffee';
-                    c = Color(0xFF0696CA);
-                    break;
-                  case 2:
-                    label = 'Lunch';
-                    c = Color(0xFFCA067B);
-                    break;
-                  default:
+            List<Widget> mChildren = [];
+            Map<String, List<Package>> googlePurchasesTypes = {
+              'One Time': purchasesStore.oneTimePurchases,
+              'Monthly Subscriptions': purchasesStore.subscriptions,
+            };
+            for (var item in googlePurchasesTypes.keys) {
+              List<Package> purchases = googlePurchasesTypes[item];
+              purchases
+                ..sort((item1, item2) {
+                  int item1I1 = item1.identifier.lastIndexOf('_') + 1;
+                  int item1I2 = item1.identifier.lastIndexOf('.');
+                  String item1PriceStr =
+                      item1.identifier.substring(item1I1, item1I2);
+                  int item1Price = int.parse(item1PriceStr);
+                  int item2I1 = item2.identifier.lastIndexOf('_') + 1;
+                  int item2I2 = item2.identifier.lastIndexOf('.');
+                  String item2PriceStr =
+                      item2.identifier.substring(item2I1, item2I2);
+                  int item2Price = int.parse(item2PriceStr);
+                  return item1Price < item2Price ? -1 : 1;
+                });
+              if (purchases.length > 0) {
+                List<Widget> children = [];
+                for (var package in purchases) {
+                  var i = purchases.indexOf(package);
+                  Color c = Color(0xFF);
+                  String label = '';
+                  switch (i) {
+                    case 0:
+                      label = 'Tip';
+                      c = Color(0xFF06CAB6);
+                      break;
+                    case 1:
+                      label = 'Coffee';
+                      c = Color(0xFF0696CA);
+                      break;
+                    case 2:
+                      label = 'Lunch';
+                      c = Color(0xFFCA067B);
+                      break;
+                    default:
+                  }
+                  children.add(
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          right: 16.0,
+                          top: 8.0,
+                          bottom: 8.0,
+                        ),
+                        child: Text(
+                          "$label(${package.product.priceString})",
+                          style: GoogleFonts.roboto(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      color: c,
+                      onPressed: () => purchasePackage(package),
+                    ),
+                  );
                 }
-                children.add(
-                  RaisedButton(
-                    child: Text("$label(${item.price})"),
-                    color: c,
-                    onPressed: () {},
+                mChildren.add(
+                  Column(
+                    children: [
+                      Padding(padding: const EdgeInsets.all(8.0)),
+                      Text(
+                        item,
+                        style: GoogleFonts.roboto(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Padding(padding: const EdgeInsets.all(8.0)),
+                      Center(
+                        child: Wrap(
+                          spacing: 25.0,
+                          runSpacing: 10.0,
+                          alignment: WrapAlignment.spaceEvenly,
+                          children: children,
+                        ),
+                      )
+                    ],
                   ),
                 );
               }
-              return Wrap(
-                children: [],
-              );
-            } else
-              return Container();
+            }
+            return Column(
+              children: mChildren,
+            );
           })
         ],
       ),

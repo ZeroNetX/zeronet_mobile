@@ -3,8 +3,12 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  //TODO: Check For Google Play Store Install.
-  InAppPurchaseConnection.enablePendingPurchases();
+  if (kEnableInAppPurchases) {
+    InAppPurchaseConnection.enablePendingPurchases();
+    final Stream purchaseUpdates =
+        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
+  }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -31,12 +35,18 @@ class MyApp extends StatelessWidget {
         body: Observer(
           builder: (context) {
             if (varStore.zeroNetInstalled) {
+              scaffoldState = Scaffold.of(context);
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                makeExecHelper();
+                if (!isExecPermitted)
+                  makeExecHelper().then(
+                    (value) => isExecPermitted = value,
+                  );
+                firstTime = false;
               }
-              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
+                  !manuallyStoppedZeroNet) {
                 checkInitStatus();
               }
               if (launchUrl.isNotEmpty) {
@@ -54,13 +64,15 @@ class MyApp extends StatelessWidget {
                   switch (uiStore.currentAppRoute) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
-                          onWillPop: () {
-                            uiStore.updateCurrentAppRoute(AppRoute.Home);
-                            return Future.value(false);
-                          },
-                          child: AboutPage());
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: AboutPage(),
+                      );
                       break;
                     case AppRoute.Home:
+                      getInAppPurchases();
                       return HomePage();
                       break;
                     case AppRoute.Settings:

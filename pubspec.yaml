@@ -12,38 +12,41 @@ dependencies:
   archive: 2.0.13
   crypto: 2.1.5
   clipboard: 0.1.2+8
-  device_info: 0.4.2+1
-  file_picker: 1.4.3+2
+  device_info: 0.4.2+9
+  file_picker: 2.0.9+1
   flutter_absolute_path: 
     # path: ../flutter_absolute_path
     git:
-      url : https://github.com/canewsin/flutter_absolute_path.git
-  flutter_downloader: 1.4.1
+      url: https://github.com/canewsin/flutter_absolute_path.git
+      ref: android-v2
+  flutter_downloader: 1.5.1
   flutter_mobx: 0.3.3+3
-  http: 0.12.0+3
+  http: 0.12.2
   mobx: 0.3.3+1
-  google_fonts: 1.1.0
-  in_app_purchase: 0.3.4+8
-  in_app_review: 0.2.0+4
-  in_app_update: #1.1.11
-    git:
-      url : https://github.com/canewsin/flutter_in_app_update.git
+  google_fonts: 1.1.1
+  in_app_purchase: 0.3.4+15
+  in_app_review: 0.2.1+1
+  in_app_update: 1.1.13
+    # git:
+    #   url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: 0.1.1
   equatable: 1.2.5
-  time_ago_provider: 2.0.5
+  time_ago_provider: 2.3.1
   package_info: 0.4.3
-  path_provider: 1.6.5
-  random_string: 2.0.1
-  share: 0.6.3+6
-  url_launcher: 5.5.1
+  path_provider: 1.6.21
+  purchases_flutter: 1.4.0
+  random_string: 2.1.0
+  share: 0.6.5+3
+  url_launcher: 5.7.6
+  flutter_background_service: #0.0.1+16
+    # path: ../flutter_background_service
+    git:
+      url: https://github.com/canewsin/flutter_background_service
+      ref: auto-start-pref
   flutter_webview_plugin: #0.3.11
     git:
       url: https://github.com/canewsin/flutter_webview_plugin
       ref: fullscreen-support
-  flutter_local_notifications: 1.4.4+4
-    # git:
-    #   url: https://github.com/canewsin/flutter_local_notifications
-    #   ref: actions
   web_socket_channel: 1.1.0
   zeronet_ws:
     # path: ../zeronet_ws

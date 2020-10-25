@@ -47,6 +47,8 @@ class ToggleSetting extends Setting {
     );
   }
 
+  String toString() => json.encode(this.toMap());
+
   void onChanged(bool value) async {
     var map = varStore.settings;
     var key = this.name;
@@ -103,6 +105,8 @@ class MapSetting extends Setting {
       map: map['map'],
     );
   }
+
+  String toString() => json.encode(this.toMap());
 }
 
 class UnzipParams {

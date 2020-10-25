@@ -1,3 +1,5 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 import '../imports.dart';
 
 Directory appPrivDir;
@@ -10,6 +12,12 @@ bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
 bool kIsPlayStoreInstall = false;
+bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
+bool manuallyStoppedZeroNet = false;
+bool zeroNetStartedFromBoot = true;
+bool isExecPermitted = false;
+bool debugZeroNetCode = false;
+bool vibrateonZeroNetStart = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -29,10 +37,10 @@ String browserUrl = 'https://google.com';
 Map<String, Site> sitesAvailable = {};
 List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
-// Color zeroBrowserPrimaryColor;
-// Color zeroBrowserAccentColor;
+String snackMessage = '';
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+ScaffoldState scaffoldState;
+FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
@@ -63,9 +71,24 @@ init() async {
   appPrivDir = await getExternalStorageDirectory();
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
-  if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
-  initNotifications();
+  if (isZeroNetInstalledm) {
+    varStore.isZeroNetInstalled(isZeroNetInstalledm);
+    checkForAppUpdates();
+    bool autoStart =
+        (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+    FlutterBackgroundService.initialize(
+      runBgIsolate,
+      autoStart: autoStart,
+    ).then((value) {
+      if (value) {
+        service = FlutterBackgroundService();
+        service.onDataReceived.listen(onBgServiceDataReceived);
+        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
+      }
+    });
+  }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
+  Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
 }
 
 Map<String, Setting> defSettings = {
@@ -125,19 +148,26 @@ Map<String, Setting> defSettings = {
 };
 
 Future<File> pickUserJsonFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'json',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['json']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
 }
 
 Future<File> pickPluginZipFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'zip',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['zip']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
+}
+
+Future<FilePickerResult> pickFile({List<String> fileExts}) async {
+  FilePickerResult result = await FilePicker.platform.pickFiles(
+    type: FileType.any,
+    allowedExtensions: fileExts,
+  );
+
+  return result;
 }
 
 Future<void> backUpUserJsonFile(BuildContext context) async {
@@ -159,6 +189,21 @@ void zeronetNotInit(BuildContext context) => showDialogC(
       body: "ZeroNet should be used atleast once (run it from home screen), "
           "before using this option",
     );
+
+saveDataFile() {
+  Map<String, String> dataMap = {
+    'zeroNetNativeDir': zeroNetNativeDir,
+  };
+  File f = File(dataDir + '/data.json');
+  f.writeAsStringSync(json.encode(dataMap));
+}
+
+loadDataFile() {
+  File f = File(dataDir + '/data.json');
+  Map m = json.decode(f.readAsStringSync());
+  print(m);
+  zeroNetNativeDir = m['zeroNetNativeDir'];
+}
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');
@@ -246,24 +291,19 @@ printToConsole(Object object) {
           object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
       if (object.contains('ConnServer Closed port') ||
           object.contains('All server stopped')) {
         zeroNetUrl = '';
         uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
-        flutterLocalNotificationsPlugin.cancelAll();
       }
       log = log + object + '\n';
     } else {
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
       log = log + '\n';
     }

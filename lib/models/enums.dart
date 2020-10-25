@@ -52,11 +52,12 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   void onAction() {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        runZeroNet();
+        service.sendData({'cmd': 'runZeroNet'});
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
+        manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
         uiStore.updateCurrentAppRoute(AppRoute.LogPage);

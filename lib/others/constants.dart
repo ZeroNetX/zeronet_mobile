@@ -301,7 +301,7 @@ extension MapOptionExt on MapOptions {
                           if (file.existsSync()) file.deleteSync();
                           Navigator.pop(context);
                           ZeroNet.instance.shutDown();
-                          runZeroNet();
+                          service.sendData({'cmd': 'runZeroNet'});
                         }
                         username = '';
                         uiStore.updateCurrentAppRoute(AppRoute.Settings);
@@ -358,7 +358,7 @@ extension MapOptionExt on MapOptions {
                               } catch (e) {
                                 printOut(e);
                               }
-                              runZeroNet();
+                              service.sendData({'cmd': 'runZeroNet'});
                               Navigator.pop(context);
                             }
                           },
@@ -407,7 +407,7 @@ extension MapOptionExt on MapOptions {
           actionOk: FlatButton(
             onPressed: () {
               ZeroNet.instance.shutDown();
-              runZeroNet();
+              service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             },
             child: Text('Restart'),
