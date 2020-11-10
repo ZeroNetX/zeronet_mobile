@@ -52,7 +52,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   void onAction() {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        service.sendData({'cmd': 'runZeroNet'});
+        runZeroNetService(autoStart: true);
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:

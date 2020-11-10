@@ -74,18 +74,9 @@ init() async {
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
-    bool autoStart =
-        (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
-    FlutterBackgroundService.initialize(
-      runBgIsolate,
-      autoStart: autoStart,
-    ).then((value) {
-      if (value) {
-        service = FlutterBackgroundService();
-        service.onDataReceived.listen(onBgServiceDataReceived);
-        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
-      }
-    });
+    runZeroNetService(
+      autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
+    );
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
