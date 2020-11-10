@@ -1,8 +1,8 @@
 import '../imports.dart';
 
-const MethodChannel _channel = const MethodChannel('in.canews.zeronet');
+const MethodChannel _channel = const MethodChannel('in.canews.zeronetmobile');
 const EventChannel _events_channel =
-    const EventChannel('in.canews.zeronet/installModules');
+    const EventChannel('in.canews.zeronetmobile/installModules');
 
 Future<bool> addToHomeScreen(String title, String url, String logoPath) async =>
     await _channel.invokeMethod('addToHomeScreen', {

@@ -1,6 +1,6 @@
 import '../imports.dart';
 
-const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
+const String pkgName = 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}';
 const String dataDir = "/data/data/$pkgName/files";
 const String zeroNetDir = dataDir + '/ZeroNet-py3';
 const String bin = '$dataDir/usr/bin';

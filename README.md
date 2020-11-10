@@ -5,14 +5,14 @@ ZeroNet Mobile is an Android Client for [ZeroNet](https://zeronet.io), a platfor
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" 
       alt="Download from Google Play" 
-      height="80">](https://play.google.com/store/apps/details?id=in.canews.zeronet)
+      height="80">](https://play.google.com/store/apps/details?id=in.canews.zeronetmobile)
 
 ## Installation
 
 ### From Google PlayStore :
 #### Android (arm, arm64, x86)
  - minimum Android version supported 16 (JellyBean).
- - Google Play Store Link https://play.google.com/store/apps/details?id=in.canews.zeronet
+ - Google Play Store Link https://play.google.com/store/apps/details?id=in.canews.zeronetmobile
 
 #### Compiling Source : 
 

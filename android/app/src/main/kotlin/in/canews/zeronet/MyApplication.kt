@@ -1,4 +1,4 @@
-package `in`.canews.zeronet
+package `in`.canews.zeronetmobile
 
 import android.app.Activity
 import android.content.Context

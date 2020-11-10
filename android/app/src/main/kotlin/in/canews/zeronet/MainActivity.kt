@@ -1,4 +1,4 @@
-package `in`.canews.zeronet
+package `in`.canews.zeronetmobile
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -43,8 +43,8 @@ const val PICK_USERJSON_FILE = 1002
 const val SAVE_USERJSON_FILE = 1003
 const val PICK_ZIP_FILE = 1004
 const val TAG = "MainActivity"
-const val CHANNEL = "in.canews.zeronet"
-const val EVENT_CHANNEL = "in.canews.zeronet/installModules"
+const val CHANNEL = "in.canews.zeronetmobile"
+const val EVENT_CHANNEL = "in.canews.zeronetmobile/installModules"
 
 class MainActivity : FlutterActivity() {
 

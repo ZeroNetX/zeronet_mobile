@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
-    package="in.canews.zeronet.x86">
+    package="in.canews.zeronetmobile.x86">
 
     <dist:module
         dist:instant="false"
