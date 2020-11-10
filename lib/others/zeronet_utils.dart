@@ -153,6 +153,25 @@ runZeroNet() {
   }
 }
 
+void runZeroNetService({bool autoStart = false}) async {
+  bool autoStartService = autoStart
+      ? true
+      : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+  if (await FlutterBackgroundService().isServiceRunning())
+    FlutterBackgroundService.initialize(
+      runBgIsolate,
+      autoStart: autoStartService,
+    ).then((value) {
+      if (value) {
+        service = FlutterBackgroundService();
+        service.onDataReceived.listen(onBgServiceDataReceived);
+        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+        if (autoStart) service.sendData({'cmd': 'runZeroNet'});
+      }
+    });
+}
+
 void runBgIsolate() {
   WidgetsFlutterBinding.ensureInitialized();
   service = FlutterBackgroundService();
@@ -182,7 +201,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
         runZeroNet();
         break;
       case 'shutDownZeronet':
-        //TODO: iMPLEMENT THIS.
+        service.stopBackgroundService();
         break;
       default:
     }
@@ -252,23 +271,23 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
 
 shutDownZeronet() {
   if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+    service.sendData({'cmd': 'shutDownZeronet'});
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
-      runZeroNetWs();
+      runZeroNetWs(address: Utils.urlHello);
       try {
         ZeroNet.instance.shutDown();
       } catch (e) {
         printOut(e);
       }
     }
-    service.sendData({'cmd': 'shutDownZeronet'});
     zeroNetUrl = '';
     uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
   }
 }
 
-runZeroNetWs() {
+runZeroNetWs({String address}) {
   var zeroNetUrlL = zeroNetUrl.isNotEmpty ? zeroNetUrl : defZeroNetUrl;
   zeroNetUrl = zeroNetUrlL;
   if (varStore.zeroNetWrapperKey.isEmpty) {
@@ -279,6 +298,10 @@ runZeroNetWs() {
         // ZeroNet.wrapperKey = value;
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
+        ZeroNet.instance.connect(
+          zeroNetIPwithPort(defZeroNetUrl),
+          address ?? Utils.urlZeroNetMob,
+        );
       }
     });
   } else {
