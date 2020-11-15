@@ -414,7 +414,8 @@ bool isLocalZitesExists() {
 
 Future<bool> saveFilterstoDevice() async {
   File file = File(getZeroNetDataDir().path + '/filters.json');
-  if (file.existsSync()) {
+  if (!file.existsSync()) {
+    file.createSync(recursive: true);
     var data = (await rootBundle.load('assets/filters.json'));
     var buffer = data.buffer;
     file.writeAsBytesSync(buffer.asUint8List(
