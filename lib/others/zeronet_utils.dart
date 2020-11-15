@@ -157,6 +157,9 @@ void runZeroNetService({bool autoStart = false}) async {
   bool autoStartService = autoStart
       ? true
       : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+  bool filtersEnabled =
+      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value;
+  if (filtersEnabled) await saveFilterstoDevice();
   if (await FlutterBackgroundService().isServiceRunning())
     FlutterBackgroundService.initialize(
       runBgIsolate,
