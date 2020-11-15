@@ -82,62 +82,6 @@ init() async {
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
 }
 
-Map<String, Setting> defSettings = {
-  profileSwitcher: MapSetting(
-    name: profileSwitcher,
-    description: profileSwitcherDes,
-    map: {
-      "selected": '',
-      "all": [],
-    },
-  ),
-  pluginManager: MapSetting(
-    name: pluginManager,
-    description: pluginManagerDes,
-    map: {},
-  ),
-  batteryOptimisation: ToggleSetting(
-    name: batteryOptimisation,
-    description: batteryOptimisationDes,
-    value: false,
-  ),
-  publicDataFolder: ToggleSetting(
-    name: publicDataFolder,
-    description: publicDataFolderDes,
-    value: false,
-  ),
-  vibrateOnZeroNetStart: ToggleSetting(
-    name: vibrateOnZeroNetStart,
-    description: vibrateOnZeroNetStartDes,
-    value: false,
-  ),
-  enableFullScreenOnWebView: ToggleSetting(
-    name: enableFullScreenOnWebView,
-    description: enableFullScreenOnWebViewDes,
-    value: false,
-  ),
-  autoStartZeroNet: ToggleSetting(
-    name: autoStartZeroNet,
-    description: autoStartZeroNetDes,
-    value: true,
-  ),
-  autoStartZeroNetonBoot: ToggleSetting(
-    name: autoStartZeroNetonBoot,
-    description: autoStartZeroNetonBootDes,
-    value: false,
-  ),
-  debugZeroNet: ToggleSetting(
-    name: debugZeroNet,
-    description: debugZeroNetDes,
-    value: false,
-  ),
-  enableZeroNetConsole: ToggleSetting(
-    name: enableZeroNetConsole,
-    description: enableZeroNetConsoleDes,
-    value: false,
-  ),
-};
-
 Future<File> pickUserJsonFile() async {
   FilePickerResult result = await pickFile(fileExts: ['json']);
   if (result == null) return null;
@@ -201,7 +145,7 @@ loadSettings() {
   List settings;
   if (f.existsSync()) {
     settings = json.decode(f.readAsStringSync());
-    if (settings.length < defSettings.keys.length) {
+    if (settings.length < Utils.defSettings.keys.length) {
       List settingsKeys = [];
       Map<String, Setting> m = {};
       for (var i = 0; i < settings.length; i++) {
@@ -212,9 +156,9 @@ loadSettings() {
           m[k] = ToggleSetting().fromJson(map);
         }
       }
-      for (var key in defSettings.keys) {
+      for (var key in Utils.defSettings.keys) {
         if (!settingsKeys.contains(key)) {
-          m[key] = defSettings[key];
+          m[key] = Utils.defSettings[key];
         }
       }
       saveSettings(m);
@@ -222,8 +166,8 @@ loadSettings() {
     }
   } else {
     firstTime = true;
-    saveSettings(defSettings);
-    settings = json.decode(maptoStringList(defSettings));
+    saveSettings(Utils.defSettings);
+    settings = json.decode(maptoStringList(Utils.defSettings));
   }
   for (var i = 0; i < settings.length; i++) {
     Map map = settings[i];

@@ -22,10 +22,10 @@ class SettingsPage extends StatelessWidget {
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: Utils().defSettings.keys.length,
+                    itemCount: Utils.defSettings.keys.length,
                     itemBuilder: (ctx, i) {
-                      Setting current = Utils()
-                          .defSettings[Utils().defSettings.keys.toList()[i]];
+                      Setting current =
+                          Utils.defSettings[Utils.defSettings.keys.toList()[i]];
                       if (current.name == profileSwitcher) {
                         bool isUsersFileExists = isZeroNetUsersFileExists();
                         if (!isUsersFileExists) return Container();

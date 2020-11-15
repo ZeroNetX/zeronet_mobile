@@ -188,7 +188,7 @@ class Utils {
   static const String openPluginManager = 'Open Plugin Manager';
   static const String loadPlugin = 'Load Custom Plugin';
 
-  Map<String, Setting> defSettings = {
+  static Map<String, Setting> defSettings = {
     profileSwitcher: MapSetting(
         name: profileSwitcher,
         description: profileSwitcherDes,
