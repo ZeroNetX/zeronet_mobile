@@ -411,3 +411,18 @@ bool isLocalZitesExists() {
     return false;
   return paths.isNotEmpty;
 }
+
+Future<bool> saveFilterstoDevice() async {
+  File file = File(getZeroNetDataDir().path + '/filters.json');
+  if (file.existsSync()) {
+    var data = (await rootBundle.load('assets/filters.json'));
+    var buffer = data.buffer;
+    file.writeAsBytesSync(buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    ));
+  } else {
+    //TODO: File Exists Case here.
+  }
+  return true;
+}
