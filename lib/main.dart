@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
               scaffoldState = Scaffold.of(context);
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-                saveFilterstoDevice();
+                activateFilters();
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 if (!isExecPermitted)
                   makeExecHelper().then(

@@ -159,7 +159,7 @@ void runZeroNetService({bool autoStart = false}) async {
       : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
   bool filtersEnabled =
       (varStore.settings[enableZeroNetFilters] as ToggleSetting).value;
-  if (filtersEnabled) await saveFilterstoDevice();
+  if (filtersEnabled) await activateFilters();
   if (await FlutterBackgroundService().isServiceRunning())
     FlutterBackgroundService.initialize(
       runBgIsolate,
@@ -415,18 +415,34 @@ bool isLocalZitesExists() {
   return paths.isNotEmpty;
 }
 
-Future<bool> saveFilterstoDevice() async {
+Future<bool> activateFilters() async {
   File file = File(getZeroNetDataDir().path + '/filters.json');
   if (!file.existsSync()) {
-    file.createSync(recursive: true);
-    var data = (await rootBundle.load('assets/filters.json'));
-    var buffer = data.buffer;
-    file.writeAsBytesSync(buffer.asUint8List(
-      data.offsetInBytes,
-      data.lengthInBytes,
-    ));
-  } else {
-    //TODO: File Exists Case here.
+    File deFile = File(getZeroNetDataDir().path + '/filters.json-deactive');
+    if (deFile.existsSync()) {
+      deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
+      return true;
+    } else
+      return await saveFilterstoDevice(file);
   }
+  return true;
+}
+
+Future<bool> deactivateFilters() async {
+  File file = File(getZeroNetDataDir().path + '/filters.json');
+  if (file.existsSync()) {
+    file.renameSync(getZeroNetDataDir().path + '/filters.json-deactive');
+  }
+  return true;
+}
+
+Future<bool> saveFilterstoDevice(File file) async {
+  file.createSync(recursive: true);
+  var data = (await rootBundle.load('assets/filters.json'));
+  var buffer = data.buffer;
+  file.writeAsBytesSync(buffer.asUint8List(
+    data.offsetInBytes,
+    data.lengthInBytes,
+  ));
   return true;
 }
