@@ -1,6 +1,6 @@
 import '../imports.dart';
 
-const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
+const String pkgName = 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}';
 const String dataDir = "/data/data/$pkgName/files";
 const String zeroNetDir = dataDir + '/ZeroNet-py3';
 const String bin = '$dataDir/usr/bin';
@@ -75,6 +75,9 @@ const String debugZeroNetDes =
 const String enableZeroNetConsole = 'Enable ZeroNet Console';
 const String enableZeroNetConsoleDes =
     'Useful for Developers to see the exec of ZeroNet Python code';
+const String enableZeroNetFilters = 'Enable ZeroNet Filters';
+const String enableZeroNetFiltersDes =
+    'Enabling ZeroNet Filters blocks known ametuer content sites and spam users.';
 const String pluginManager = 'Plugin Manager';
 const String pluginManagerDes = 'Enable/Disable ZeroNet Plugins';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
@@ -185,7 +188,7 @@ class Utils {
   static const String openPluginManager = 'Open Plugin Manager';
   static const String loadPlugin = 'Load Custom Plugin';
 
-  Map<String, Setting> defSettings = {
+  static Map<String, Setting> defSettings = {
     profileSwitcher: MapSetting(
         name: profileSwitcher,
         description: profileSwitcherDes,
@@ -210,6 +213,11 @@ class Utils {
       name: batteryOptimisation,
       description: batteryOptimisationDes,
       value: false,
+    ),
+    enableZeroNetFilters: ToggleSetting(
+      name: enableZeroNetFilters,
+      description: enableZeroNetFiltersDes,
+      value: true,
     ),
     publicDataFolder: ToggleSetting(
       name: publicDataFolder,

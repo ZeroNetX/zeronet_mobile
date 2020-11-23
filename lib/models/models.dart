@@ -64,6 +64,12 @@ class ToggleSetting extends Setting {
     } else if (key == publicDataFolder) {
       String str = 'data_dir = ${value ? appPrivDir.path : zeroNetDir}/data';
       writeZeroNetConf(str);
+    } else if (key == enableZeroNetFilters) {
+      if (value) {
+        activateFilters();
+      } else {
+        deactivateFilters();
+      }
     }
     saveSettings(m);
     varStore.updateSetting(

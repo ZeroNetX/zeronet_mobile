@@ -153,6 +153,28 @@ runZeroNet() {
   }
 }
 
+void runZeroNetService({bool autoStart = false}) async {
+  bool autoStartService = autoStart
+      ? true
+      : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+  bool filtersEnabled =
+      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value;
+  if (filtersEnabled) await activateFilters();
+  if (await FlutterBackgroundService().isServiceRunning())
+    FlutterBackgroundService.initialize(
+      runBgIsolate,
+      autoStart: autoStartService,
+    ).then((value) {
+      if (value) {
+        service = FlutterBackgroundService();
+        service.onDataReceived.listen(onBgServiceDataReceived);
+        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+        if (autoStart) service.sendData({'cmd': 'runZeroNet'});
+      }
+    });
+}
+
 void runBgIsolate() {
   WidgetsFlutterBinding.ensureInitialized();
   service = FlutterBackgroundService();
@@ -182,7 +204,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
         runZeroNet();
         break;
       case 'shutDownZeronet':
-        //TODO: iMPLEMENT THIS.
+        service.stopBackgroundService();
         break;
       default:
     }
@@ -252,23 +274,23 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
 
 shutDownZeronet() {
   if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+    service.sendData({'cmd': 'shutDownZeronet'});
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
-      runZeroNetWs();
+      runZeroNetWs(address: Utils.urlHello);
       try {
         ZeroNet.instance.shutDown();
       } catch (e) {
         printOut(e);
       }
     }
-    service.sendData({'cmd': 'shutDownZeronet'});
     zeroNetUrl = '';
     uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
   }
 }
 
-runZeroNetWs() {
+runZeroNetWs({String address}) {
   var zeroNetUrlL = zeroNetUrl.isNotEmpty ? zeroNetUrl : defZeroNetUrl;
   zeroNetUrl = zeroNetUrlL;
   if (varStore.zeroNetWrapperKey.isEmpty) {
@@ -279,6 +301,10 @@ runZeroNetWs() {
         // ZeroNet.wrapperKey = value;
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
+        ZeroNet.instance.connect(
+          zeroNetIPwithPort(defZeroNetUrl),
+          address ?? Utils.urlZeroNetMob,
+        );
       }
     });
   } else {
@@ -387,4 +413,36 @@ bool isLocalZitesExists() {
   else
     return false;
   return paths.isNotEmpty;
+}
+
+Future<bool> activateFilters() async {
+  File file = File(getZeroNetDataDir().path + '/filters.json');
+  if (!file.existsSync()) {
+    File deFile = File(getZeroNetDataDir().path + '/filters.json-deactive');
+    if (deFile.existsSync()) {
+      deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
+      return true;
+    } else
+      return await saveFilterstoDevice(file);
+  }
+  return true;
+}
+
+Future<bool> deactivateFilters() async {
+  File file = File(getZeroNetDataDir().path + '/filters.json');
+  if (file.existsSync()) {
+    file.renameSync(getZeroNetDataDir().path + '/filters.json-deactive');
+  }
+  return true;
+}
+
+Future<bool> saveFilterstoDevice(File file) async {
+  file.createSync(recursive: true);
+  var data = (await rootBundle.load('assets/filters.json'));
+  var buffer = data.buffer;
+  file.writeAsBytesSync(buffer.asUint8List(
+    data.offsetInBytes,
+    data.lengthInBytes,
+  ));
+  return true;
 }
