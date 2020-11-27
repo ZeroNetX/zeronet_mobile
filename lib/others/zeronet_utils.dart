@@ -78,7 +78,7 @@ runTorEngine() {
       "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
     }).then((proc) {
       zero = proc;
-      if (enableTorLog) {
+      if (enableTorLogConsole) {
         zero.stderr.listen((onData) {
           service.sendData({'console': utf8.decode(onData)});
         });
@@ -190,7 +190,8 @@ void runBgIsolate() {
         loadDataFile();
         debugZeroNetCode =
             (varStore.settings[debugZeroNet] as ToggleSetting).value;
-        enableTorLog = (varStore.settings[enableTorLog] as ToggleSetting).value;
+        enableTorLogConsole =
+            (varStore.settings[enableTorLog] as ToggleSetting).value;
         vibrateonZeroNetStart =
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         runZeroNet();
@@ -215,7 +216,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
     Map initMap = data['init'];
     zeroNetNativeDir = initMap['zeroNetNativeDir'];
     debugZeroNetCode = initMap['debugZeroNetCode'];
-    enableTorLog = initMap['enableTorLog'];
+    enableTorLogConsole = initMap['enableTorLog'];
     zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
     setBgServiceRunningNotification();
