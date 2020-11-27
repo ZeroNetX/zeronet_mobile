@@ -17,6 +17,7 @@ bool manuallyStoppedZeroNet = false;
 bool zeroNetStartedFromBoot = true;
 bool isExecPermitted = false;
 bool debugZeroNetCode = false;
+bool enableTorLog = false;
 bool vibrateonZeroNetStart = false;
 int downloadStatus = 0;
 Map downloadsMap = {};

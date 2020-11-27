@@ -97,6 +97,9 @@ const String autoStartZeroNetDes =
 const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
 const String autoStartZeroNetonBootDes =
     'This Will Make ZeroNet Auto Start on Device Boot.';
+const String enableTorLog = 'Enable Tor Log';
+const String enableTorLogDes =
+    'This will Enable Tor Log in ZeroNet Console helpful for debugging.';
 
 class Utils {
   static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
@@ -252,6 +255,11 @@ class Utils {
     enableZeroNetConsole: ToggleSetting(
       name: enableZeroNetConsole,
       description: enableZeroNetConsoleDes,
+      value: false,
+    ),
+    enableTorLog: ToggleSetting(
+      name: enableTorLog,
+      description: enableTorLogDes,
       value: false,
     ),
   };
