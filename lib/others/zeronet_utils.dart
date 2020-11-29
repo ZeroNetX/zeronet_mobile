@@ -454,3 +454,9 @@ Future<bool> saveFilterstoDevice(File file) async {
   ));
   return true;
 }
+
+Future<bool> createTorDataDir() {
+  Directory torDir = Directory(dataDir + '/usr/var/lib/tor');
+  if (!torDir.existsSync()) torDir.createSync();
+  return Future.value(true);
+}

@@ -236,12 +236,12 @@ printToConsole(Object object) {
       }
       log = log + object + '\n';
     } else {
+      log = startZeroNetLog + '\n';
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
         service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
-      log = log + '\n';
     }
   }
   varStore.setZeroNetLog(log);
