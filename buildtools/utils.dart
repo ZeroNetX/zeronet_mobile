@@ -13,8 +13,34 @@ main(List<String> args) {
     case 'compile':
       compile();
       break;
+    case 'update':
+      updateZeroNetCode();
+      break;
     default:
       compile();
+  }
+}
+
+updateZeroNetCode() {
+  var zeronetPath = Directory.current.path + '/build/ZeroNet-py3';
+  if (Directory(zeronetPath).existsSync()) {
+    print('Deleting ZeroNet Git Repo');
+    Directory(zeronetPath).deleteSync(recursive: true);
+  }
+  var process = Process.runSync('git', [
+    'clone',
+    'https://github.com/HelloZeroNet/ZeroNet.git',
+    '--depth=1',
+    zeronetPath,
+  ]);
+  if (process.exitCode == 0) {
+    print('Successfully downloaded Zeronet Repo');
+
+    print('Deleting git history');
+    Directory(zeronetPath + '/.git').deleteSync(recursive: true);
+
+    Process.runSync('cd', ['build']);
+    Process.runSync('7z', ['a', '-tzip', 'zeronet_py3.zip', 'ZeroNet']);
   }
 }
 

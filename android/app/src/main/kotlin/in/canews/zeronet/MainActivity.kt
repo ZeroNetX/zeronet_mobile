@@ -14,8 +14,15 @@ import androidx.annotation.NonNull
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
+import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
@@ -47,7 +54,7 @@ class MainActivity : FlutterActivity() {
     private var archName = ""
     private var splitInstallManager: SplitInstallManager? = null
     private lateinit var result: MethodChannel.Result
-    private var mSessionId = -1;
+    private var mSessionId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +62,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "batteryOptimisations" -> getBatteryOptimizations(result)
                 "isBatteryOptimized" -> isBatteryOptimized(result)
+                "isPlayStoreInstall" -> result.success(isPlayStoreInstall(this))
                 "initSplitInstall" -> {
                     if (splitInstallManager == null)
                         splitInstallManager = LocallyDynamicSplitInstallManagerFactory.create(this)
@@ -85,7 +93,7 @@ class MainActivity : FlutterActivity() {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
         EventChannel(flutterEngine.dartExecutor, EVENT_CHANNEL).setStreamHandler(
                 object : StreamHandler {
-                    lateinit var events: EventChannel.EventSink;
+                    lateinit var events: EventChannel.EventSink
                     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                         getArchName()
                         loadAndLaunchModule(archName, events)
@@ -96,6 +104,13 @@ class MainActivity : FlutterActivity() {
                     }
                 }
         )
+    }
+
+    private fun isPlayStoreInstall(context: Context): Boolean {
+        val validInstallers: List<String> = listOf("com.android.vending", "com.google.android.feedback")
+        val installer = context.packageManager.getInstallerPackageName(context.packageName)
+
+        return installer != null && validInstallers.contains(installer)
     }
 
     private fun isBatteryOptimized(result: MethodChannel.Result) {
