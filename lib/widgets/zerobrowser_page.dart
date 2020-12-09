@@ -20,7 +20,7 @@ class ZeroBrowser extends StatelessWidget {
             statusBarIconBrightness: Brightness.dark,
             systemNavigationBarIconBrightness: Brightness.dark,
             statusBarBrightness: Brightness.dark,
-            statusBarColor: Colors.white,
+            statusBarColor: Colors.transparent,
             systemNavigationBarColor: Colors.white,
           ),
         );
@@ -54,7 +54,7 @@ class ZeroBrowser extends StatelessWidget {
           SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
           SystemChrome.setSystemUIOverlayStyle(
             SystemUiOverlayStyle(
-              statusBarColor: Colors.white,
+              statusBarColor: Colors.transparent,
               systemNavigationBarColor: Colors.white,
               statusBarIconBrightness: Brightness.dark,
               systemNavigationBarIconBrightness: Brightness.dark,
@@ -117,7 +117,7 @@ class ZeroBrowser extends StatelessWidget {
                             SystemUiOverlay.values);
                         SystemChrome.setSystemUIOverlayStyle(
                           SystemUiOverlayStyle(
-                            statusBarColor: Colors.white,
+                            statusBarColor: Colors.transparent,
                             systemNavigationBarColor: Colors.white,
                             statusBarIconBrightness: Brightness.dark,
                             systemNavigationBarIconBrightness: Brightness.dark,

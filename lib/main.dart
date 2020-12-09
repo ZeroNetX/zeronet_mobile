@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
+        statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.white,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarIconBrightness: Brightness.dark,
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
                   makeExecHelper().then(
                     (value) => isExecPermitted = value,
                   );
-                createTorDataDir();
+                // createTorDataDir();
                 firstTime = false;
               }
               if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
