@@ -9,6 +9,6 @@ import com.google.android.play.core.splitcompat.SplitCompatApplication
 internal class MyApplication : SplitCompatApplication(){
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        SplitCompat.install(base)
+        SplitCompat.install(base!!)
     }
 }

@@ -51,7 +51,7 @@ android {
 
     defaultConfig {
         applicationId "in.canews.zeronet"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -80,9 +80,10 @@ android {
                 enabled = true
                 throttleDownloadBy = 1000
             }
+            defaultConfig.ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
         }
     }
-    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64", ":nativelibs"]
+    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
 
 
 }
