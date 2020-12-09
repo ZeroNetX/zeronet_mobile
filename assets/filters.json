@@ -1,0 +1,30 @@
+{
+  "includes": {
+    "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk/filters/sites-porn.json": {
+      "address": "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk",
+      "date_added": 1604971003.9685245,
+      "description": "Porn Sites",
+      "inner_path": "filters/sites-porn.json"
+    },
+    "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk/filters/sites-miners.json": {
+      "address": "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk",
+      "date_added": 1604972074.2051556,
+      "description": "Crypto Miner Sites",
+      "inner_path": "filters/sites-miners.json"
+    },
+    "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk/filters/users-porn.json": {
+      "address": "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk",
+      "date_added": 1604970823.2421556,
+      "description": "Users Who Post Porn on Social Media",
+      "inner_path": "filters/users-porn.json"
+    },
+    "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk/filters/users-spamlist.json": {
+      "address": "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk",
+      "date_added": 1604971226.4319663,
+      "description": "Users Who Post Spam",
+      "inner_path": "filters/users-spamlist.json"
+    }
+  },
+  "mutes": {},
+  "siteblocks": {}
+}

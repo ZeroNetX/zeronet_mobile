@@ -1,27 +1,5 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:share/share.dart';
+import '../imports.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
-import 'package:in_app_review/in_app_review.dart';
-
-import 'package:zeronet/core/site/site.dart';
-import 'package:zeronet/core/site/site_manager.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/common.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/extensions.dart';
-import 'package:zeronet/others/native.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-
-import 'common.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -51,10 +29,15 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 5),
                   ),
                   InAppUpdateWidget(),
+                  if (kIsPlayStoreInstall)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                    ),
+                  if (kIsPlayStoreInstall) RatingButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
-                  RatingButtonWidget(),
+                  AboutButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -109,14 +92,39 @@ class InAppUpdateWidget extends StatelessWidget {
   }
 }
 
+class AboutButtonWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      onPressed: () => uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
+      color: Color(0xFFAA5297),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: Text(
+        'Know More',
+        style: GoogleFonts.roboto(
+          fontSize: 16.0,
+          fontWeight: FontWeight.normal,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
 class RatingButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
-        if (await inAppReview.isAvailable()) {
+        //TODO: remove this once we support non playstore reviews.
+        if (await inAppReview.isAvailable() && kIsPlayStoreInstall) {
           inAppReview.requestReview();
+        } else {
+          //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
         }
       },
       color: Color(0xFF008297),
@@ -177,6 +185,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
               return InkWell(
                 onTap: uiStore.zeroNetStatus.onAction,
                 child: Chip(
+                  elevation: 8.0,
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
@@ -230,7 +239,16 @@ class PopularZeroNetSites extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> zeroSites = [];
-    for (var key in Utils.initialSites.keys) {
+    List<String> siteKeys = Utils.initialSites.keys.toList();
+    if (isLocalZitesExists()) {
+      siteKeys.sort((item1, item2) {
+        bool isZite1Exists = isZiteExitsLocally(
+          Utils.initialSites[item1]['btcAddress'],
+        );
+        return isZite1Exists ? 0 : 1;
+      });
+    }
+    for (var key in siteKeys) {
       var name = key;
       zeroSites.add(
         SiteDetailCard(name: name),
@@ -370,10 +388,21 @@ class SiteDetailCard extends StatelessWidget {
                       size: 36,
                       color: Color(isZiteExists ? 0xFF6EB69E : 0xDF6EB69E),
                     ),
-                    onTap: () {
-                      browserUrl = zeroNetUrl + Utils.initialSites[name]['url'];
-                      uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-                    },
+                    onTap: uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING
+                        ? () {
+                            Scaffold.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please Start ZeroNet First to Browse this Zite',
+                                ),
+                              ),
+                            );
+                          }
+                        : () {
+                            browserUrl =
+                                zeroNetUrl + Utils.initialSites[name]['url'];
+                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                          },
                   ),
                 ],
               )
@@ -435,26 +464,37 @@ class SiteDetailsSheet extends StatelessWidget {
                         Utils.initialSites[name]['url'],
                       ),
                     ),
-                    RaisedButton(
-                      color: Color(0xFF009764),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      onPressed: () {
-                        browserUrl =
-                            zeroNetUrl + Utils.initialSites[name]['url'];
-                        uiStore.currentBottomSheetController?.close();
-                        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-                      },
-                      child: Text(
-                        isZiteExists ? 'OPEN' : 'DOWNLOAD',
-                        maxLines: 1,
-                        style: GoogleFonts.roboto(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                    Observer(builder: (context) {
+                      return RaisedButton(
+                        color: Color(0xFF009764),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0)),
+                        onPressed: uiStore.zeroNetStatus ==
+                                ZeroNetStatus.NOT_RUNNING
+                            ? () {
+                                snackMessage =
+                                    'Please Start ZeroNet First to Browse this Zite';
+                                uiStore.updateShowSnackReply(true);
+                              }
+                            : () {
+                                browserUrl = zeroNetUrl +
+                                    Utils.initialSites[name]['url'];
+                                uiStore.currentBottomSheetController?.close();
+                                uiStore.updateCurrentAppRoute(
+                                  AppRoute.ZeroBrowser,
+                                );
+                              },
+                        child: Text(
+                          isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                          maxLines: 1,
+                          style: GoogleFonts.roboto(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 )
               ],
@@ -476,7 +516,8 @@ class SiteDetailsSheet extends StatelessWidget {
                 RaisedButton(
                   color: Color(0xFF008297),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0)),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
                         "/${Utils.initialSites[name]['btcAddress']}/img/logo.png");
@@ -492,6 +533,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       logoPath,
                     );
                     if (added) {
+                      snackMessage = '$name shortcut added to  HomeScreen';
                       uiStore.updateShowSnackReply(true);
                     }
                   },
@@ -594,7 +636,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Center(
                         child: Text(
-                          '$name shortcut added to  HomeScreen',
+                          snackMessage,
                           style: TextStyle(color: Colors.white),
                         ),
                       ),

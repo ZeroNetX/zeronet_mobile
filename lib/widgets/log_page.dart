@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/widgets/common.dart';
+import '../imports.dart';
 
 class ZeroNetLogPage extends StatelessWidget {
   @override

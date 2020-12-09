@@ -1,13 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/utils.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
+import '../imports.dart';
 
 class ZeroNetAppBar extends StatelessWidget {
   const ZeroNetAppBar({
@@ -22,31 +13,35 @@ class ZeroNetAppBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            uiStore.appBarTitle,
+            uiStore.currentAppRoute.title,
             style: GoogleFonts.roboto(
               fontSize: 32.0,
               fontWeight: FontWeight.bold,
             ),
           ),
-          InkWell(
-            child: Icon(
-              uiStore.appBarIcon,
-              size: 32.0,
-              color: Colors.black,
-            ),
-            onTap: () {
-              switch (uiStore.currentAppRoute) {
-                case AppRoute.Home:
-                  uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                  break;
-                case AppRoute.Settings:
-                case AppRoute.ZeroBrowser:
-                case AppRoute.LogPage:
-                  uiStore.updateCurrentAppRoute(AppRoute.Home);
-                  break;
-                default:
-              }
-            },
+          Row(
+            children: [
+              if (uiStore.currentAppRoute == AppRoute.Settings)
+                InkWell(
+                  child: Icon(
+                    OMIcons.info,
+                    size: 32.0,
+                    color: Colors.black,
+                  ),
+                  onTap: () =>
+                      uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
+                ),
+              if (uiStore.currentAppRoute == AppRoute.Settings)
+                Padding(padding: const EdgeInsets.only(right: 20.0)),
+              InkWell(
+                child: Icon(
+                  uiStore.currentAppRoute.icon,
+                  size: 32.0,
+                  color: Colors.black,
+                ),
+                onTap: uiStore.currentAppRoute.onClick,
+              )
+            ],
           )
         ],
       );
@@ -70,45 +65,52 @@ class _PluginManagerState extends State<PluginManager> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     List<String> plugins = [];
+    List<String> disabledPlugins = [];
     var pluginsPath = zeroNetDir + '/plugins/';
     Directory(pluginsPath).listSync().forEach((entity) {
       var pycacheDir = entity.path.endsWith('__pycache__');
       if (entity is Directory && !pycacheDir) {
         printOut(entity.path);
-        plugins.insert(0, entity.path.replaceAll(pluginsPath, ''));
+        String pluginName = entity.path.replaceAll(pluginsPath, '');
+        if (pluginName.startsWith('disabled-')) {
+          pluginName = pluginName.replaceAll('disabled-', '');
+          disabledPlugins.add(pluginName);
+        }
+        plugins.insert(0, pluginName);
       }
     });
     plugins.sort();
     return Container(
-      height: size.height * 0.70,
       width: size.width,
-      child: ListView.builder(
-        itemCount: plugins.length,
-        itemBuilder: (ctx, i) {
-          final isDisabled = plugins[i].startsWith('disabled-');
-          final pluginName = isDisabled
-              ? plugins[i].replaceFirst('disabled-', '')
-              : plugins[i];
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(pluginName),
-              Switch(
-                onChanged: (value) {
-                  if (isDisabled)
-                    Directory(pluginsPath + plugins[i])
-                        .renameSync(pluginsPath + pluginName);
-                  else
-                    Directory(pluginsPath + plugins[i])
-                        .renameSync(pluginsPath + 'disabled-' + plugins[i]);
-                  _reload();
-                },
-                value: !isDisabled,
-              )
-            ],
-          );
-        },
+      child: SingleChildScrollView(
+        child: ListView.builder(
+          physics: BouncingScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: plugins.length,
+          itemBuilder: (ctx, i) {
+            final isDisabled = disabledPlugins.contains(plugins[i]);
+            final pluginName = plugins[i];
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(pluginName),
+                Switch(
+                  onChanged: (value) {
+                    if (isDisabled)
+                      Directory(pluginsPath + 'disabled-' + plugins[i])
+                          .renameSync(pluginsPath + pluginName);
+                    else
+                      Directory(pluginsPath + plugins[i])
+                          .renameSync(pluginsPath + 'disabled-' + plugins[i]);
+                    _reload();
+                  },
+                  value: !isDisabled,
+                )
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -189,6 +191,29 @@ class _ProfileSwitcherUserNameEditTextState
           ),
         ),
       ],
+    );
+  }
+}
+
+class ClickableTextWidget extends StatelessWidget {
+  ClickableTextWidget({
+    this.text,
+    this.textStyle,
+    this.onClick,
+  });
+
+  final String text;
+  final TextStyle textStyle;
+  final VoidCallback onClick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        text: text,
+        style: textStyle,
+        recognizer: TapGestureRecognizer()..onTap = onClick,
+      ),
     );
   }
 }

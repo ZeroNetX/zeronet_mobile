@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:zeronet/others/common.dart';
+import '../imports.dart';
 
 class ShortcutLoadingPage extends StatelessWidget {
   @override
@@ -23,7 +21,7 @@ class ShortcutLoadingPage extends StatelessWidget {
             statusBarIconBrightness: Brightness.dark,
             systemNavigationBarIconBrightness: Brightness.dark,
             statusBarBrightness: Brightness.dark,
-            statusBarColor: Colors.white,
+            statusBarColor: Colors.transparent,
             systemNavigationBarColor: Colors.white,
           ),
         );

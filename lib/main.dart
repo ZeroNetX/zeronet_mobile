@@ -1,26 +1,15 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/others/native.dart';
-import 'package:zeronet/widgets/home_page.dart';
-import 'package:zeronet/widgets/loading_page.dart';
-import 'package:zeronet/widgets/log_page.dart';
-import 'package:zeronet/widgets/settings_page.dart';
-import 'package:zeronet/widgets/shortcut_loading_page.dart';
-import 'package:zeronet/widgets/zerobrowser_page.dart';
-import 'models/enums.dart';
-import 'others/common.dart';
-import 'others/utils.dart';
-import 'others/zeronet_utils.dart';
+import 'imports.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
+  if (kEnableInAppPurchases) {
+    InAppPurchaseConnection.enablePendingPurchases();
+    final Stream purchaseUpdates =
+        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
+  }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -30,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
+        statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.white,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarIconBrightness: Brightness.dark,
@@ -47,11 +36,20 @@ class MyApp extends StatelessWidget {
         body: Observer(
           builder: (context) {
             if (varStore.zeroNetInstalled) {
+              scaffoldState = Scaffold.of(context);
               if (firstTime) {
+                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+                activateFilters();
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                makeExecHelper();
+                if (!isExecPermitted)
+                  makeExecHelper().then(
+                    (value) => isExecPermitted = value,
+                  );
+                // createTorDataDir();
+                firstTime = false;
               }
-              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING) {
+              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
+                  !manuallyStoppedZeroNet) {
                 checkInitStatus();
               }
               if (launchUrl.isNotEmpty) {
@@ -67,11 +65,27 @@ class MyApp extends StatelessWidget {
               return Observer(
                 builder: (ctx) {
                   switch (uiStore.currentAppRoute) {
+                    case AppRoute.AboutPage:
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: AboutPage(),
+                      );
+                      break;
                     case AppRoute.Home:
+                      getInAppPurchases();
                       return HomePage();
                       break;
                     case AppRoute.Settings:
-                      return SettingsPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: SettingsPage(),
+                      );
                       break;
                     case AppRoute.ShortcutLoadingPage:
                       return ShortcutLoadingPage();
@@ -80,7 +94,13 @@ class MyApp extends StatelessWidget {
                       return ZeroBrowser();
                       break;
                     case AppRoute.LogPage:
-                      return ZeroNetLogPage();
+                      return WillPopScope(
+                        onWillPop: () {
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          return Future.value(false);
+                        },
+                        child: ZeroNetLogPage(),
+                      );
                       break;
                     default:
                       return Container();

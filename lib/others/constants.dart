@@ -1,19 +1,6 @@
-import 'dart:io';
+import '../imports.dart';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/utils.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet/widgets/common.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
-import 'native.dart';
-
-const String pkgName = 'in.canews.zeronet${kDebugMode ? '.debug' : ''}';
+const String pkgName = 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}';
 const String dataDir = "/data/data/$pkgName/files";
 const String zeroNetDir = dataDir + '/ZeroNet-py3';
 const String bin = '$dataDir/usr/bin';
@@ -25,6 +12,8 @@ const String zeronet = '$zeronetDir/zeronet.py';
 const String defZeroNetUrl = 'http://127.0.0.1:43110/';
 const String downloading = 'Downloading Files';
 const String installing = 'Installing ZeroNet Files';
+const String facebookLink = 'https://facebook.com';
+const String twitterLink = 'https://twitter.com';
 const String githubLink = 'https://github.com';
 const String rawGithubLink = 'https://raw.githubusercontent.com';
 const String canewsInRepo = '/canewsin/ZeroNet';
@@ -45,6 +34,7 @@ const bool kEnableDynamicModules = !kDebugMode;
 const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
+  // Feature.IN_APP_UPDATES,
 ];
 const List<String> binDirs = [
   'usr',
@@ -57,6 +47,24 @@ const List<String> soDirs = [
   'usr/lib/python3.8/lib-dynload',
   'usr/lib/python3.8/site-packages',
 ];
+const List<AppDeveloper> appDevelopers = [
+  AppDeveloper(
+    name: 'PramUkesh',
+    developerType: 'developer',
+    profileIconLink: 'assets/developers/pramukesh.jpg',
+    githubLink: '$githubLink/PramUkesh/',
+    facebookLink: '$facebookLink/n.bhargavvenky',
+    twitterLink: '$twitterLink/PramukeshVenky',
+  ),
+  AppDeveloper(
+    name: 'CANewsIn',
+    developerType: 'organisation',
+    profileIconLink: 'assets/developers/canewsin.jpg',
+    githubLink: '$githubLink/canewsin/',
+    facebookLink: '$facebookLink/canews.in',
+    twitterLink: '$twitterLink/canewsin',
+  ),
+];
 
 const String profileSwitcher = 'Profile Switcher';
 const String profileSwitcherDes =
@@ -67,6 +75,9 @@ const String debugZeroNetDes =
 const String enableZeroNetConsole = 'Enable ZeroNet Console';
 const String enableZeroNetConsoleDes =
     'Useful for Developers to see the exec of ZeroNet Python code';
+const String enableZeroNetFilters = 'Enable ZeroNet Filters';
+const String enableZeroNetFiltersDes =
+    'Enabling ZeroNet Filters blocks known ametuer content sites and spam users.';
 const String pluginManager = 'Plugin Manager';
 const String pluginManagerDes = 'Enable/Disable ZeroNet Plugins';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
@@ -86,6 +97,9 @@ const String autoStartZeroNetDes =
 const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
 const String autoStartZeroNetonBootDes =
     'This Will Make ZeroNet Auto Start on Device Boot.';
+const String enableTorLog = 'Enable Tor Log';
+const String enableTorLogDes =
+    'This will Enable Tor Log in ZeroNet Console helpful for debugging.';
 
 class Utils {
   static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
@@ -177,7 +191,7 @@ class Utils {
   static const String openPluginManager = 'Open Plugin Manager';
   static const String loadPlugin = 'Load Custom Plugin';
 
-  Map<String, Setting> defSettings = {
+  static Map<String, Setting> defSettings = {
     profileSwitcher: MapSetting(
         name: profileSwitcher,
         description: profileSwitcherDes,
@@ -202,6 +216,11 @@ class Utils {
       name: batteryOptimisation,
       description: batteryOptimisationDes,
       value: false,
+    ),
+    enableZeroNetFilters: ToggleSetting(
+      name: enableZeroNetFilters,
+      description: enableZeroNetFiltersDes,
+      value: true,
     ),
     publicDataFolder: ToggleSetting(
       name: publicDataFolder,
@@ -236,6 +255,11 @@ class Utils {
     enableZeroNetConsole: ToggleSetting(
       name: enableZeroNetConsole,
       description: enableZeroNetConsoleDes,
+      value: false,
+    ),
+    enableTorLog: ToggleSetting(
+      name: enableTorLog,
+      description: enableTorLogDes,
       value: false,
     ),
   };
@@ -293,7 +317,7 @@ extension MapOptionExt on MapOptions {
                           if (file.existsSync()) file.deleteSync();
                           Navigator.pop(context);
                           ZeroNet.instance.shutDown();
-                          runZeroNet();
+                          service.sendData({'cmd': 'runZeroNet'});
                         }
                         username = '';
                         uiStore.updateCurrentAppRoute(AppRoute.Settings);
@@ -350,7 +374,7 @@ extension MapOptionExt on MapOptions {
                               } catch (e) {
                                 printOut(e);
                               }
-                              runZeroNet();
+                              service.sendData({'cmd': 'runZeroNet'});
                               Navigator.pop(context);
                             }
                           },
@@ -399,7 +423,7 @@ extension MapOptionExt on MapOptions {
           actionOk: FlatButton(
             onPressed: () {
               ZeroNet.instance.shutDown();
-              runZeroNet();
+              service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             },
             child: Text('Restart'),
@@ -414,4 +438,5 @@ extension MapOptionExt on MapOptions {
 enum Feature {
   SITE_PAUSE_RESUME,
   SITE_DELETE,
+  IN_APP_UPDATES,
 }

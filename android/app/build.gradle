@@ -50,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "in.canews.zeronet"
+        applicationId "in.canews.zeronetmobile"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
@@ -93,8 +93,14 @@ flutter {
 }
 
 dependencies {
+    def billing_version = "3.0.0"
+    implementation "com.android.billingclient:billing:$billing_version"
+    
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.gms:play-services-base:17.2.0'
+    
+    //Duplicate Classes Issue https://stackoverflow.com/a/60492942
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
     debugImplementation 'com.jeppeman.locallydynamic:locallydynamic-debug:0.3'
     releaseImplementation 'com.jeppeman.locallydynamic:locallydynamic:0.3'

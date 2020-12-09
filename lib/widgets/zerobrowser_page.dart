@@ -1,14 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:share/share.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/models/enums.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/common.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/utils.dart';
+import '../imports.dart';
 
 class ZeroBrowser extends StatelessWidget {
   setTheme() {
@@ -30,7 +20,7 @@ class ZeroBrowser extends StatelessWidget {
             statusBarIconBrightness: Brightness.dark,
             systemNavigationBarIconBrightness: Brightness.dark,
             statusBarBrightness: Brightness.dark,
-            statusBarColor: Colors.white,
+            statusBarColor: Colors.transparent,
             systemNavigationBarColor: Colors.white,
           ),
         );
@@ -64,7 +54,7 @@ class ZeroBrowser extends StatelessWidget {
           SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
           SystemChrome.setSystemUIOverlayStyle(
             SystemUiOverlayStyle(
-              statusBarColor: Colors.white,
+              statusBarColor: Colors.transparent,
               systemNavigationBarColor: Colors.white,
               statusBarIconBrightness: Brightness.dark,
               systemNavigationBarIconBrightness: Brightness.dark,
@@ -127,7 +117,7 @@ class ZeroBrowser extends StatelessWidget {
                             SystemUiOverlay.values);
                         SystemChrome.setSystemUIOverlayStyle(
                           SystemUiOverlayStyle(
-                            statusBarColor: Colors.white,
+                            statusBarColor: Colors.transparent,
                             systemNavigationBarColor: Colors.white,
                             statusBarIconBrightness: Brightness.dark,
                             systemNavigationBarIconBrightness: Brightness.dark,

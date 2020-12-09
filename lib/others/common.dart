@@ -1,26 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
-import 'package:device_info/device_info.dart';
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart';
-import 'package:package_info/package_info.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:zeronet/core/site/site.dart';
-import 'package:zeronet/core/user/user.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/models/enums.dart';
-
-import '../mobx/varstore.dart';
-import '../models/models.dart';
-import 'constants.dart';
-import 'native.dart';
-import 'utils.dart';
-import 'zeronet_utils.dart';
+import '../imports.dart';
 
 Directory appPrivDir;
 Directory tempDir;
@@ -31,6 +11,14 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
+bool kIsPlayStoreInstall = false;
+bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
+bool manuallyStoppedZeroNet = false;
+bool zeroNetStartedFromBoot = true;
+bool isExecPermitted = false;
+bool debugZeroNetCode = false;
+bool enableTorLogConsole = false;
+bool vibrateonZeroNetStart = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -50,10 +38,10 @@ String browserUrl = 'https://google.com';
 Map<String, Site> sitesAvailable = {};
 List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
-// Color zeroBrowserPrimaryColor;
-// Color zeroBrowserAccentColor;
+String snackMessage = '';
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+ScaffoldState scaffoldState;
+FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
@@ -78,86 +66,44 @@ List<String> files(String arch) => [
 
 init() async {
   getArch();
+  kIsPlayStoreInstall = await isPlayStoreInstall();
   zeroNetNativeDir = await getNativeDir();
   tempDir = await getTemporaryDirectory();
   appPrivDir = await getExternalStorageDirectory();
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
-  if (isZeroNetInstalledm) varStore.isZeroNetInstalled(isZeroNetInstalledm);
-  initNotifications();
+  if (isZeroNetInstalledm) {
+    varStore.isZeroNetInstalled(isZeroNetInstalledm);
+    checkForAppUpdates();
+    runZeroNetService(
+      autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
+    );
+  }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
+  Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
 }
 
-Map<String, Setting> defSettings = {
-  profileSwitcher: MapSetting(
-    name: profileSwitcher,
-    description: profileSwitcherDes,
-    map: {
-      "selected": '',
-      "all": [],
-    },
-  ),
-  pluginManager: MapSetting(
-    name: pluginManager,
-    description: pluginManagerDes,
-    map: {},
-  ),
-  batteryOptimisation: ToggleSetting(
-    name: batteryOptimisation,
-    description: batteryOptimisationDes,
-    value: false,
-  ),
-  publicDataFolder: ToggleSetting(
-    name: publicDataFolder,
-    description: publicDataFolderDes,
-    value: false,
-  ),
-  vibrateOnZeroNetStart: ToggleSetting(
-    name: vibrateOnZeroNetStart,
-    description: vibrateOnZeroNetStartDes,
-    value: false,
-  ),
-  enableFullScreenOnWebView: ToggleSetting(
-    name: enableFullScreenOnWebView,
-    description: enableFullScreenOnWebViewDes,
-    value: false,
-  ),
-  autoStartZeroNet: ToggleSetting(
-    name: autoStartZeroNet,
-    description: autoStartZeroNetDes,
-    value: true,
-  ),
-  autoStartZeroNetonBoot: ToggleSetting(
-    name: autoStartZeroNetonBoot,
-    description: autoStartZeroNetonBootDes,
-    value: false,
-  ),
-  debugZeroNet: ToggleSetting(
-    name: debugZeroNet,
-    description: debugZeroNetDes,
-    value: false,
-  ),
-  enableZeroNetConsole: ToggleSetting(
-    name: enableZeroNetConsole,
-    description: enableZeroNetConsoleDes,
-    value: false,
-  ),
-};
-
 Future<File> pickUserJsonFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'json',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['json']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
 }
 
 Future<File> pickPluginZipFile() async {
-  File file = await FilePicker.getFile(
-    type: FileType.CUSTOM,
-    fileExtension: 'zip',
-  );
+  FilePickerResult result = await pickFile(fileExts: ['zip']);
+  if (result == null) return null;
+  File file = File(result.files.single.path);
   return file;
+}
+
+Future<FilePickerResult> pickFile({List<String> fileExts}) async {
+  FilePickerResult result = await FilePicker.platform.pickFiles(
+    type: FileType.any,
+    allowedExtensions: fileExts,
+  );
+
+  return result;
 }
 
 Future<void> backUpUserJsonFile(BuildContext context) async {
@@ -180,12 +126,27 @@ void zeronetNotInit(BuildContext context) => showDialogC(
           "before using this option",
     );
 
+saveDataFile() {
+  Map<String, String> dataMap = {
+    'zeroNetNativeDir': zeroNetNativeDir,
+  };
+  File f = File(dataDir + '/data.json');
+  f.writeAsStringSync(json.encode(dataMap));
+}
+
+loadDataFile() {
+  File f = File(dataDir + '/data.json');
+  Map m = json.decode(f.readAsStringSync());
+  print(m);
+  zeroNetNativeDir = m['zeroNetNativeDir'];
+}
+
 loadSettings() {
   File f = File(dataDir + '/settings.json');
   List settings;
   if (f.existsSync()) {
     settings = json.decode(f.readAsStringSync());
-    if (settings.length < defSettings.keys.length) {
+    if (settings.length < Utils.defSettings.keys.length) {
       List settingsKeys = [];
       Map<String, Setting> m = {};
       for (var i = 0; i < settings.length; i++) {
@@ -196,9 +157,9 @@ loadSettings() {
           m[k] = ToggleSetting().fromJson(map);
         }
       }
-      for (var key in defSettings.keys) {
+      for (var key in Utils.defSettings.keys) {
         if (!settingsKeys.contains(key)) {
-          m[key] = defSettings[key];
+          m[key] = Utils.defSettings[key];
         }
       }
       saveSettings(m);
@@ -206,8 +167,8 @@ loadSettings() {
     }
   } else {
     firstTime = true;
-    saveSettings(defSettings);
-    settings = json.decode(maptoStringList(defSettings));
+    saveSettings(Utils.defSettings);
+    settings = json.decode(maptoStringList(Utils.defSettings));
   }
   for (var i = 0; i < settings.length; i++) {
     Map map = settings[i];
@@ -266,26 +227,21 @@ printToConsole(Object object) {
           object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
       if (object.contains('ConnServer Closed port') ||
           object.contains('All server stopped')) {
         zeroNetUrl = '';
         uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
-        flutterLocalNotificationsPlugin.cancelAll();
       }
       log = log + object + '\n';
     } else {
+      log = startZeroNetLog + '\n';
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        bool vibrate =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        showZeroNetRunningNotification(enableVibration: vibrate);
+        service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
-      log = log + '\n';
     }
   }
   varStore.setZeroNetLog(log);

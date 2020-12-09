@@ -1,21 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:archive/archive.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:package_info/package_info.dart';
-import 'package:random_string/random_string.dart';
 
-import 'common.dart';
-import 'constants.dart';
-import '../mobx/varstore.dart';
-import '../models/models.dart';
-import '../others/native.dart';
+import '../imports.dart';
 
 debugTime(Function func) {
   var start = DateTime.now();
@@ -24,7 +11,9 @@ debugTime(Function func) {
 }
 
 printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {
-  if (kDebugMode || appVersion.contains('beta')) {
+  if (kDebugMode ||
+      appVersion.contains('beta') ||
+      appVersion.contains('internal')) {
     var breaks = '';
     for (var i = 0; i < lineBreaks; i++) breaks = breaks + '\n';
     if (isNative)
@@ -148,7 +137,7 @@ bindUnZipIsolate() {
     var nooffiles = files(arch).length;
     if (percentUnZip == nooffiles * 100) {
       printOut('Installation Completed', isNative: true);
-      makeExecHelper();
+      makeExecHelper().then((value) => isExecPermitted = value);
       uninstallModules();
       check();
     }
@@ -351,7 +340,13 @@ Future<bool> makeExecHelper() async {
   for (var item in soDirs) {
     var dir = Directory(dataDir + '/$item');
     if (dir.existsSync()) {
-      var list = dir.listSync();
+      var list = dir.listSync().where((element) {
+        if (element is File) {
+          if (element.path.contains('so')) return true;
+          return false;
+        }
+        return false;
+      });
       for (var item in list) {
         if (item is File) {
           printOut(item.path);

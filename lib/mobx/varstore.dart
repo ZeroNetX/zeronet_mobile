@@ -49,13 +49,13 @@ abstract class _VarStore with Store {
     zeroNetAppbarStatus = status;
   }
 
-  @observable
-  String zeroNetStatus = 'Not Running';
+  // @observable
+  // String zeroNetStatus = 'Not Running';
 
-  @action
-  void setZeroNetStatus(String status) {
-    zeroNetStatus = status;
-  }
+  // @action
+  // void setZeroNetStatus(String status) {
+  //   zeroNetStatus = status;
+  // }
 
   @observable
   bool zeroNetInstalled = false;

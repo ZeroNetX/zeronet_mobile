@@ -1,17 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/mobx/varstore.dart';
-import 'package:zeronet/models/models.dart';
-import 'package:zeronet/others/common.dart';
-import 'package:zeronet/others/constants.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
+import '../imports.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -35,10 +22,17 @@ class SettingsPage extends StatelessWidget {
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: Utils().defSettings.keys.length,
+                    itemCount: Utils.defSettings.keys.length,
                     itemBuilder: (ctx, i) {
-                      Setting current = Utils()
-                          .defSettings[Utils().defSettings.keys.toList()[i]];
+                      Setting current =
+                          Utils.defSettings[Utils.defSettings.keys.toList()[i]];
+                      if (current.name == profileSwitcher) {
+                        bool isUsersFileExists = isZeroNetUsersFileExists();
+                        if (!isUsersFileExists) return Container();
+                      } else if (current.name == enableZeroNetFilters &&
+                          firstTime) {
+                        return Container();
+                      }
                       return SettingsCard(
                         setting: current,
                       );
@@ -162,11 +156,11 @@ class SettingsCard extends StatelessWidget {
                       if (setting is ToggleSetting)
                         Observer(
                           builder: (context) {
+                            bool enabled = (varStore.settings[setting.name]
+                                    as ToggleSetting)
+                                .value;
                             return Switch(
-                              value: (varStore.settings[
-                                          (setting as ToggleSetting).name]
-                                      as ToggleSetting)
-                                  .value,
+                              value: enabled,
                               activeColor: Color(0xFF5380FF),
                               onChanged: (setting as ToggleSetting).onChanged,
                             );
@@ -270,8 +264,9 @@ class SettingsCard extends StatelessWidget {
             if (file.existsSync()) {
               file.renameSync(getZeroNetDataDir().path + '/users.json');
               // _reload();
-              ZeroNet.instance.shutDown();
-              runZeroNet();
+              if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING)
+                ZeroNet.instance.shutDown();
+              service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             }
           },

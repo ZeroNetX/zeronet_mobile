@@ -1,14 +1,4 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:equatable/equatable.dart';
-import 'package:zeronet/core/site/site.dart';
-
-import '../mobx/varstore.dart';
-import '../others/common.dart';
-import '../others/constants.dart';
-import '../others/native.dart';
-import '../others/zeronet_utils.dart';
+import '../imports.dart';
 
 abstract class Setting {
   String name;
@@ -57,6 +47,8 @@ class ToggleSetting extends Setting {
     );
   }
 
+  String toString() => json.encode(this.toMap());
+
   void onChanged(bool value) async {
     var map = varStore.settings;
     var key = this.name;
@@ -72,6 +64,12 @@ class ToggleSetting extends Setting {
     } else if (key == publicDataFolder) {
       String str = 'data_dir = ${value ? appPrivDir.path : zeroNetDir}/data';
       writeZeroNetConf(str);
+    } else if (key == enableZeroNetFilters) {
+      if (value) {
+        activateFilters();
+      } else {
+        deactivateFilters();
+      }
     }
     saveSettings(m);
     varStore.updateSetting(
@@ -113,6 +111,8 @@ class MapSetting extends Setting {
       map: map['map'],
     );
   }
+
+  String toString() => json.encode(this.toMap());
 }
 
 class UnzipParams {
@@ -203,10 +203,42 @@ class SiteInfo extends Equatable {
       peers: site.peers,
       serving: site.serving,
       size: site.size,
-      siteAdded: DateTime.fromMillisecondsSinceEpoch(site.added * 1000),
-      siteModified: DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000),
-      siteCodeUpdated:
-          DateTime.fromMillisecondsSinceEpoch(site.modified * 1000),
+      siteAdded: site.added != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.added * 1000)
+          : null,
+      siteModified: site.downloaded != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000)
+          : null,
+      siteCodeUpdated: site.modified != null
+          ? DateTime.fromMillisecondsSinceEpoch(site.modified * 1000)
+          : null,
     );
   }
+}
+
+class AppDeveloper extends Equatable {
+  final String name;
+  final String profileIconLink;
+  final String developerType;
+  final String githubLink;
+  final String facebookLink;
+  final String twitterLink;
+  const AppDeveloper({
+    this.name,
+    this.profileIconLink,
+    this.developerType,
+    this.githubLink,
+    this.facebookLink,
+    this.twitterLink,
+  });
+
+  @override
+  List<Object> get props => [
+        name,
+        profileIconLink,
+        developerType,
+        githubLink,
+        facebookLink,
+        twitterLink,
+      ];
 }

@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:in_app_update/in_app_update.dart';
-import 'package:zeronet/mobx/uistore.dart';
-import 'package:zeronet/others/zeronet_utils.dart';
+import '../imports.dart';
 
 enum ZeroNetStatus {
   NOT_RUNNING,
@@ -55,11 +52,12 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   void onAction() {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        runZeroNet();
+        runZeroNetService(autoStart: true);
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
+        manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
         uiStore.updateCurrentAppRoute(AppRoute.LogPage);
@@ -140,6 +138,10 @@ extension AppUpdateExt on AppUpdate {
     switch (uiStore.appUpdate) {
       case AppUpdate.AVAILABLE:
         {
+          // InAppUpdate.performImmediateUpdate().then((value) =>
+          //     uiStore.updateInAppUpdateAvailable(AppUpdate.NOT_AVAILABLE));
+          //TODO: Switch to startFlexibleUpdate() when below issue is Fixed.
+          //https://github.com/feilfeilundfeil/flutter_in_app_update/issues/42
           InAppUpdate.startFlexibleUpdate().then((value) =>
               uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADED));
           uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADING);
@@ -163,11 +165,15 @@ enum AppRoute {
   ShortcutLoadingPage,
   ZeroBrowser,
   LogPage,
+  AboutPage,
 }
 
 extension AppRouteExt on AppRoute {
   get title {
     switch (this) {
+      case AppRoute.AboutPage:
+        return 'About';
+        break;
       case AppRoute.Home:
         return 'ZeroNet Mobile';
         break;
@@ -179,6 +185,37 @@ extension AppRouteExt on AppRoute {
         break;
       case AppRoute.LogPage:
         return 'ZeroNet Log';
+        break;
+      default:
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case AppRoute.AboutPage:
+      case AppRoute.Settings:
+      case AppRoute.ZeroBrowser:
+      case AppRoute.LogPage:
+        return OMIcons.home;
+        break;
+      case AppRoute.Home:
+        return OMIcons.settings;
+        break;
+      default:
+        return OMIcons.error;
+    }
+  }
+
+  void onClick() {
+    switch (uiStore.currentAppRoute) {
+      case AppRoute.Home:
+        uiStore.updateCurrentAppRoute(AppRoute.Settings);
+        break;
+      case AppRoute.AboutPage:
+      case AppRoute.Settings:
+      case AppRoute.LogPage:
+      case AppRoute.ZeroBrowser:
+        uiStore.updateCurrentAppRoute(AppRoute.Home);
         break;
       default:
     }

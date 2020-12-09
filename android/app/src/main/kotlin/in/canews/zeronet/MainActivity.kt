@@ -1,4 +1,4 @@
-package `in`.canews.zeronet
+package `in`.canews.zeronetmobile
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -54,8 +54,8 @@ const val PICK_USERJSON_FILE = 1002
 const val SAVE_USERJSON_FILE = 1003
 const val PICK_ZIP_FILE = 1004
 const val TAG = "MainActivity"
-const val CHANNEL = "in.canews.zeronet"
-const val EVENT_CHANNEL = "in.canews.zeronet/installModules"
+const val CHANNEL = "in.canews.zeronetmobile"
+const val EVENT_CHANNEL = "in.canews.zeronetmobile/installModules"
 
 class MainActivity : FlutterActivity() {
 
@@ -67,9 +67,13 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null){
+        if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null) {
             mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
         }
+    }
+
+    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine)
         MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
@@ -106,10 +110,6 @@ class MainActivity : FlutterActivity() {
                 "uninstallModules" -> uninstallModules()
             }
         }
-    }
-
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
         EventChannel(flutterEngine.dartExecutor, EVENT_CHANNEL).setStreamHandler(
                 object : StreamHandler {
                     lateinit var events: EventChannel.EventSink
@@ -245,7 +245,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun resultSuccess(msg : Any) {
-        result.success(msg).runCatching{}.onFailure {
+        result.runCatching {
+            success(msg)
+        }.onFailure {
             if (it is IllegalStateException) {
                 Log.e("MainActivity>resultSuc>", it.message)
             }
@@ -414,7 +416,6 @@ class MainActivity : FlutterActivity() {
             return
         val request = SplitInstallRequest.newBuilder()
                 .addModule("common")
-                .addModule("nativelibs")
                 .addModule(name)
                 .build()
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
@@ -453,7 +454,6 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
-            isModuleInstalled("nativelibs") == true &&
             isModuleInstalled(archName) == true
 
     private fun uninstallModules() {
