@@ -29,6 +29,9 @@ class SettingsPage extends StatelessWidget {
                       if (current.name == profileSwitcher) {
                         bool isUsersFileExists = isZeroNetUsersFileExists();
                         if (!isUsersFileExists) return Container();
+                      } else if (current.name == enableZeroNetFilters &&
+                          firstTime) {
+                        return Container();
                       }
                       return SettingsCard(
                         setting: current,

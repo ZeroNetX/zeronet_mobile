@@ -17,6 +17,7 @@ bool manuallyStoppedZeroNet = false;
 bool zeroNetStartedFromBoot = true;
 bool isExecPermitted = false;
 bool debugZeroNetCode = false;
+bool enableTorLogConsole = false;
 bool vibrateonZeroNetStart = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
@@ -235,12 +236,12 @@ printToConsole(Object object) {
       }
       log = log + object + '\n';
     } else {
+      log = startZeroNetLog + '\n';
       if (object.contains(zeronetAlreadyRunningError)) {
         runZeroNetWs();
         uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
         service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
       }
-      log = log + '\n';
     }
   }
   varStore.setZeroNetLog(log);

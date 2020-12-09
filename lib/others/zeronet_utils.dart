@@ -78,12 +78,14 @@ runTorEngine() {
       "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
     }).then((proc) {
       zero = proc;
-      zero.stderr.listen((onData) {
-        // service.sendData({'console': utf8.decode(onData)});
-      });
-      zero.stdout.listen((onData) {
-        // service.sendData({'console': utf8.decode(onData)});
-      });
+      if (enableTorLogConsole) {
+        zero.stderr.listen((onData) {
+          service.sendData({'console': utf8.decode(onData)});
+        });
+        zero.stdout.listen((onData) {
+          service.sendData({'console': utf8.decode(onData)});
+        });
+      }
     }).catchError((e) {
       if (e is ProcessException) {
         printOut(e.toString());
@@ -160,6 +162,7 @@ void runZeroNetService({bool autoStart = false}) async {
   bool filtersEnabled =
       (varStore.settings[enableZeroNetFilters] as ToggleSetting).value;
   if (filtersEnabled) await activateFilters();
+  printToConsole(startZeroNetLog);
   if (await FlutterBackgroundService().isServiceRunning())
     FlutterBackgroundService.initialize(
       runBgIsolate,
@@ -188,6 +191,8 @@ void runBgIsolate() {
         loadDataFile();
         debugZeroNetCode =
             (varStore.settings[debugZeroNet] as ToggleSetting).value;
+        enableTorLogConsole =
+            (varStore.settings[enableTorLog] as ToggleSetting).value;
         vibrateonZeroNetStart =
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         runZeroNet();
@@ -212,6 +217,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
     Map initMap = data['init'];
     zeroNetNativeDir = initMap['zeroNetNativeDir'];
     debugZeroNetCode = initMap['debugZeroNetCode'];
+    enableTorLogConsole = initMap['enableTorLog'];
     zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
     setBgServiceRunningNotification();
@@ -247,6 +253,8 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
         'zeroNetStartedFromBoot': false,
         'debugZeroNetCode':
             (varStore.settings[debugZeroNet] as ToggleSetting).value,
+        'enableTorLog':
+            (varStore.settings[enableTorLog] as ToggleSetting).value,
         'vibrateOnZeroNetStart':
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value,
       }
@@ -445,4 +453,10 @@ Future<bool> saveFilterstoDevice(File file) async {
     data.lengthInBytes,
   ));
   return true;
+}
+
+Future<bool> createTorDataDir() {
+  Directory torDir = Directory(dataDir + '/usr/var/lib/tor');
+  if (!torDir.existsSync()) torDir.createSync();
+  return Future.value(true);
 }

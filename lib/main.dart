@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
                   makeExecHelper().then(
                     (value) => isExecPermitted = value,
                   );
+                createTorDataDir();
                 firstTime = false;
               }
               if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
