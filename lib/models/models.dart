@@ -3,9 +3,11 @@ import '../imports.dart';
 abstract class Setting {
   String name;
   String description;
+  bool hidden = false;
   Setting({
     this.name,
     this.description,
+    this.hidden,
   });
 
   Map toMap();
@@ -24,9 +26,11 @@ class ToggleSetting extends Setting {
     this.name,
     this.description,
     this.value,
+    bool hidden = false,
   }) : super(
           name: name,
           description: description,
+          hidden: hidden,
         );
 
   @override

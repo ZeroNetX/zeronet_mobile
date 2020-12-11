@@ -5,6 +5,7 @@ import '../imports.dart';
 Directory appPrivDir;
 Directory tempDir;
 Directory metaDir = Directory(dataDir + '/meta');
+Directory trackersDir = Directory(dataDir + '/trackers');
 AndroidDeviceInfo deviceInfo;
 bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
@@ -19,6 +20,7 @@ bool isExecPermitted = false;
 bool debugZeroNetCode = false;
 bool enableTorLogConsole = false;
 bool vibrateonZeroNetStart = false;
+bool enableZeroNetAddTrackers = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
@@ -45,6 +47,10 @@ FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
+
+String trackerRepo = 'https://cdn.jsdelivr.net/gh/ngosang/trackerslist/';
+String downloadTrackerLink(String item) => trackerRepo + item;
+
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
 bool isZeroNetExists() => Directory(dataDir + '/ZeroNet-py3').existsSync();
 String downloadingMetaDir(String tempDir, String name, String key) =>
@@ -64,6 +70,17 @@ List<String> files(String arch) => [
       'tor_$arch',
     ];
 
+List<String> trackerFileNames = [
+  'trackers_best.txt',
+  'trackers_all.txt',
+  'trackers_all_udp.txt',
+  'trackers_all_http.txt',
+  'trackers_all_https.txt',
+  'trackers_all_ws.txt',
+  'trackers_best_ip.txt',
+  'trackers_all_ip.txt',
+];
+
 init() async {
   getArch();
   kIsPlayStoreInstall = await isPlayStoreInstall();
@@ -75,6 +92,7 @@ init() async {
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
+    downloadTrackerFiles();
     runZeroNetService(
       autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
     );
