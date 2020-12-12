@@ -36,6 +36,17 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.SplitInstallSessionState
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
+import com.jeppeman.locallydynamic.LocallyDynamicSplitInstallManagerFactory
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
+import io.flutter.plugin.common.JSONMessageCodec
+import java.lang.IllegalStateException
 
 
 const val BATTERY_OPTIMISATION_RESULT_CODE = 1001
