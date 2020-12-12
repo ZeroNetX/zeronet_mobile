@@ -78,6 +78,9 @@ const String enableZeroNetConsoleDes =
 const String enableZeroNetFilters = 'Enable ZeroNet Filters';
 const String enableZeroNetFiltersDes =
     'Enabling ZeroNet Filters blocks known ametuer content sites and spam users.';
+const String enableAdditionalTrackers = 'Additional BitTorrent Trackers';
+const String enableAdditionalTrackersDes =
+    'Enabling External/Additional BitTorrent Trackers will give more ZeroNet Site Seeders or Clients.';
 const String pluginManager = 'Plugin Manager';
 const String pluginManagerDes = 'Enable/Disable ZeroNet Plugins';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
@@ -216,6 +219,11 @@ class Utils {
       name: batteryOptimisation,
       description: batteryOptimisationDes,
       value: false,
+    ),
+    enableAdditionalTrackers: ToggleSetting(
+      name: enableAdditionalTrackers,
+      description: enableAdditionalTrackersDes,
+      value: true,
     ),
     enableZeroNetFilters: ToggleSetting(
       name: enableZeroNetFilters,
