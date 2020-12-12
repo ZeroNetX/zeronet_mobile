@@ -168,7 +168,7 @@ void runZeroNetService({bool autoStart = false}) async {
       (varStore.settings[enableZeroNetFilters] as ToggleSetting).value ?? true;
   if (filtersEnabled) await activateFilters();
   printToConsole(startZeroNetLog);
-  //TODO: Check for Bugs Here.
+  //TODO?: Check for Bugs Here.
   if (await FlutterBackgroundService().isServiceRunning())
     FlutterBackgroundService.initialize(
       runBgIsolate,

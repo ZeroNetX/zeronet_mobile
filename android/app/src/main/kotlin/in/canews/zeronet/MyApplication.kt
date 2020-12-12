@@ -28,5 +28,4 @@ internal class MyApplication : SplitCompatApplication() {
         super.attachBaseContext(base)
         SplitCompat.install(base!!)
     }
-
 }
