@@ -424,3 +424,29 @@ installPlugin(File file) async {
     ),
   );
 }
+
+void downloadTrackerFiles() async {
+  DateTime pastTime;
+  int hrs = -1;
+  File timestamp = File(trackersDir.path + '/timestamp');
+  if (timestamp.existsSync()) {
+    int epoch = int.parse(timestamp.readAsStringSync());
+    pastTime = DateTime.fromMillisecondsSinceEpoch(epoch);
+    hrs = pastTime.difference(DateTime.now()).inHours;
+  } else {
+    timestamp.createSync(recursive: true);
+    timestamp.writeAsStringSync('${DateTime.now().millisecondsSinceEpoch}');
+  }
+  if (hrs == -1 || hrs > 24) {
+    await FlutterDownloader.initialize();
+    for (var item in trackerFileNames) {
+      await FlutterDownloader.enqueue(
+        url: downloadTrackerLink(item),
+        savedDir: trackersDir.path,
+        showNotification: false,
+        openFileFromNotification: false,
+      );
+    }
+    timestamp.writeAsStringSync('${DateTime.now().millisecondsSinceEpoch}');
+  }
+}

@@ -10,10 +10,12 @@ Future checkInitStatus() async {
     zeroNetUrl = defZeroNetUrl;
     varStore.zeroNetWrapperKey = key;
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-    ZeroNet.instance.connect(
-      zeroNetIPwithPort(defZeroNetUrl),
-      Utils.urlZeroNetMob,
-    );
+    ZeroNet.instance
+        .connect(
+          zeroNetIPwithPort(defZeroNetUrl),
+          Utils.urlZeroNetMob,
+        )
+        .catchError((onError) => printToConsole(onError));
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
@@ -109,6 +111,7 @@ runZeroNet() {
     service.sendData({'console': startZeroNetLog + '\n'});
     var python = zeroNetNativeDir + '/libpython3.8.so';
     var openssl = zeroNetNativeDir + '/libopenssl.so';
+    var trackerFile = trackersDir.path + '/${trackerFileNames[7]}';
 
     if (File(python).existsSync()) {
       Process.start('$python', [
@@ -117,7 +120,9 @@ runZeroNet() {
         "--start_dir",
         zeroNetDir,
         "--openssl_bin_file",
-        openssl
+        openssl,
+        if (enableZeroNetAddTrackers) '--trackers_file',
+        if (enableZeroNetAddTrackers) trackerFile,
       ], environment: {
         "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
         'PYTHONHOME': '$dataDir/usr',
@@ -160,9 +165,10 @@ void runZeroNetService({bool autoStart = false}) async {
       ? true
       : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
   bool filtersEnabled =
-      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value;
+      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value ?? true;
   if (filtersEnabled) await activateFilters();
   printToConsole(startZeroNetLog);
+  //TODO?: Check for Bugs Here.
   if (await FlutterBackgroundService().isServiceRunning())
     FlutterBackgroundService.initialize(
       runBgIsolate,
@@ -193,6 +199,9 @@ void runBgIsolate() {
             (varStore.settings[debugZeroNet] as ToggleSetting).value;
         enableTorLogConsole =
             (varStore.settings[enableTorLog] as ToggleSetting).value;
+        enableZeroNetAddTrackers =
+            (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
+                .value;
         vibrateonZeroNetStart =
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
         runZeroNet();
@@ -220,6 +229,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
     enableTorLogConsole = initMap['enableTorLog'];
     zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
+    enableZeroNetAddTrackers = initMap['enableAdditionalTrackers'];
     setBgServiceRunningNotification();
   } else if (data.keys.first == 'notification') {
     if (data.values.first == 'ZeroNetStatus.RUNNING') {
@@ -257,6 +267,9 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
             (varStore.settings[enableTorLog] as ToggleSetting).value,
         'vibrateOnZeroNetStart':
             (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value,
+        'enableAdditionalTrackers':
+            (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
+                .value,
       }
     });
     if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
