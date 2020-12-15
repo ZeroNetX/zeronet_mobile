@@ -4,6 +4,7 @@ include ':arm64'
 include ':arm'
 include ':x86'
 include ':x86_64'
+include ':ipfslibs'
 
 def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
 

@@ -83,7 +83,7 @@ android {
             defaultConfig.ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
         }
     }
-    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
+    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64", ':ipfslibs']
 
 
 }

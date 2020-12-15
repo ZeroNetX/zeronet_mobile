@@ -4,4 +4,5 @@
     <string name="title_common">Common Binaries</string>
     <string name="title_x86">x86 Binaries</string>
     <string name="title_x86_64">x86_64 Binaries</string>
+    <string name="title_ipfslibs">IPFS Libs</string>
 </resources>
