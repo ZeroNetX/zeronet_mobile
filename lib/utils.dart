@@ -1,23 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:archive/archive.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:package_info/package_info.dart';
-import 'package:random_string/random_string.dart';
-import 'package:zeronet/native.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
-
-import 'common.dart';
-import 'extensions.dart';
-import 'constants.dart';
 import 'mobx/varstore.dart';
-import 'models.dart';
+import 'imports.dart';
 
 debugTime(Function func) {
   var start = DateTime.now();
@@ -521,7 +506,6 @@ shutDownZeronet() {
     }
     zeroNetUrl = '';
     varStore.setZeroNetStatus('Not Running');
-    flutterLocalNotificationsPlugin.cancelAll();
   }
 }
 
