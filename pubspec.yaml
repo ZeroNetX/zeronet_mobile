@@ -38,11 +38,11 @@ dependencies:
   random_string: 2.1.0
   share: 0.6.5+3
   url_launcher: 5.7.6
-  flutter_background_service: 0.0.1+18
+  flutter_background_service: 0.0.1+21
     # path: ../flutter_background_service
     # git:
     #   url: https://github.com/canewsin/flutter_background_service
-    #   ref: auto-start-pref
+    #   ref: zeronet
   flutter_webview_plugin: #0.3.11
     git:
       url: https://github.com/canewsin/flutter_webview_plugin
