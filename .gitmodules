@@ -1,0 +1,18 @@
+[submodule "android/common_python"]
+	path = android/common_python
+	url = https://github.com/canewsin/common_python.git
+[submodule "android/nativelibs_python"]
+	path = android/nativelibs_python
+	url = https://github.com/canewsin/nativelibs_python.git
+[submodule "android/arm_python"]
+	path = android/arm_python
+	url = https://github.com/canewsin/arm_python.git
+[submodule "android/arm64_python"]
+	path = android/arm64_python
+	url = https://github.com/canewsin/arm64_python.git
+[submodule "android/x86_64_python"]
+	path = android/x86_64_python
+	url = https://github.com/canewsin/x86_64_python.git
+[submodule "android/x86_python"]
+	path = android/x86_python
+	url = https://github.com/canewsin/x86_python.git

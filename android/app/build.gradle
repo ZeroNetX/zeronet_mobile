@@ -71,6 +71,8 @@ android {
 
         release {
             signingConfig signingConfigs.release
+            minifyEnabled = false
+            shrinkResources = false
         }
 
         debug {
@@ -83,7 +85,10 @@ android {
             defaultConfig.ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
         }
     }
-    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
+    dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64", 
+    ":arm64_python", ":arm_python", ":common_python", ":x86_python", ":x86_64_python",
+    ":arm64_tor", ":arm_tor", ":x86_tor", ":x86_64_tor"
+    ]
 
 
 }

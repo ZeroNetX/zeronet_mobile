@@ -1,3 +1,5 @@
+import 'package:in_app_update/in_app_update.dart';
+
 import '../imports.dart';
 
 Future checkInitStatus() async {
@@ -48,7 +50,8 @@ checkForAppUpdates() async {
   if (updateDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-      if (info.updateAvailable && info.flexibleUpdateAllowed)
+      if (info.updateAvailability == UpdateAvailability.updateAvailable &&
+          info.flexibleUpdateAllowed)
         uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
