@@ -4,6 +4,15 @@ include ':arm64'
 include ':arm'
 include ':x86'
 include ':x86_64'
+include ':common_python'
+include ':arm64_python'
+include ':arm_python'
+include ':x86_python'
+include ':x86_64_python'
+include ':arm64_tor'
+include ':arm_tor'
+include ':x86_tor'
+include ':x86_64_tor'
 
 def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
 

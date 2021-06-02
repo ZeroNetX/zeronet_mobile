@@ -338,16 +338,19 @@ class MainActivity : FlutterActivity() {
         getArchName()
         try {
             if (splitInstallManager?.installedModules!!.contains("common")) {
-                val list = listOf("zeronet_py3.zip", "site_packages_common.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("zeronet_py3.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains("common_python")) {
+                getAssetFiles("site_packages_common.zip")
             }
             if (splitInstallManager?.installedModules!!.contains(archName)) {
-                val list = listOf("python38_$archName.zip", "site_packages_$archName.zip", "tor_$archName.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("site_packages_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_python")) {
+                getAssetFiles("python38_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_tor")) {
+                getAssetFiles("tor_$archName.zip")
             }
         } catch (e: IOException) {
             return false
@@ -404,7 +407,10 @@ class MainActivity : FlutterActivity() {
             return
         val request = SplitInstallRequest.newBuilder()
                 .addModule("common")
+                .addModule("common_python")
                 .addModule(name)
+                .addModule(name + "_python")
+                .addModule(name + "_tor")
                 .build()
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
             mSessionId = sessionId
@@ -442,7 +448,10 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
-            isModuleInstalled(archName) == true
+            isModuleInstalled("common_python") == true &&
+            isModuleInstalled(archName) == true &&
+            isModuleInstalled(archName + "_python") == true &&
+            isModuleInstalled(archName + "_tor") == true
 
     private fun uninstallModules() {
         val installedModules = splitInstallManager?.installedModules?.toList()

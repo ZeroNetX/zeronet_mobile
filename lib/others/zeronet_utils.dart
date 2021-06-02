@@ -48,7 +48,8 @@ checkForAppUpdates() async {
   if (updateDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-      if (info.updateAvailable && info.flexibleUpdateAllowed)
+      if (info.updateAvailability == UpdateAvailability.updateAvailable &&
+          info.flexibleUpdateAllowed)
         uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
