@@ -11,34 +11,34 @@ dependencies:
   auto_size_text: 2.1.0
   archive: 2.0.13
   crypto: 2.1.5
-  clipboard: 0.1.2+8
-  device_info: 0.4.2+9
-  file_picker: 2.0.9+1
+  clipboard: ^0.1.3
+  device_info: ^2.0.2
+  file_picker: ^3.0.2+2
   flutter_absolute_path: 
     # path: ../flutter_absolute_path
     git:
       url: https://github.com/canewsin/flutter_absolute_path.git
       ref: android-v2
-  flutter_downloader: 1.5.1
-  flutter_mobx: 0.3.3+3
+  flutter_downloader: ^1.6.1
+  flutter_mobx: ^1.1.0+2
   http: 0.12.2
-  mobx: 0.3.3+1
-  google_fonts: 1.1.1
-  in_app_purchase: 0.3.4+15
-  in_app_review: 0.2.1+1
-  in_app_update: 1.1.13
+  mobx: ^1.2.1+4
+  google_fonts: ^1.1.2
+  in_app_purchase: ^0.5.2
+  in_app_review: ^2.0.2
+  in_app_update: ^2.0.0
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: 0.1.1
-  equatable: 1.2.5
-  time_ago_provider: 2.3.1
-  package_info: 0.4.3
-  path_provider: 1.6.21
-  purchases_flutter: 1.4.0
+  equatable: ^2.0.2
+  time_ago_provider: ^4.1.0
+  package_info: ^2.0.2
+  path_provider: ^2.0.2
+  purchases_flutter: ^3.2.2
   random_string: 2.1.0
-  share: 0.6.5+3
-  url_launcher: 5.7.6
-  flutter_background_service: 0.0.1+21
+  share: ^2.0.4
+  url_launcher: ^6.0.6
+  flutter_background_service: #0.0.1+18
     # path: ../flutter_background_service
     # git:
     #   url: https://github.com/canewsin/flutter_background_service
@@ -56,8 +56,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: 1.9.0
-  mobx_codegen: 0.3.4
+  build_runner: ^1.11.5
+  mobx_codegen: ^1.1.2
 
 flutter:
   uses-material-design: true

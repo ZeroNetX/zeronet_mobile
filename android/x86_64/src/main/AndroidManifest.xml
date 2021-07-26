@@ -2,6 +2,9 @@
     xmlns:dist="http://schemas.android.com/apk/distribution"
     package="in.canews.zeronetmobile.x86_64">
 
+    <application
+        android:hasCode="false"/>
+
     <dist:module
         dist:instant="false"
         dist:title="@string/title_x86_64">
