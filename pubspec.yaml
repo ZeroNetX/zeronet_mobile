@@ -23,6 +23,7 @@ dependencies:
   flutter_mobx: ^1.1.0+2
   http: 0.12.2
   mobx: ^1.2.1+4
+  get: ^4.3.0
   google_fonts: ^1.1.2
   in_app_purchase: ^0.5.2
   in_app_review: ^2.0.2

@@ -141,15 +141,16 @@ enum state {
   NONE,
 }
 
+// ignore: must_be_immutable
 class SiteInfo extends Equatable {
-  final String address;
-  final int peers;
-  final int size;
-  final int files;
-  final DateTime siteAdded;
-  final DateTime siteModified;
-  final bool serving;
-  final DateTime siteCodeUpdated;
+  String address;
+  int peers;
+  int size;
+  int files;
+  DateTime siteAdded;
+  DateTime siteModified;
+  bool serving;
+  DateTime siteCodeUpdated;
   SiteInfo({
     this.address = '',
     this.peers = 0,

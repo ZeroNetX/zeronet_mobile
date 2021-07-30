@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../imports.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -154,8 +156,8 @@ class SettingsCard extends StatelessWidget {
                         },
                       ),
                       if (setting is ToggleSetting)
-                        Observer(
-                          builder: (context) {
+                        Obx(
+                          () {
                             bool enabled = (varStore.settings[setting.name]
                                     as ToggleSetting)
                                 .value;
@@ -171,8 +173,8 @@ class SettingsCard extends StatelessWidget {
                 ],
               ),
               if (setting is MapSetting)
-                Observer(builder: (ctx) {
-                  var i = uiStore.reload;
+                Obx(() {
+                  var i = uiStore.reload.value;
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
                   settingL.options.forEach((element) {
@@ -182,7 +184,7 @@ class SettingsCard extends StatelessWidget {
                         splashColor: Color(0xFF5380FF),
                         onTap: () {
                           settingL.options[settingL.options.indexOf(element)]
-                              .onClick(ctx);
+                              .onClick(Get.context);
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
@@ -264,7 +266,7 @@ class SettingsCard extends StatelessWidget {
             if (file.existsSync()) {
               file.renameSync(getZeroNetDataDir().path + '/users.json');
               // _reload();
-              if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING)
+              if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
                 ZeroNet.instance.shutDown();
               service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);

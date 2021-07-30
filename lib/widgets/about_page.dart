@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
@@ -342,7 +343,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
               ),
             ),
           ),
-          Observer(builder: (ctx) {
+          Obx(() {
             List<Widget> mChildren = [];
             Map<String, List<Package>> googlePurchasesTypes = {
               'One Time': purchasesStore.oneTimePurchases,

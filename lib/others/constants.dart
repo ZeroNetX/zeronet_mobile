@@ -329,7 +329,8 @@ extension MapOptionExt on MapOptions {
                         }
                         username = '';
                         uiStore.updateCurrentAppRoute(AppRoute.Settings);
-                        uiStore.updateReload(uiStore.reload++);
+                        var value2 = uiStore.reload.value;
+                        uiStore.updateReload(value2 + 1);
                       } else {
                         validUsername = false;
                         // _reload();

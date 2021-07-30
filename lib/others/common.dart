@@ -42,7 +42,6 @@ List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
-ScaffoldState scaffoldState;
 FlutterBackgroundService service;
 
 String downloadLink(String item) =>
@@ -126,6 +125,10 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
 
 Future<void> backUpUserJsonFile(BuildContext context) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
+    FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
+        .then(
+      (_) => printToConsole('Users.json content copied to Clipboard'),
+    );
     String result = await saveUserJsonFile(getZeroNetUsersFilePath());
     Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(

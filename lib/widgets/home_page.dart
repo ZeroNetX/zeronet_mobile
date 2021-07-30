@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../imports.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 
@@ -54,8 +56,8 @@ class HomePage extends StatelessWidget {
 class InAppUpdateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      if (uiStore.appUpdate != AppUpdate.NOT_AVAILABLE)
+    return Obx(() {
+      if (uiStore.appUpdate.value != AppUpdate.NOT_AVAILABLE)
         return Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -68,15 +70,15 @@ class InAppUpdateWidget extends StatelessWidget {
               ),
             ),
             RaisedButton(
-              onPressed: uiStore.appUpdate.action,
+              onPressed: uiStore.appUpdate.value.action,
               color: Color(0xFF008297),
               padding: EdgeInsets.only(left: 10, right: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
               ),
-              child: Observer(builder: (context) {
+              child: Obx(() {
                 return Text(
-                  uiStore.appUpdate.text,
+                  uiStore.appUpdate.value.text,
                   style: GoogleFonts.roboto(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w500,
@@ -161,50 +163,50 @@ class ZeroNetStatusWidget extends StatelessWidget {
             Spacer(
               flex: 1,
             ),
-            Observer(
-              builder: (context) {
+            Obx(
+              () {
                 return Chip(
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.message,
+                      uiStore.zeroNetStatus.value.message,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.statusChipColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.statusChipColor,
                 );
               },
             ),
             Spacer(
               flex: 1,
             ),
-            Observer(builder: (context) {
+            Obx(() {
               return InkWell(
-                onTap: uiStore.zeroNetStatus.onAction,
+                onTap: uiStore.zeroNetStatus.value.onAction,
                 child: Chip(
                   elevation: 8.0,
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.actionText,
+                      uiStore.zeroNetStatus.value.actionText,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.actionBtnColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.actionBtnColor,
                 ),
               );
             }),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               Spacer(
                 flex: 1,
               ),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               InkWell(
                 onTap: ZeroNetStatus.NOT_RUNNING.onAction,
                 child: Chip(
@@ -388,7 +390,8 @@ class SiteDetailCard extends StatelessWidget {
                       size: 36,
                       color: Color(isZiteExists ? 0xFF6EB69E : 0xDF6EB69E),
                     ),
-                    onTap: uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING
+                    onTap: uiStore.zeroNetStatus.value ==
+                            ZeroNetStatus.NOT_RUNNING
                         ? () {
                             Scaffold.of(context).showSnackBar(
                               SnackBar(
@@ -464,12 +467,12 @@ class SiteDetailsSheet extends StatelessWidget {
                         Utils.initialSites[name]['url'],
                       ),
                     ),
-                    Observer(builder: (context) {
+                    Obx(() {
                       return RaisedButton(
                         color: Color(0xFF009764),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0)),
-                        onPressed: uiStore.zeroNetStatus ==
+                        onPressed: uiStore.zeroNetStatus.value ==
                                 ZeroNetStatus.NOT_RUNNING
                             ? () {
                                 snackMessage =
@@ -615,20 +618,20 @@ class SiteDetailsSheet extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(6.0)),
             if (isZiteExists)
-              Observer(builder: (context) {
+              Obx(() {
                 return SiteInfoWidget(
-                  uiStore.currentSiteInfo,
+                  uiStore.currentSiteInfo.value,
                 );
               }),
           ],
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Observer(builder: (context) {
+          child: Obx(() {
             Timer(Duration(seconds: 3), () {
               uiStore.updateShowSnackReply(false);
             });
-            return uiStore.showSnackReply
+            return uiStore.showSnackReply.value
                 ? Container(
                     height: 50.0,
                     color: Colors.grey[900],

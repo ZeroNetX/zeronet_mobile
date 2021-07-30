@@ -104,8 +104,8 @@ runTorEngine() {
 }
 
 runZeroNet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING ||
-      uiStore.zeroNetStatus == ZeroNetStatus.ERROR) {
+  if (uiStore.zeroNetStatus.value == ZeroNetStatus.NOT_RUNNING ||
+      uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR) {
     uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     service.sendData({'ZeroNetStatus': 'INITIALISING'});
     runTorEngine();
@@ -154,7 +154,7 @@ runZeroNet() {
       service.sendData({'console': 'zeroNetNativeDir : $zeroNetNativeDir'});
       var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
       for (var item in contents) {
-        service.sendData({'console': item.name()});
+        service.sendData({'console': item.name});
         service.sendData({'console': item.path});
       }
     }
@@ -172,7 +172,8 @@ void runZeroNetService({bool autoStart = false}) async {
   if (filtersEnabled) await activateFilters();
   printToConsole(startZeroNetLog);
   //TODO?: Check for Bugs Here.
-  if (await FlutterBackgroundService().isServiceRunning())
+  var serviceRunning = await FlutterBackgroundService().isServiceRunning();
+  if (serviceRunning)
     FlutterBackgroundService.initialize(
       runBgIsolate,
       autoStart: autoStartService,
@@ -297,7 +298,7 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
 }
 
 shutDownZeronet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+  if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
     service.sendData({'cmd': 'shutDownZeronet'});
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();

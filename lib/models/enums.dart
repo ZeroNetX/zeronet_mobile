@@ -57,6 +57,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
+        // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
@@ -116,7 +117,7 @@ enum AppUpdate {
 
 extension AppUpdateExt on AppUpdate {
   get text {
-    switch (uiStore.appUpdate) {
+    switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
         return 'Update';
         break;
@@ -135,7 +136,7 @@ extension AppUpdateExt on AppUpdate {
   }
 
   void action() {
-    switch (uiStore.appUpdate) {
+    switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
         {
           // InAppUpdate.performImmediateUpdate().then((value) =>
@@ -207,7 +208,7 @@ extension AppRouteExt on AppRoute {
   }
 
   void onClick() {
-    switch (uiStore.currentAppRoute) {
+    switch (uiStore.currentAppRoute.value) {
       case AppRoute.Home:
         uiStore.updateCurrentAppRoute(AppRoute.Settings);
         break;

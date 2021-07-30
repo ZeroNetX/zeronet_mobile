@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../imports.dart';
 
 class ZeroNetAppBar extends StatelessWidget {
@@ -7,13 +9,13 @@ class ZeroNetAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
+    return Obx(() {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            uiStore.currentAppRoute.title,
+            uiStore.currentAppRoute.value.title,
             style: GoogleFonts.roboto(
               fontSize: 32.0,
               fontWeight: FontWeight.bold,
@@ -21,7 +23,7 @@ class ZeroNetAppBar extends StatelessWidget {
           ),
           Row(
             children: [
-              if (uiStore.currentAppRoute == AppRoute.Settings)
+              if (uiStore.currentAppRoute.value == AppRoute.Settings)
                 InkWell(
                   child: Icon(
                     OMIcons.info,
@@ -31,15 +33,15 @@ class ZeroNetAppBar extends StatelessWidget {
                   onTap: () =>
                       uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
                 ),
-              if (uiStore.currentAppRoute == AppRoute.Settings)
+              if (uiStore.currentAppRoute.value == AppRoute.Settings)
                 Padding(padding: const EdgeInsets.only(right: 20.0)),
               InkWell(
                 child: Icon(
-                  uiStore.currentAppRoute.icon,
+                  uiStore.currentAppRoute.value.icon,
                   size: 32.0,
                   color: Colors.black,
                 ),
-                onTap: uiStore.currentAppRoute.onClick,
+                onTap: uiStore.currentAppRoute.value.onClick,
               )
             ],
           )
