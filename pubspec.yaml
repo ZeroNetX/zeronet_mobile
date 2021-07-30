@@ -39,7 +39,7 @@ dependencies:
   random_string: 2.1.0
   share: ^2.0.4
   url_launcher: ^6.0.6
-  flutter_background_service: 0.1.5
+  flutter_background_service: 0.0.1+21 #0.1.5
     # path: ../flutter_background_service
     # git:
     #   url: https://github.com/canewsin/flutter_background_service
@@ -66,3 +66,4 @@ flutter:
     - assets/
     - assets/developers/
     - assets/icons/
+    - assets/filters/

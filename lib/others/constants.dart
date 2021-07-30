@@ -47,6 +47,14 @@ const List<String> soDirs = [
   'usr/lib/python3.8/lib-dynload',
   'usr/lib/python3.8/site-packages',
 ];
+
+const List<String> filterFileNames = [
+  'sites-miners.json',
+  'sites-porn.json',
+  'users-porn.json',
+  'users-spamlist.json',
+];
+
 const List<AppDeveloper> appDevelopers = [
   AppDeveloper(
     name: 'PramUkesh',

@@ -448,7 +448,8 @@ Future<bool> activateFilters() async {
       deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
       return true;
     } else
-      return await saveFilterstoDevice(file);
+      return (await saveFilterstoDevice(file, 'assets/filters.json') &&
+          await saveInAppFilterstoDevice());
   }
   return true;
 }
@@ -461,9 +462,21 @@ Future<bool> deactivateFilters() async {
   return true;
 }
 
-Future<bool> saveFilterstoDevice(File file) async {
+Future<bool> saveInAppFilterstoDevice() async {
+  for (var filterName in filterFileNames) {
+    File file = File(
+      getZeroNetDataDir().path + '/${Utils.urlZeroNetMob}/filters/$filterName',
+    );
+    if (!file.existsSync()) {
+      await saveFilterstoDevice(file, 'assets/filters/$filterName');
+    }
+  }
+  return true;
+}
+
+Future<bool> saveFilterstoDevice(File file, String assetPath) async {
   file.createSync(recursive: true);
-  var data = (await rootBundle.load('assets/filters.json'));
+  var data = (await rootBundle.load(assetPath));
   var buffer = data.buffer;
   file.writeAsBytesSync(buffer.asUint8List(
     data.offsetInBytes,
