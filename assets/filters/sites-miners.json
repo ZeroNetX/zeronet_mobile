@@ -1,0 +1,59 @@
+{
+  "siteblocks": {
+    "13eFkhbXXQcJqd729zRLL9tMxxhz9d4UA6": {
+      "date_added": 1530012785,
+      "name": "EulerFinder",
+      "reason": "Includes calls to online coinhive script(with option to disable but sets to 50% on refresh)"
+    },
+    "1PXUne5szFdu4di5EV4gy9Qo7p8tP5p1VX": {
+      "date_added": 1530012785,
+      "name": "The Pedophile/Rapist Hitlist",
+      "reason": "Includes an offline script(/js/coinhive.min.js)"
+    },
+    "1JArw6Qb7cG6NuZBqvBSprURr2aaZdCFq9": {
+      "date_added": 1541928660,
+      "name": "C&P Zite Index",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+    },
+    "1CS9y8BCXC7iXTqDMaYnwN9br8WaRbUeJV": {
+      "date_added": 1541928660,
+      "name": "C&P Video Share",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+    },
+    "13WfLQv2nWXYBNUEL3PkWwGUe3H7qkTF5Y": {
+      "date_added": 1541928660,
+      "name": "C&P Forum",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+    },
+    "14YK7V93HNLJb94PFrKj4aQMxPVkrbZ3oL": {
+      "date_added": 1541928660,
+      "name": "C&P File Share",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+    },
+    "1RuLFAr8pJMdwMWaLfp5X5ousDZHXv8K4": {
+      "date_added": 1541928660,
+      "name": "The Chlorates and Perchlorates",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+    },
+    "16AzWR6xfhVvrmvQCm4mt7rN17CWZTCJYS": {
+      "date_added": 1541928660,
+      "name": "Receptek Sufnipirotechnikusoknak",
+      "reason": "Includes an online coinhive script"
+    },
+	"1CpAXQVfedrNVKSLJMKEtrWNvU8KMXJzAt": {
+      "date_added": 1541928660,
+      "name": "PyroMaster minden ami érdekes",
+      "reason": "Includes anti adblock(BlockAdBlock) suspiciously no coinhive (note to self: check and remove latter)"
+	},
+	"16WRGSqD26sfYiVBsBQg6y1Sd3YJP6Q3SF": {
+      "date_added": 1542661064,
+      "name": "PyroData & PyroGuide",
+      "reason": "Includes an online coinhive script and anti adblock(BlockAdBlock)"
+	},
+	"1KjLxJ6TfeRvrPX1LkUtkFLfTp4en7j9uf": {
+      "date_added": 1541928660,
+      "name": "???",
+      "reason": "[sourced by tips of others](todo actually check it when it loads)Includes an online coinhive script"
+	}
+  }
+}

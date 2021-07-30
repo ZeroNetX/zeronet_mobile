@@ -57,6 +57,8 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
+        ZeroBrowser.flutterWebViewPlugin.close();
+        // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
@@ -116,7 +118,7 @@ enum AppUpdate {
 
 extension AppUpdateExt on AppUpdate {
   get text {
-    switch (uiStore.appUpdate) {
+    switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
         return 'Update';
         break;
@@ -135,13 +137,11 @@ extension AppUpdateExt on AppUpdate {
   }
 
   void action() {
-    switch (uiStore.appUpdate) {
+    switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
         {
           // InAppUpdate.performImmediateUpdate().then((value) =>
           //     uiStore.updateInAppUpdateAvailable(AppUpdate.NOT_AVAILABLE));
-          //TODO: Switch to startFlexibleUpdate() when below issue is Fixed.
-          //https://github.com/feilfeilundfeil/flutter_in_app_update/issues/42
           InAppUpdate.startFlexibleUpdate().then((value) =>
               uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADED));
           uiStore.updateInAppUpdateAvailable(AppUpdate.DOWNLOADING);
@@ -207,7 +207,7 @@ extension AppRouteExt on AppRoute {
   }
 
   void onClick() {
-    switch (uiStore.currentAppRoute) {
+    switch (uiStore.currentAppRoute.value) {
       case AppRoute.Home:
         uiStore.updateCurrentAppRoute(AppRoute.Settings);
         break;

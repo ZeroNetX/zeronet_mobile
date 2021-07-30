@@ -1,7 +1,7 @@
 import 'dart:io';
 
 extension FileSystemExtension on FileSystemEntity {
-  String name() => this.path.replaceFirst(this.parent.path + '/', '');
+  String get name => this.path.replaceFirst(this.parent.path + '/', '');
 }
 
 extension CapExtension on String {

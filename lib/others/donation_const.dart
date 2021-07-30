@@ -1,9 +1,10 @@
+import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
 const Map<String, String> donationsAddressMap = {
-  "BTC(Preferred)": "35NgjpB3pzkdHkAPrNh2EMERGxnXgwCb6G",
+  "BTC(Preferred)": "1eVStCWqLM7hFB1enaoGzAt7T3tsAB41z",
   "ETH": "0xa81a32dcce8e5bcb9792daa19ae7f964699ee536",
   "UPI(Indian Users)": "pramukesh@upi",
   "Liberapay": "https://liberapay.com/canews.in/donate",
@@ -40,10 +41,12 @@ Future<bool> isProUser() async {
   try {
     final userName = getZeroIdUserName();
     PurchaserInfo purchaserInfo;
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    if (userName.isNotEmpty)
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.getPurchaserInfo();
     if (purchaserInfo.entitlements.active.length > 0) return true;
   } on PlatformException catch (e) {
+    printOut(e);
     // Error fetching purchaser info
   }
   return false;
@@ -53,7 +56,8 @@ void purchasePackage(Package package) async {
   try {
     PurchaserInfo purchaserInfo;
     final userName = getZeroIdUserName();
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    if (userName.isNotEmpty)
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.purchasePackage(package);
 
     var isPro = await isProUser();
@@ -75,12 +79,11 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
       // showPendingUI();
     } else {
       if (purchaseDetails.status == PurchaseStatus.error) {
-        scaffoldState.showSnackBar(
-          SnackBar(
-            content: Text(
-              //!TODO Improve Error Messages sp that user can understand easily.
-              'PurchaseStatus.error :: ${purchaseDetails.error.message}',
-            ),
+        //!TODO Improve Error Messages sp that user can understand easily.
+        Get.showSnackbar(
+          GetBar(
+            title: "Purchase Error",
+            message: 'PurchaseStatus.error :: ${purchaseDetails.error.message}',
           ),
         );
       } else if (purchaseDetails.status == PurchaseStatus.purchased) {
@@ -95,12 +98,13 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
 
       if (purchaseDetails.productID != null &&
           purchaseDetails.productID.contains('zeronet_one')) {
-        await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
+        await InAppPurchase.instance
+            .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>()
+            .consumePurchase(purchaseDetails);
         purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
       }
       if (purchaseDetails.pendingCompletePurchase) {
-        await InAppPurchaseConnection.instance
-            .completePurchase(purchaseDetails);
+        await InAppPurchase.instance.completePurchase(purchaseDetails);
       }
     }
   });

@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    package="in.canews.zeronetmobile.arm64_tor">
+
+    <application
+        android:hasCode="false"/>
+
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_arm64">
+        <dist:delivery>
+            <dist:on-demand />
+        </dist:delivery>
+        <dist:fusing dist:include="false" />
+    </dist:module>
+</manifest>
+

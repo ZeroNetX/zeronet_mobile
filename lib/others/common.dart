@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
@@ -42,7 +43,6 @@ List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
-ScaffoldState scaffoldState;
 FlutterBackgroundService service;
 
 String downloadLink(String item) =>
@@ -92,7 +92,7 @@ init() async {
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
-    downloadTrackerFiles();
+    if (enableZeroNetAddTrackers) await downloadTrackerFiles();
     runZeroNetService(
       autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
     );
@@ -126,13 +126,16 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
 
 Future<void> backUpUserJsonFile(BuildContext context) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
+    FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
+        .then(
+      (_) => printToConsole('Users.json content copied to Clipboard'),
+    );
     String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-    Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(
-      (result.contains('success'))
+    Get.showSnackbar(GetBar(
+      message: (result.contains('success'))
           ? result
           : "Please check yourself that file back up Successfully.",
-    )));
+    ));
   } else
     zeronetNotInit(context);
 }
@@ -279,7 +282,7 @@ void showDialogC({
             child: Text(body),
           ),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -307,7 +310,7 @@ void showDialogW({
           ),
           actions: <Widget>[
             actionOk,
-            FlatButton(
+            TextButton(
               child: Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();

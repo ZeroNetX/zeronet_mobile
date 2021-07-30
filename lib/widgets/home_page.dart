@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../imports.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 
@@ -54,8 +56,8 @@ class HomePage extends StatelessWidget {
 class InAppUpdateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      if (uiStore.appUpdate != AppUpdate.NOT_AVAILABLE)
+    return Obx(() {
+      if (uiStore.appUpdate.value != AppUpdate.NOT_AVAILABLE)
         return Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -67,16 +69,21 @@ class InAppUpdateWidget extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            RaisedButton(
-              onPressed: uiStore.appUpdate.action,
-              color: Color(0xFF008297),
-              padding: EdgeInsets.only(left: 10, right: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
+            ElevatedButton(
+              onPressed: uiStore.appUpdate.value.action,
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+                padding: MaterialStateProperty.all(
+                    EdgeInsets.only(left: 10, right: 10)),
               ),
-              child: Observer(builder: (context) {
+              child: Obx(() {
                 return Text(
-                  uiStore.appUpdate.text,
+                  uiStore.appUpdate.value.text,
                   style: GoogleFonts.roboto(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w500,
@@ -95,12 +102,17 @@ class InAppUpdateWidget extends StatelessWidget {
 class AboutButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () => uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
-      color: Color(0xFFAA5297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFFAA5297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
         'Know More',
@@ -117,7 +129,7 @@ class AboutButtonWidget extends StatelessWidget {
 class RatingButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
         //TODO: remove this once we support non playstore reviews.
@@ -127,10 +139,15 @@ class RatingButtonWidget extends StatelessWidget {
           //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
         }
       },
-      color: Color(0xFF008297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
         'Give Your Rating/Feedback',
@@ -161,50 +178,50 @@ class ZeroNetStatusWidget extends StatelessWidget {
             Spacer(
               flex: 1,
             ),
-            Observer(
-              builder: (context) {
+            Obx(
+              () {
                 return Chip(
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.message,
+                      uiStore.zeroNetStatus.value.message,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.statusChipColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.statusChipColor,
                 );
               },
             ),
             Spacer(
               flex: 1,
             ),
-            Observer(builder: (context) {
+            Obx(() {
               return InkWell(
-                onTap: uiStore.zeroNetStatus.onAction,
+                onTap: uiStore.zeroNetStatus.value.onAction,
                 child: Chip(
                   elevation: 8.0,
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.actionText,
+                      uiStore.zeroNetStatus.value.actionText,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.actionBtnColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.actionBtnColor,
                 ),
               );
             }),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               Spacer(
                 flex: 1,
               ),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               InkWell(
                 onTap: ZeroNetStatus.NOT_RUNNING.onAction,
                 child: Chip(
@@ -388,19 +405,25 @@ class SiteDetailCard extends StatelessWidget {
                       size: 36,
                       color: Color(isZiteExists ? 0xFF6EB69E : 0xDF6EB69E),
                     ),
-                    onTap: uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING
+                    onTap: uiStore.zeroNetStatus.value ==
+                            ZeroNetStatus.NOT_RUNNING
                         ? () {
-                            Scaffold.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
+                            Get.showSnackbar(GetBar(
+                              message:
                                   'Please Start ZeroNet First to Browse this Zite',
-                                ),
-                              ),
-                            );
+                            ));
                           }
-                        : () {
-                            browserUrl =
-                                zeroNetUrl + Utils.initialSites[name]['url'];
+                        : () async {
+                            var url = zeroNetUrl;
+                            if (url.isEmpty) {
+                              var isServiceRunning =
+                                  await FlutterBackgroundService()
+                                      .isServiceRunning();
+                              if (isServiceRunning) {
+                                url = defZeroNetUrl;
+                              }
+                            }
+                            browserUrl = url + Utils.initialSites[name]['url'];
                             uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                           },
                   ),
@@ -464,12 +487,18 @@ class SiteDetailsSheet extends StatelessWidget {
                         Utils.initialSites[name]['url'],
                       ),
                     ),
-                    Observer(builder: (context) {
-                      return RaisedButton(
-                        color: Color(0xFF009764),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        onPressed: uiStore.zeroNetStatus ==
+                    Obx(() {
+                      return ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Color(0xFF009764),
+                          ),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                          ),
+                        ),
+                        onPressed: uiStore.zeroNetStatus.value ==
                                 ZeroNetStatus.NOT_RUNNING
                             ? () {
                                 snackMessage =
@@ -513,10 +542,15 @@ class SiteDetailsSheet extends StatelessWidget {
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                RaisedButton(
-                  color: Color(0xFF008297),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Color(0xFF008297)),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
                   ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
@@ -548,10 +582,16 @@ class SiteDetailsSheet extends StatelessWidget {
                   ),
                 ),
                 if (isZiteExists)
-                  RaisedButton(
-                    color: Color(0xFF517184),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF517184)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       uiStore.currentBottomSheetController?.close();
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
@@ -568,10 +608,16 @@ class SiteDetailsSheet extends StatelessWidget {
                   ),
                 if (!unImplementedFeatures.contains(Feature.SITE_PAUSE_RESUME))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFF009793),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Color(0xFF009793)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                         currentSite = (currentSite.serving)
@@ -594,10 +640,16 @@ class SiteDetailsSheet extends StatelessWidget {
                     ),
                 if (!unImplementedFeatures.contains(Feature.SITE_DELETE))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFFBB4848),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Color(0xFFBB4848),
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                       },
@@ -615,20 +667,20 @@ class SiteDetailsSheet extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(6.0)),
             if (isZiteExists)
-              Observer(builder: (context) {
+              Obx(() {
                 return SiteInfoWidget(
-                  uiStore.currentSiteInfo,
+                  uiStore.currentSiteInfo.value,
                 );
               }),
           ],
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Observer(builder: (context) {
+          child: Obx(() {
             Timer(Duration(seconds: 3), () {
               uiStore.updateShowSnackReply(false);
             });
-            return uiStore.showSnackReply
+            return uiStore.showSnackReply.value
                 ? Container(
                     height: 50.0,
                     color: Colors.grey[900],

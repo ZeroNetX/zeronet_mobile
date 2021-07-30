@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'imports.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
@@ -5,9 +6,8 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
   if (kEnableInAppPurchases) {
-    InAppPurchaseConnection.enablePendingPurchases();
-    final Stream purchaseUpdates =
-        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+    final Stream purchaseUpdates = InAppPurchase.instance.purchaseStream;
     purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
   }
   launchUrl = await launchZiteUrl();
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'ZeroNet Mobile',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
@@ -33,10 +33,9 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Observer(
-          builder: (context) {
-            if (varStore.zeroNetInstalled) {
-              scaffoldState = Scaffold.of(context);
+        body: Obx(
+          () {
+            if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
                 activateFilters();
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
                 // createTorDataDir();
                 firstTime = false;
               }
-              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
+              if (uiStore.zeroNetStatus.value == ZeroNetStatus.NOT_RUNNING &&
                   !manuallyStoppedZeroNet) {
                 checkInitStatus();
               }
@@ -57,14 +56,14 @@ class MyApp extends StatelessWidget {
                         ? "http://127.0.0.1:43110/"
                         : zeroNetUrl) +
                     launchUrl;
-                if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+                if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
                   uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                 } else
                   uiStore.updateCurrentAppRoute(AppRoute.ShortcutLoadingPage);
               }
-              return Observer(
-                builder: (ctx) {
-                  switch (uiStore.currentAppRoute) {
+              return Obx(
+                () {
+                  switch (uiStore.currentAppRoute.value) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
                         onWillPop: () {

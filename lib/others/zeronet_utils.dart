@@ -1,3 +1,5 @@
+import 'package:in_app_update/in_app_update.dart';
+
 import '../imports.dart';
 
 Future checkInitStatus() async {
@@ -5,17 +7,25 @@ Future checkInitStatus() async {
   loadUsersFromFileSystem();
   setZeroBrowserThemeValues();
   try {
-    String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
+    var url = '';
+    var address = '';
+    if (Directory(getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob)
+        .existsSync()) {
+      address = Utils.urlHello;
+    } else {
+      address = Utils.urlZeroNetMob;
+    }
+    url = defZeroNetUrl + address;
     String key = await ZeroNet.instance.getWrapperKey(url);
     zeroNetUrl = defZeroNetUrl;
     varStore.zeroNetWrapperKey = key;
+    // zeroNetIPwithPort(defZeroNetUrl),
+    ZeroNet.instance.connect(address).catchError(
+      (onError) {
+        printToConsole(onError);
+      },
+    );
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-    ZeroNet.instance
-        .connect(
-          zeroNetIPwithPort(defZeroNetUrl),
-          Utils.urlZeroNetMob,
-        )
-        .catchError((onError) => printToConsole(onError));
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
@@ -48,7 +58,8 @@ checkForAppUpdates() async {
   if (updateDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-      if (info.updateAvailable && info.flexibleUpdateAllowed)
+      if (info.updateAvailability == UpdateAvailability.updateAvailable &&
+          info.flexibleUpdateAllowed)
         uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
@@ -101,8 +112,8 @@ runTorEngine() {
 }
 
 runZeroNet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING ||
-      uiStore.zeroNetStatus == ZeroNetStatus.ERROR) {
+  if (uiStore.zeroNetStatus.value == ZeroNetStatus.NOT_RUNNING ||
+      uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR) {
     uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     service.sendData({'ZeroNetStatus': 'INITIALISING'});
     runTorEngine();
@@ -143,6 +154,7 @@ runZeroNet() {
         service.sendData({'ZeroNetStatus': 'ERROR'});
         service.sendData({'console': e.toString()});
       });
+      service.sendData({'ZeroNetStatus': 'RUNNING'});
     } else {
       //TODO: Improve Error Trace here
       service.sendData({'console': 'Python Binary Not Found'});
@@ -151,7 +163,7 @@ runZeroNet() {
       service.sendData({'console': 'zeroNetNativeDir : $zeroNetNativeDir'});
       var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
       for (var item in contents) {
-        service.sendData({'console': item.name()});
+        service.sendData({'console': item.name});
         service.sendData({'console': item.path});
       }
     }
@@ -169,19 +181,24 @@ void runZeroNetService({bool autoStart = false}) async {
   if (filtersEnabled) await activateFilters();
   printToConsole(startZeroNetLog);
   //TODO?: Check for Bugs Here.
-  if (await FlutterBackgroundService().isServiceRunning())
-    FlutterBackgroundService.initialize(
-      runBgIsolate,
-      autoStart: autoStartService,
-    ).then((value) {
-      if (value) {
-        service = FlutterBackgroundService();
-        service.onDataReceived.listen(onBgServiceDataReceived);
-        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
-        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        if (autoStart) service.sendData({'cmd': 'runZeroNet'});
-      }
-    });
+  var serviceRunning = await FlutterBackgroundService().isServiceRunning();
+  if (!serviceRunning) {
+    uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
+    service = FlutterBackgroundService();
+  }
+
+  FlutterBackgroundService.initialize(
+    runBgIsolate,
+    autoStart: autoStartService,
+  ).then((value) {
+    if (value) {
+      service = FlutterBackgroundService();
+      service.onDataReceived.listen(onBgServiceDataReceived);
+      if (zeroNetNativeDir.isNotEmpty) saveDataFile();
+      uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
+      if (autoStart) service.sendData({'cmd': 'runZeroNet'});
+    }
+  });
 }
 
 void runBgIsolate() {
@@ -219,6 +236,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
         break;
       case 'shutDownZeronet':
         service.stopBackgroundService();
+        uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
         break;
       default:
     }
@@ -283,6 +301,10 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
       case 'INITIALISING':
         uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
         break;
+      case 'RUNNING':
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+        runZeroNetWs();
+        break;
       case 'ERROR':
         uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
         break;
@@ -294,8 +316,9 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
 }
 
 shutDownZeronet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+  if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
     service.sendData({'cmd': 'shutDownZeronet'});
+    runZeroNetWs();
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
@@ -316,15 +339,19 @@ runZeroNetWs({String address}) {
   zeroNetUrl = zeroNetUrlL;
   if (varStore.zeroNetWrapperKey.isEmpty) {
     ZeroNet.instance
-        .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
+        .getWrapperKey(
+      zeroNetUrl + Utils.urlHello,
+      override: true,
+    )
         .then((value) {
       if (value != null) {
         // ZeroNet.wrapperKey = value;
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
         ZeroNet.instance.connect(
-          zeroNetIPwithPort(defZeroNetUrl),
-          address ?? Utils.urlZeroNetMob,
+          // zeroNetIPwithPort(defZeroNetUrl),
+          address ?? Utils.urlHello,
+          override: true,
         );
       }
     });
@@ -438,13 +465,29 @@ bool isLocalZitesExists() {
 
 Future<bool> activateFilters() async {
   File file = File(getZeroNetDataDir().path + '/filters.json');
-  if (!file.existsSync()) {
+  File fileTemp = File(getZeroNetDataDir().path + '/filters-tmp.json');
+  if (!file.existsSync() || fileTemp.existsSync()) {
     File deFile = File(getZeroNetDataDir().path + '/filters.json-deactive');
     if (deFile.existsSync()) {
       deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
       return true;
-    } else
-      return await saveFilterstoDevice(file);
+    } else {
+      await saveInAppFilterstoDevice();
+      var filtersFileName = '';
+      var filtersPath =
+          getZeroNetDataDir().path + '/${Utils.urlZeroNetMob}/filters/';
+      int len = 0;
+      var directory = Directory(filtersPath);
+      if (directory.existsSync()) len = directory.listSync().length;
+      if (len >= 4) {
+        filtersFileName = 'assets/filters/filters.json';
+        fileTemp.deleteSync(recursive: true);
+      } else {
+        filtersFileName = 'assets/filters/filters-tmp.json';
+        await saveFilterstoDevice(fileTemp, filtersFileName);
+      }
+      return await saveFilterstoDevice(file, filtersFileName);
+    }
   }
   return true;
 }
@@ -457,9 +500,21 @@ Future<bool> deactivateFilters() async {
   return true;
 }
 
-Future<bool> saveFilterstoDevice(File file) async {
+Future<bool> saveInAppFilterstoDevice() async {
+  for (var filterName in filterFileNames) {
+    File file = File(
+      getZeroNetDataDir().path + '/tmp/filters/$filterName',
+    );
+    if (!file.existsSync()) {
+      await saveFilterstoDevice(file, 'assets/filters/$filterName');
+    }
+  }
+  return true;
+}
+
+Future<bool> saveFilterstoDevice(File file, String assetPath) async {
   file.createSync(recursive: true);
-  var data = (await rootBundle.load('assets/filters.json'));
+  var data = (await rootBundle.load(assetPath));
   var buffer = data.buffer;
   file.writeAsBytesSync(buffer.asUint8List(
     data.offsetInBytes,

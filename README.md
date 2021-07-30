@@ -56,7 +56,7 @@ flutter run
 ## Donate
 BTC(Preferred) : 
 
-`35NgjpB3pzkdHkAPrNh2EMERGxnXgwCb6G`
+`1eVStCWqLM7hFB1enaoGzAt7T3tsAB41z`
 
 ETH : 
 

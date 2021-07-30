@@ -179,7 +179,7 @@ downloadBins() async {
       } else {
         var bytes = file.readAsBytesSync();
         var digest = md5.convert(bytes).toString();
-        var res = await client.get(md5hashLink);
+        var res = await client.get(Uri.parse(md5hashLink));
         var list = json.decode(res.body) as List;
         list.forEach((f) => md5List.add(f as String));
         for (var hash in md5List) {
@@ -425,7 +425,7 @@ installPlugin(File file) async {
   );
 }
 
-void downloadTrackerFiles() async {
+Future<void> downloadTrackerFiles() async {
   DateTime pastTime;
   int hrs = -1;
   File timestamp = File(trackersDir.path + '/timestamp');
@@ -439,6 +439,7 @@ void downloadTrackerFiles() async {
   }
   if (hrs == -1 || hrs > 24) {
     await FlutterDownloader.initialize();
+    FlutterDownloader.registerCallback(handleDownloads);
     for (var item in trackerFileNames) {
       await FlutterDownloader.enqueue(
         url: downloadTrackerLink(item),

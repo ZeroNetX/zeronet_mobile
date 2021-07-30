@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../imports.dart';
 
 class Loading extends StatelessWidget {
@@ -23,11 +25,11 @@ class Loading extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(24.0),
             ),
-            Observer(
-              builder: (context) {
+            Obx(
+              () {
                 var status = varStore.loadingStatus;
                 return Text(
-                  status,
+                  status.value,
                   style: TextStyle(
                     fontSize: 24.0,
                     fontStyle: FontStyle.italic,
@@ -35,7 +37,7 @@ class Loading extends StatelessWidget {
                 );
               },
             ),
-            Observer(builder: (context) {
+            Obx(() {
               var percent = varStore.loadingPercent;
               return (percent < 1)
                   ? CircularProgressIndicator()

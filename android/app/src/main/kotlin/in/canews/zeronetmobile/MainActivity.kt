@@ -62,7 +62,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
-        MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
                         call.argument("title"),call.argument("url"),
@@ -338,16 +338,19 @@ class MainActivity : FlutterActivity() {
         getArchName()
         try {
             if (splitInstallManager?.installedModules!!.contains("common")) {
-                val list = listOf("zeronet_py3.zip", "site_packages_common.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("zeronet_py3.zip")
+            }
+            if (archName != "arm64" && splitInstallManager?.installedModules!!.contains("common_python")) {
+                getAssetFiles("site_packages_common.zip")
             }
             if (splitInstallManager?.installedModules!!.contains(archName)) {
-                val list = listOf("python38_$archName.zip", "site_packages_$archName.zip", "tor_$archName.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("site_packages_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_python")) {
+                getAssetFiles("python38_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_tor")) {
+                getAssetFiles("tor_$archName.zip")
             }
         } catch (e: IOException) {
             return false
@@ -402,10 +405,15 @@ class MainActivity : FlutterActivity() {
     private fun loadAndLaunchModule(name: String, eventSink: EventChannel.EventSink?) {
         if (isModuleInstalled(name) == true)
             return
-        val request = SplitInstallRequest.newBuilder()
+        val builder = SplitInstallRequest.newBuilder()
                 .addModule("common")
                 .addModule(name)
-                .build()
+                .addModule(name + "_python")
+                .addModule(name + "_tor")
+        if (name != "arm64") {
+            builder.addModule("common_python")
+        }
+        val request = builder.build();
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
             mSessionId = sessionId
         }
@@ -442,7 +450,10 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
-            isModuleInstalled(archName) == true
+            ((archName == "arm64") ||  isModuleInstalled("common_python") == true)&&
+            isModuleInstalled(archName) == true &&
+            isModuleInstalled(archName + "_python") == true &&
+            isModuleInstalled(archName + "_tor") == true
 
     private fun uninstallModules() {
         val installedModules = splitInstallManager?.installedModules?.toList()
