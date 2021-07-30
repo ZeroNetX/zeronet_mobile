@@ -7,24 +7,25 @@ Future checkInitStatus() async {
   loadUsersFromFileSystem();
   setZeroBrowserThemeValues();
   try {
-    String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
-    String key = await ZeroNet.instance.getWrapperKey(url);
-    zeroNetUrl = defZeroNetUrl;
-    varStore.zeroNetWrapperKey = key;
-    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+    var url = '';
     var address = '';
-    if (File(getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob)
+    if (Directory(getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob)
         .existsSync()) {
       address = Utils.urlHello;
     } else {
       address = Utils.urlZeroNetMob;
     }
+    url = defZeroNetUrl + address;
+    String key = await ZeroNet.instance.getWrapperKey(url);
+    zeroNetUrl = defZeroNetUrl;
+    varStore.zeroNetWrapperKey = key;
     // zeroNetIPwithPort(defZeroNetUrl),
     ZeroNet.instance.connect(address).catchError(
       (onError) {
         printToConsole(onError);
       },
     );
+    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
@@ -153,6 +154,7 @@ runZeroNet() {
         service.sendData({'ZeroNetStatus': 'ERROR'});
         service.sendData({'console': e.toString()});
       });
+      service.sendData({'ZeroNetStatus': 'RUNNING'});
     } else {
       //TODO: Improve Error Trace here
       service.sendData({'console': 'Python Binary Not Found'});
@@ -180,19 +182,23 @@ void runZeroNetService({bool autoStart = false}) async {
   printToConsole(startZeroNetLog);
   //TODO?: Check for Bugs Here.
   var serviceRunning = await FlutterBackgroundService().isServiceRunning();
-  if (serviceRunning)
-    FlutterBackgroundService.initialize(
-      runBgIsolate,
-      autoStart: autoStartService,
-    ).then((value) {
-      if (value) {
-        service = FlutterBackgroundService();
-        service.onDataReceived.listen(onBgServiceDataReceived);
-        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
-        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        if (autoStart) service.sendData({'cmd': 'runZeroNet'});
-      }
-    });
+  if (!serviceRunning) {
+    uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
+    service = FlutterBackgroundService();
+  }
+
+  FlutterBackgroundService.initialize(
+    runBgIsolate,
+    autoStart: autoStartService,
+  ).then((value) {
+    if (value) {
+      service = FlutterBackgroundService();
+      service.onDataReceived.listen(onBgServiceDataReceived);
+      if (zeroNetNativeDir.isNotEmpty) saveDataFile();
+      uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
+      if (autoStart) service.sendData({'cmd': 'runZeroNet'});
+    }
+  });
 }
 
 void runBgIsolate() {
@@ -230,6 +236,7 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
         break;
       case 'shutDownZeronet':
         service.stopBackgroundService();
+        uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
         break;
       default:
     }
@@ -294,6 +301,10 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
       case 'INITIALISING':
         uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
         break;
+      case 'RUNNING':
+        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+        runZeroNetWs();
+        break;
       case 'ERROR':
         uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
         break;
@@ -307,6 +318,7 @@ void onBgServiceDataReceived(Map<String, dynamic> data) {
 shutDownZeronet() {
   if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
     service.sendData({'cmd': 'shutDownZeronet'});
+    runZeroNetWs();
     if (ZeroNet.isInitialised)
       ZeroNet.instance.shutDown();
     else {
@@ -327,7 +339,10 @@ runZeroNetWs({String address}) {
   zeroNetUrl = zeroNetUrlL;
   if (varStore.zeroNetWrapperKey.isEmpty) {
     ZeroNet.instance
-        .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
+        .getWrapperKey(
+      zeroNetUrl + Utils.urlHello,
+      override: true,
+    )
         .then((value) {
       if (value != null) {
         // ZeroNet.wrapperKey = value;
@@ -335,7 +350,8 @@ runZeroNetWs({String address}) {
         browserUrl = zeroNetUrl;
         ZeroNet.instance.connect(
           // zeroNetIPwithPort(defZeroNetUrl),
-          address ?? Utils.urlZeroNetMob,
+          address ?? Utils.urlHello,
+          override: true,
         );
       }
     });

@@ -413,9 +413,17 @@ class SiteDetailCard extends StatelessWidget {
                                   'Please Start ZeroNet First to Browse this Zite',
                             ));
                           }
-                        : () {
-                            browserUrl =
-                                zeroNetUrl + Utils.initialSites[name]['url'];
+                        : () async {
+                            var url = zeroNetUrl;
+                            if (url.isEmpty) {
+                              var isServiceRunning =
+                                  await FlutterBackgroundService()
+                                      .isServiceRunning();
+                              if (isServiceRunning) {
+                                url = defZeroNetUrl;
+                              }
+                            }
+                            browserUrl = url + Utils.initialSites[name]['url'];
                             uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                           },
                   ),

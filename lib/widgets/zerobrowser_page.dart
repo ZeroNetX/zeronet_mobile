@@ -1,6 +1,7 @@
 import '../imports.dart';
 
 class ZeroBrowser extends StatelessWidget {
+  static final flutterWebViewPlugin = FlutterWebviewPlugin();
   setTheme() {
     switch (zeroBrowserTheme) {
       case 'dark':
@@ -44,7 +45,6 @@ class ZeroBrowser extends StatelessWidget {
         },
       ),
     ].toSet();
-    final flutterWebViewPlugin = FlutterWebviewPlugin();
     flutterWebViewPlugin.onUrlChanged.listen((newUrl) => browserUrl = newUrl);
     return WillPopScope(
       onWillPop: () {
