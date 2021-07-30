@@ -41,7 +41,8 @@ Future<bool> isProUser() async {
   try {
     final userName = getZeroIdUserName();
     PurchaserInfo purchaserInfo;
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    if (userName.isNotEmpty)
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.getPurchaserInfo();
     if (purchaserInfo.entitlements.active.length > 0) return true;
   } on PlatformException catch (e) {
@@ -54,7 +55,8 @@ void purchasePackage(Package package) async {
   try {
     PurchaserInfo purchaserInfo;
     final userName = getZeroIdUserName();
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    if (userName.isNotEmpty)
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.purchasePackage(package);
 
     var isPro = await isProUser();
@@ -95,12 +97,13 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
 
       if (purchaseDetails.productID != null &&
           purchaseDetails.productID.contains('zeronet_one')) {
-        await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
+        await InAppPurchase.instance
+            .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>()
+            .consumePurchase(purchaseDetails);
         purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
       }
       if (purchaseDetails.pendingCompletePurchase) {
-        await InAppPurchaseConnection.instance
-            .completePurchase(purchaseDetails);
+        await InAppPurchase.instance.completePurchase(purchaseDetails);
       }
     }
   });

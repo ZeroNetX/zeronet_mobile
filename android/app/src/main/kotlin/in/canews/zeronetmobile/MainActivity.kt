@@ -62,7 +62,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
-        MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
                         call.argument("title"),call.argument("url"),
@@ -340,7 +340,7 @@ class MainActivity : FlutterActivity() {
             if (splitInstallManager?.installedModules!!.contains("common")) {
                 getAssetFiles("zeronet_py3.zip")
             }
-            if (splitInstallManager?.installedModules!!.contains("common_python")) {
+            if (archName != "arm64" && splitInstallManager?.installedModules!!.contains("common_python")) {
                 getAssetFiles("site_packages_common.zip")
             }
             if (splitInstallManager?.installedModules!!.contains(archName)) {
@@ -405,13 +405,15 @@ class MainActivity : FlutterActivity() {
     private fun loadAndLaunchModule(name: String, eventSink: EventChannel.EventSink?) {
         if (isModuleInstalled(name) == true)
             return
-        val request = SplitInstallRequest.newBuilder()
+        val builder = SplitInstallRequest.newBuilder()
                 .addModule("common")
-                .addModule("common_python")
                 .addModule(name)
                 .addModule(name + "_python")
                 .addModule(name + "_tor")
-                .build()
+        if (name != "arm64") {
+            builder.addModule("common_python")
+        }
+        val request = builder.build();
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
             mSessionId = sessionId
         }
@@ -448,7 +450,7 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
-            isModuleInstalled("common_python") == true &&
+            ((archName == "arm64") ||  isModuleInstalled("common_python") == true)&&
             isModuleInstalled(archName) == true &&
             isModuleInstalled(archName + "_python") == true &&
             isModuleInstalled(archName + "_tor") == true

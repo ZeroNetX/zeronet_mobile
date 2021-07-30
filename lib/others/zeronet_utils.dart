@@ -12,10 +12,17 @@ Future checkInitStatus() async {
     zeroNetUrl = defZeroNetUrl;
     varStore.zeroNetWrapperKey = key;
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
+    var address = '';
+    if (File(getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob)
+        .existsSync()) {
+      address = Utils.urlHello;
+    } else {
+      address = Utils.urlZeroNetMob;
+    }
     ZeroNet.instance
         .connect(
-          zeroNetIPwithPort(defZeroNetUrl),
-          Utils.urlZeroNetMob,
+          // zeroNetIPwithPort(defZeroNetUrl),
+          address,
         )
         .catchError((onError) => printToConsole(onError));
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
@@ -327,7 +334,7 @@ runZeroNetWs({String address}) {
         varStore.zeroNetWrapperKey = value;
         browserUrl = zeroNetUrl;
         ZeroNet.instance.connect(
-          zeroNetIPwithPort(defZeroNetUrl),
+          // zeroNetIPwithPort(defZeroNetUrl),
           address ?? Utils.urlZeroNetMob,
         );
       }
@@ -442,14 +449,29 @@ bool isLocalZitesExists() {
 
 Future<bool> activateFilters() async {
   File file = File(getZeroNetDataDir().path + '/filters.json');
-  if (!file.existsSync()) {
+  File fileTemp = File(getZeroNetDataDir().path + '/filters-tmp.json');
+  if (!file.existsSync() || fileTemp.existsSync()) {
     File deFile = File(getZeroNetDataDir().path + '/filters.json-deactive');
     if (deFile.existsSync()) {
       deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
       return true;
-    } else
-      return (await saveFilterstoDevice(file, 'assets/filters.json') &&
-          await saveInAppFilterstoDevice());
+    } else {
+      await saveInAppFilterstoDevice();
+      var filtersFileName = '';
+      var filtersPath =
+          getZeroNetDataDir().path + '/${Utils.urlZeroNetMob}/filters/';
+      int len = 0;
+      var directory = Directory(filtersPath);
+      if (directory.existsSync()) len = directory.listSync().length;
+      if (len >= 4) {
+        filtersFileName = 'assets/filters/filters.json';
+        fileTemp.deleteSync(recursive: true);
+      } else {
+        filtersFileName = 'assets/filters/filters-tmp.json';
+        await saveFilterstoDevice(fileTemp, filtersFileName);
+      }
+      return await saveFilterstoDevice(file, filtersFileName);
+    }
   }
   return true;
 }
@@ -465,7 +487,7 @@ Future<bool> deactivateFilters() async {
 Future<bool> saveInAppFilterstoDevice() async {
   for (var filterName in filterFileNames) {
     File file = File(
-      getZeroNetDataDir().path + '/${Utils.urlZeroNetMob}/filters/$filterName',
+      getZeroNetDataDir().path + '/tmp/filters/$filterName',
     );
     if (!file.existsSync()) {
       await saveFilterstoDevice(file, 'assets/filters/$filterName');

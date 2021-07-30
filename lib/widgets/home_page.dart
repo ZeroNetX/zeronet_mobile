@@ -69,12 +69,17 @@ class InAppUpdateWidget extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               onPressed: uiStore.appUpdate.value.action,
-              color: Color(0xFF008297),
-              padding: EdgeInsets.only(left: 10, right: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+                padding: MaterialStateProperty.all(
+                    EdgeInsets.only(left: 10, right: 10)),
               ),
               child: Obx(() {
                 return Text(
@@ -97,12 +102,17 @@ class InAppUpdateWidget extends StatelessWidget {
 class AboutButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () => uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
-      color: Color(0xFFAA5297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFFAA5297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
         'Know More',
@@ -119,7 +129,7 @@ class AboutButtonWidget extends StatelessWidget {
 class RatingButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
         //TODO: remove this once we support non playstore reviews.
@@ -129,10 +139,15 @@ class RatingButtonWidget extends StatelessWidget {
           //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
         }
       },
-      color: Color(0xFF008297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
         'Give Your Rating/Feedback',
@@ -393,13 +408,10 @@ class SiteDetailCard extends StatelessWidget {
                     onTap: uiStore.zeroNetStatus.value ==
                             ZeroNetStatus.NOT_RUNNING
                         ? () {
-                            Scaffold.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
+                            Get.showSnackbar(GetBar(
+                              message:
                                   'Please Start ZeroNet First to Browse this Zite',
-                                ),
-                              ),
-                            );
+                            ));
                           }
                         : () {
                             browserUrl =
@@ -468,10 +480,16 @@ class SiteDetailsSheet extends StatelessWidget {
                       ),
                     ),
                     Obx(() {
-                      return RaisedButton(
-                        color: Color(0xFF009764),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
+                      return ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Color(0xFF009764),
+                          ),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                          ),
+                        ),
                         onPressed: uiStore.zeroNetStatus.value ==
                                 ZeroNetStatus.NOT_RUNNING
                             ? () {
@@ -516,10 +534,15 @@ class SiteDetailsSheet extends StatelessWidget {
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                RaisedButton(
-                  color: Color(0xFF008297),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Color(0xFF008297)),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
                   ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
@@ -551,10 +574,16 @@ class SiteDetailsSheet extends StatelessWidget {
                   ),
                 ),
                 if (isZiteExists)
-                  RaisedButton(
-                    color: Color(0xFF517184),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF517184)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       uiStore.currentBottomSheetController?.close();
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
@@ -571,10 +600,16 @@ class SiteDetailsSheet extends StatelessWidget {
                   ),
                 if (!unImplementedFeatures.contains(Feature.SITE_PAUSE_RESUME))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFF009793),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Color(0xFF009793)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                         currentSite = (currentSite.serving)
@@ -597,10 +632,16 @@ class SiteDetailsSheet extends StatelessWidget {
                     ),
                 if (!unImplementedFeatures.contains(Feature.SITE_DELETE))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFFBB4848),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Color(0xFFBB4848),
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                       },

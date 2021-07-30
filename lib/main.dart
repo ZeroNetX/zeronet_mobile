@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-
 import 'imports.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
@@ -7,9 +6,8 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
   if (kEnableInAppPurchases) {
-    InAppPurchaseConnection.enablePendingPurchases();
-    final Stream purchaseUpdates =
-        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+    final Stream purchaseUpdates = InAppPurchase.instance.purchaseStream;
     purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
   }
   launchUrl = await launchZiteUrl();

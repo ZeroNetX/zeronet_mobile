@@ -322,7 +322,7 @@ extension MapOptionExt on MapOptions {
               body: ProfileSwitcherUserNameEditText(),
               actionOk: Row(
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text('Create'),
                     onPressed: () {
                       if (username.isNotEmpty) {
@@ -345,7 +345,7 @@ extension MapOptionExt on MapOptions {
                       }
                     },
                   ),
-                  FlatButton(
+                  TextButton(
                     child: Text('Backup'),
                     onPressed: () => backUpUserJsonFile(context),
                   ),
@@ -375,7 +375,7 @@ extension MapOptionExt on MapOptions {
               ),
               actionOk: Row(
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     onPressed: isSameUser
                         ? null
                         : () async {
@@ -399,7 +399,7 @@ extension MapOptionExt on MapOptions {
                       'Restore',
                     ),
                   ),
-                  FlatButton(
+                  TextButton(
                     child: Text('Backup'),
                     onPressed: () => backUpUserJsonFile(context),
                   ),
@@ -419,7 +419,7 @@ extension MapOptionExt on MapOptions {
             title: 'Install a Plugin',
             body: Text('This will load plugin to your ZeroNet repo, '
                 '\nWarning : Loading Unknown/Untrusted plugins may compromise ZeroNet Installation.'),
-            actionOk: FlatButton(
+            actionOk: TextButton(
               onPressed: () async {
                 var file = await getPluginZipFile();
                 if (file != null) {
@@ -437,7 +437,7 @@ extension MapOptionExt on MapOptions {
           context: context,
           title: pluginManager,
           body: PluginManager(),
-          actionOk: FlatButton(
+          actionOk: TextButton(
             onPressed: () {
               ZeroNet.instance.shutDown();
               service.sendData({'cmd': 'runZeroNet'});

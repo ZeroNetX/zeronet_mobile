@@ -161,13 +161,10 @@ class DonationWidget extends StatelessWidget {
                       ),
                       onClick: () {
                         FlutterClipboard.copy(donationsAddressMap[crypto]);
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
+                        Get.showSnackbar(GetBar(
+                          message:
                               '$crypto Donation Address Copied to Clipboard',
-                            ),
-                          ),
-                        );
+                        ));
                       },
                     ),
                     Padding(
@@ -387,9 +384,13 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                     default:
                   }
                   children.add(
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(c),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0)),
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -407,7 +408,6 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                           ),
                         ),
                       ),
-                      color: c,
                       onPressed: () => purchasePackage(package),
                     ),
                   );

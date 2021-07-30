@@ -256,7 +256,7 @@ class SettingsCard extends StatelessWidget {
   Row profileSwitcherActionOk(String profile, BuildContext context) {
     return Row(
       children: <Widget>[
-        FlatButton(
+        TextButton(
           onPressed: () {
             File f = File(getZeroNetUsersFilePath());
             if (f.existsSync()) {
@@ -276,7 +276,7 @@ class SettingsCard extends StatelessWidget {
             'Switch',
           ),
         ),
-        FlatButton(
+        TextButton(
           child: Text('Backup'),
           onPressed: () => backUpUserJsonFile(context),
         ),
