@@ -19,12 +19,12 @@ Future checkInitStatus() async {
     } else {
       address = Utils.urlZeroNetMob;
     }
-    ZeroNet.instance
-        .connect(
-          // zeroNetIPwithPort(defZeroNetUrl),
-          address,
-        )
-        .catchError((onError) => printToConsole(onError));
+    // zeroNetIPwithPort(defZeroNetUrl),
+    ZeroNet.instance.connect(address).catchError(
+      (onError) {
+        printToConsole(onError);
+      },
+    );
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {

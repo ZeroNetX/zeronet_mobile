@@ -46,6 +46,7 @@ Future<bool> isProUser() async {
     purchaserInfo = await Purchases.getPurchaserInfo();
     if (purchaserInfo.entitlements.active.length > 0) return true;
   } on PlatformException catch (e) {
+    printOut(e);
     // Error fetching purchaser info
   }
   return false;

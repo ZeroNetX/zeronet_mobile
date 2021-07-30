@@ -7,7 +7,7 @@ if (localPropertiesFile.exists()) {
 }
 
 def versionProperties = new Properties()
-def versionPropertiesFile = rootProject.file('version.properties')
+def versionPropertiesFile = rootProject.file('../version.properties')
 if (versionPropertiesFile.exists()) {
     versionPropertiesFile.withReader('UTF-8') { reader ->
         versionProperties.load(reader)

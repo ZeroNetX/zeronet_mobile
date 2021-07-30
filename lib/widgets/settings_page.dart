@@ -175,6 +175,7 @@ class SettingsCard extends StatelessWidget {
               if (setting is MapSetting)
                 Obx(() {
                   var i = uiStore.reload.value;
+                  printOut(i);
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
                   settingL.options.forEach((element) {
