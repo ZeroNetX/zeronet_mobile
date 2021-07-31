@@ -64,7 +64,7 @@ String installedMetaDir(String dir, String name) =>
 Duration secs(int sec) => Duration(seconds: sec);
 List<String> files(String arch) => [
       'python38_$arch',
-      'site_packages_common',
+      if (arch != 'arm64') 'site_packages_common',
       'site_packages_$arch',
       'zeronet_py3',
       'tor_$arch',
