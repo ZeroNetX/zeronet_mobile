@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
+import 'zeronet_isolate.dart';
 
 Directory appPrivDir;
 Directory tempDir;
@@ -93,9 +94,7 @@ init() async {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
     if (enableZeroNetAddTrackers) await downloadTrackerFiles();
-    runZeroNetService(
-      autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
-    );
+    ZeroNetStatus.NOT_RUNNING.onAction();
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
@@ -158,7 +157,7 @@ saveDataFile() {
 loadDataFile() {
   File f = File(dataDir + '/data.json');
   Map m = json.decode(f.readAsStringSync());
-  print(m);
+  printOut(m);
   zeroNetNativeDir = m['zeroNetNativeDir'];
 }
 

@@ -56,7 +56,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null) {
-            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
+            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")!!
         }
     }
 
@@ -237,7 +237,7 @@ class MainActivity : FlutterActivity() {
             success(msg)
         }.onFailure {
             if (it is IllegalStateException) {
-                Log.e("MainActivity>resultSuc>", it.message)
+                Log.e("MainActivity>resultSuc>", it.message!!)
             }
         }
     }
@@ -370,7 +370,7 @@ class MainActivity : FlutterActivity() {
 
     private fun isGooglePlayServicesAvailable(activity: Activity?): Boolean {
         val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-        val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+        val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(applicationContext)
         if (status != ConnectionResult.SUCCESS) {
             // if (googleApiAvailability.isUserResolvableError(status)) {
             //     googleApiAvailability.getErrorDialog(activity, status, 2404).show()

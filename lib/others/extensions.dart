@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:zeronet/imports.dart';
 
 extension FileSystemExtension on FileSystemEntity {
   String get name => this.path.replaceFirst(this.parent.path + '/', '');
@@ -9,6 +10,7 @@ extension CapExtension on String {
   String get allInCaps => this.toUpperCase();
   String get capitalizeFirstofEach =>
       this.split(" ").map((str) => str.inCaps).join(" ");
+  String get zeroNetDataPath => getZeroNetDataDir().path + '/' + this + '/';
 }
 
 extension DynamicExt on dynamic {
