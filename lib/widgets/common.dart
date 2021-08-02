@@ -19,6 +19,7 @@ class ZeroNetAppBar extends StatelessWidget {
             style: GoogleFonts.roboto(
               fontSize: 32.0,
               fontWeight: FontWeight.bold,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
           Row(
@@ -28,7 +29,7 @@ class ZeroNetAppBar extends StatelessWidget {
                   child: Icon(
                     OMIcons.info,
                     size: 32.0,
-                    color: Colors.black,
+                    color: uiStore.currentTheme.value.primaryTextColor,
                   ),
                   onTap: () =>
                       uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
@@ -39,7 +40,7 @@ class ZeroNetAppBar extends StatelessWidget {
                 child: Icon(
                   uiStore.currentAppRoute.value.icon,
                   size: 32.0,
-                  color: Colors.black,
+                  color: uiStore.currentTheme.value.primaryTextColor,
                 ),
                 onTap: uiStore.currentAppRoute.value.onClick,
               )
@@ -96,7 +97,12 @@ class _PluginManagerState extends State<PluginManager> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(pluginName),
+                Text(
+                  pluginName,
+                  style: TextStyle(
+                    color: uiStore.currentTheme.value.primaryTextColor,
+                  ),
+                ),
                 Switch(
                   onChanged: (value) {
                     if (isDisabled)
@@ -154,7 +160,12 @@ class _ProfileSwitcherUserNameEditTextState
             color: Colors.red,
           ),
         ),
-        Text('Username Phrase :'),
+        Text(
+          'Username Phrase :',
+          style: TextStyle(
+            color: uiStore.currentTheme.value.primaryTextColor,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(
             left: 8.0,
@@ -185,10 +196,14 @@ class _ProfileSwitcherUserNameEditTextState
             },
             style: TextStyle(
               fontSize: 18.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
             decoration: InputDecoration(
               hintText: 'username',
               errorText: validUsername ? null : errorText,
+              hintStyle: TextStyle(
+                color: uiStore.currentTheme.value.primaryTextColor,
+              ),
             ),
           ),
         ),

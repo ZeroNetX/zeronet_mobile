@@ -233,3 +233,75 @@ enum AppTheme {
   Dark,
   Black,
 }
+
+extension AppThemeExt on AppTheme {
+  get primaryColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Colors.white;
+        break;
+      case AppTheme.Dark:
+        return Colors.grey[900];
+        break;
+      case AppTheme.Black:
+        return Colors.black;
+        break;
+      default:
+    }
+  }
+
+  get primaryTextColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Colors.black;
+        break;
+      case AppTheme.Dark:
+      case AppTheme.Black:
+        return Colors.white;
+        break;
+      default:
+    }
+  }
+
+  get btnTextColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Colors.white;
+        break;
+      case AppTheme.Dark:
+        return Colors.white;
+        break;
+      case AppTheme.Black:
+        return Colors.white;
+        break;
+      default:
+    }
+  }
+
+  get cardBgColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Colors.white;
+        break;
+      case AppTheme.Dark:
+        return Colors.grey[900];
+        break;
+      case AppTheme.Black:
+        return Colors.grey[900];
+        break;
+      default:
+    }
+  }
+
+  get iconBrightness {
+    switch (this) {
+      case AppTheme.Light:
+        return Brightness.dark;
+      case AppTheme.Dark:
+      case AppTheme.Black:
+        return Brightness.light;
+        break;
+      default:
+    }
+  }
+}

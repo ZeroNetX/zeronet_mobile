@@ -8,6 +8,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
+      color: uiStore.currentTheme.value.primaryColor,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +88,7 @@ class InAppUpdateWidget extends StatelessWidget {
                   style: GoogleFonts.roboto(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: uiStore.currentTheme.value.btnTextColor,
                   ),
                 );
               }),
@@ -119,7 +120,7 @@ class AboutButtonWidget extends StatelessWidget {
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
-          color: Colors.white,
+          color: uiStore.currentTheme.value.btnTextColor,
         ),
       ),
     );
@@ -154,7 +155,7 @@ class RatingButtonWidget extends StatelessWidget {
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
-          color: Colors.white,
+          color: uiStore.currentTheme.value.btnTextColor,
         ),
       ),
     );
@@ -173,6 +174,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
             Spacer(
@@ -187,7 +189,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                       uiStore.zeroNetStatus.value.message,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
-                        color: Colors.white,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
@@ -209,7 +211,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                       uiStore.zeroNetStatus.value.actionText,
                       style: GoogleFonts.roboto(
                         fontSize: 20,
-                        color: Colors.white,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
@@ -286,6 +288,7 @@ class PopularZeroNetSites extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ),
@@ -328,6 +331,7 @@ class SiteDetailCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(9),
       ),
+      color: uiStore.currentTheme.value.cardBgColor,
       margin: EdgeInsets.only(bottom: 14.0),
       child: Container(
         height: 60.0,
@@ -348,6 +352,7 @@ class SiteDetailCard extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ],
@@ -363,11 +368,14 @@ class SiteDetailCard extends StatelessWidget {
                     onPressed: () {
                       uiStore.currentBottomSheetController = showBottomSheet(
                         context: context,
+                        backgroundColor:
+                            uiStore.currentTheme.value.primaryColor,
                         elevation: 16.0,
                         builder: (ctx) {
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16.0),
+                              color: uiStore.currentTheme.value.cardBgColor,
                             ),
                             constraints: BoxConstraints(
                               minHeight: 300.0,
@@ -473,6 +481,7 @@ class SiteDetailsSheet extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 31.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ),
@@ -519,7 +528,7 @@ class SiteDetailsSheet extends StatelessWidget {
                           style: GoogleFonts.roboto(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: uiStore.currentTheme.value.btnTextColor,
                           ),
                         ),
                       );
@@ -534,6 +543,7 @@ class SiteDetailsSheet extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
             Padding(padding: EdgeInsets.all(6.0)),
@@ -577,7 +587,7 @@ class SiteDetailsSheet extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w300,
-                      color: Colors.white,
+                      color: uiStore.currentTheme.value.btnTextColor,
                     ),
                   ),
                 ),
@@ -602,7 +612,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       style: GoogleFonts.roboto(
                         fontSize: 18.0,
                         fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
@@ -634,7 +644,7 @@ class SiteDetailsSheet extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w300,
-                          color: Colors.white,
+                          color: uiStore.currentTheme.value.btnTextColor,
                         ),
                       ),
                     ),
@@ -659,7 +669,7 @@ class SiteDetailsSheet extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w300,
-                          color: Colors.white,
+                          color: uiStore.currentTheme.value.btnTextColor,
                         ),
                       ),
                     ),
@@ -717,6 +727,7 @@ class SiteInfoWidget extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 12,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
       );
@@ -742,6 +753,7 @@ class SiteInfoWidget extends StatelessWidget {
             style: GoogleFonts.roboto(
               fontSize: 12.0,
               fontWeight: FontWeight.normal,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         );
@@ -755,6 +767,7 @@ class SiteInfoWidget extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 21.0,
             fontWeight: FontWeight.w500,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(padding: EdgeInsets.all(2.0)),

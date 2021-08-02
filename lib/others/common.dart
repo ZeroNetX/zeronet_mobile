@@ -276,7 +276,12 @@ void showDialogC({
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(title),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: uiStore.currentTheme.value.primaryTextColor,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Text(body),
           ),
@@ -303,7 +308,13 @@ void showDialogW({
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(title),
+          backgroundColor: uiStore.currentTheme.value.cardBgColor,
+          title: Text(
+            title,
+            style: TextStyle(
+              color: uiStore.currentTheme.value.primaryTextColor,
+            ),
+          ),
           content: SingleChildScrollView(
             child: body,
           ),
