@@ -74,6 +74,8 @@ const List<AppDeveloper> appDevelopers = [
   ),
 ];
 
+const String themeSwitcher = 'Theme';
+const String themeSwitcherDes = 'Switch App Theme between Light, Dark, Black';
 const String profileSwitcher = 'Profile Switcher';
 const String profileSwitcherDes =
     'Create and Use different Profiles on ZeroNet';
@@ -203,18 +205,29 @@ class Utils {
   static const String loadPlugin = 'Load Custom Plugin';
 
   static Map<String, Setting> defSettings = {
+    themeSwitcher: MapSetting(
+      name: themeSwitcher,
+      description: themeSwitcherDes,
+      map: {},
+      options: [
+        MapOptions.THEME_LIGHT,
+        MapOptions.THEME_DARK,
+        MapOptions.THEME_BLACK,
+      ],
+    ),
     profileSwitcher: MapSetting(
-        name: profileSwitcher,
-        description: profileSwitcherDes,
-        map: {
-          "selected": '',
-          "all": [],
-        },
-        options: [
-          MapOptions.CREATE_PROFILE,
-          MapOptions.IMPORT_PROFILE,
-          MapOptions.BACKUP_PROFILE,
-        ]),
+      name: profileSwitcher,
+      description: profileSwitcherDes,
+      map: {
+        "selected": '',
+        "all": [],
+      },
+      options: [
+        MapOptions.CREATE_PROFILE,
+        MapOptions.IMPORT_PROFILE,
+        MapOptions.BACKUP_PROFILE,
+      ],
+    ),
     pluginManager: MapSetting(
         name: pluginManager,
         description: pluginManagerDes,
@@ -288,6 +301,10 @@ enum MapOptions {
 
   OPEN_PLUGIN_MANAGER,
   LOAD_PLUGIN,
+
+  THEME_LIGHT,
+  THEME_DARK,
+  THEME_BLACK,
 }
 
 extension MapOptionExt on MapOptions {
@@ -307,6 +324,15 @@ extension MapOptionExt on MapOptions {
         break;
       case MapOptions.LOAD_PLUGIN:
         return 'Load Plugin';
+        break;
+      case MapOptions.THEME_LIGHT:
+        return 'Light';
+        break;
+      case MapOptions.THEME_DARK:
+        return 'Dark';
+        break;
+      case MapOptions.THEME_BLACK:
+        return 'Black';
         break;
     }
   }
@@ -417,8 +443,13 @@ extension MapOptionExt on MapOptions {
           showDialogW(
             context: context,
             title: 'Install a Plugin',
-            body: Text('This will load plugin to your ZeroNet repo, '
-                '\nWarning : Loading Unknown/Untrusted plugins may compromise ZeroNet Installation.'),
+            body: Text(
+              'This will load plugin to your ZeroNet repo, '
+              '\nWarning : Loading Unknown/Untrusted plugins may compromise ZeroNet Installation.',
+              style: TextStyle(
+                color: uiStore.currentTheme.value.primaryTextColor,
+              ),
+            ),
             actionOk: TextButton(
               onPressed: () async {
                 var file = await getPluginZipFile();
@@ -446,6 +477,15 @@ extension MapOptionExt on MapOptions {
             child: Text('Restart'),
           ),
         );
+        break;
+      case MapOptions.THEME_LIGHT:
+        uiStore.setTheme(AppTheme.Light);
+        break;
+      case MapOptions.THEME_DARK:
+        uiStore.setTheme(AppTheme.Dark);
+        break;
+      case MapOptions.THEME_BLACK:
+        uiStore.setTheme(AppTheme.Black);
         break;
       default:
     }

@@ -17,14 +17,6 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
     return GetMaterialApp(
       title: 'ZeroNet Mobile',
       theme: ThemeData(
@@ -35,6 +27,17 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Obx(
           () {
+            SystemChrome.setSystemUIOverlayStyle(
+              SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness:
+                    uiStore.currentTheme.value.iconBrightness,
+                systemNavigationBarColor:
+                    uiStore.currentTheme.value.primaryColor,
+                systemNavigationBarIconBrightness:
+                    uiStore.currentTheme.value.iconBrightness,
+              ),
+            );
             if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);

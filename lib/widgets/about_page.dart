@@ -14,6 +14,7 @@ class AboutPage extends StatelessWidget {
         return Future.value(false);
       },
       child: Container(
+        color: uiStore.currentTheme.value.primaryColor,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -43,6 +44,8 @@ class AboutPage extends StatelessWidget {
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w500,
                                 height: 1.5,
+                                color:
+                                    uiStore.currentTheme.value.primaryTextColor,
                               ),
                             ),
                           ),
@@ -58,6 +61,7 @@ class AboutPage extends StatelessWidget {
                             fontSize: 20.0,
                             fontWeight: FontWeight.w500,
                             height: 1.5,
+                            color: uiStore.currentTheme.value.primaryTextColor,
                           ),
                           children: [
                             TextSpan(
@@ -94,6 +98,7 @@ class AboutPage extends StatelessWidget {
                       style: GoogleFonts.roboto(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
+                        color: uiStore.currentTheme.value.primaryTextColor,
                       ),
                     ),
                     Padding(
@@ -103,6 +108,7 @@ class AboutPage extends StatelessWidget {
                       "If you want to support project's further development, you can contribute your time or money, If you want to contribute money you can send bitcoin or other supported crypto currencies to above addresses or buy in-app purchases, if want to contribute translations or code, visit official GitHub repo.",
                       style: GoogleFonts.roboto(
                         fontSize: 18.0,
+                        color: uiStore.currentTheme.value.primaryTextColor,
                       ),
                     ),
                     Padding(
@@ -131,6 +137,7 @@ class DonationWidget extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(
@@ -153,6 +160,7 @@ class DonationWidget extends StatelessWidget {
                         crypto,
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
+                          color: uiStore.currentTheme.value.primaryTextColor,
                         ),
                       ),
                       ClickableTextWidget(
@@ -190,6 +198,7 @@ class DonationWidget extends StatelessWidget {
             "* Click on Address to copy",
             style: GoogleFonts.roboto(
               fontSize: 16.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         ),
@@ -211,6 +220,7 @@ class DonationWidget extends StatelessWidget {
             "so than I can send activation code to activate pro-features.",
             style: GoogleFonts.roboto(
               fontSize: 16.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         )
@@ -230,6 +240,7 @@ class DeveloperWidget extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(padding: const EdgeInsets.all(4.0)),
@@ -243,6 +254,7 @@ class DeveloperWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   elevation: 4.0,
+                  color: uiStore.currentTheme.value.cardBgColor,
                   child: Container(
                     padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                     decoration: BoxDecoration(
@@ -267,6 +279,8 @@ class DeveloperWidget extends StatelessWidget {
                                 style: GoogleFonts.roboto(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.w500,
+                                  color: uiStore
+                                      .currentTheme.value.primaryTextColor,
                                 ),
                               ),
                               LayoutBuilder(builder: (context, cons) {
@@ -336,12 +350,14 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                   text: '(30% taken by Google) :',
                   style: GoogleFonts.roboto(
                     fontSize: 14.0,
+                    color: uiStore.currentTheme.value.primaryTextColor,
                   ),
                 ),
               ],
               style: GoogleFonts.roboto(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
           ),

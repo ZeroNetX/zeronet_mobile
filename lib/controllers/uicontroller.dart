@@ -44,7 +44,7 @@ class UiController extends GetxController {
   void updateCurrentAppRoute(AppRoute appRoute) =>
       currentAppRoute.value = appRoute;
 
-  var currentTheme = AppTheme.Light.obs;
+  var currentTheme = AppTheme.Black.obs;
 
   void setTheme(AppTheme theme) {
     currentTheme.value = theme;

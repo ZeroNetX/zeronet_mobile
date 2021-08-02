@@ -7,6 +7,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
+      color: uiStore.currentTheme.value.primaryColor,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,9 +19,6 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   ZeroNetAppBar(),
-                  // Padding(
-                  //   padding: EdgeInsets.only(bottom: 30),
-                  // ),
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
@@ -67,6 +65,7 @@ class SettingsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(9),
       ),
       margin: EdgeInsets.only(bottom: 14.0),
+      color: uiStore.currentTheme.value.cardBgColor,
       child: Container(
         // height: 60.0,
         constraints: BoxConstraints(
@@ -95,6 +94,7 @@ class SettingsCard extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w500,
+                          color: uiStore.currentTheme.value.primaryTextColor,
                         ),
                       ),
                     ],
@@ -111,14 +111,10 @@ class SettingsCard extends StatelessWidget {
                           showBottomSheet(
                             context: context,
                             elevation: 16.0,
+                            backgroundColor:
+                                uiStore.currentTheme.value.cardBgColor,
                             builder: (ctx) {
-                              return
-                                  // Card(
-                                  //   color: Color(0xFFFCFCFC),
-                                  //   borderOnForeground: false,
-                                  //   elevation: 16.0,
-                                  //   child:
-                                  Container(
+                              return Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16.0),
                                 ),
@@ -148,8 +144,6 @@ class SettingsCard extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                // ),
-                                //   shadowColor: Colors.grey,
                               );
                             },
                           );
@@ -191,6 +185,8 @@ class SettingsCard extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
                           child: Chip(
                             elevation: 2.0,
+                            backgroundColor:
+                                uiStore.currentTheme.value.cardBgColor,
                             label: Text(
                               settingL
                                   .options[settingL.options.indexOf(element)]
@@ -199,6 +195,8 @@ class SettingsCard extends StatelessWidget {
                               style: GoogleFonts.roboto(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w500,
+                                color:
+                                    uiStore.currentTheme.value.primaryTextColor,
                               ),
                             ),
                           ),
@@ -303,6 +301,7 @@ class SettingDetailsSheet extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 24.0,
                 fontWeight: FontWeight.w500,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
           ],
@@ -313,6 +312,7 @@ class SettingDetailsSheet extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
       ],
