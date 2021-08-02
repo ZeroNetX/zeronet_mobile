@@ -1,3 +1,5 @@
+import 'package:zeronet/others/zeronet_isolate.dart';
+
 import '../imports.dart';
 
 enum ZeroNetStatus {
@@ -52,7 +54,11 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   void onAction() {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        runZeroNetService(autoStart: true);
+        printOut('onAction()');
+        printOut('ZeroNetStatus.NOT_RUNNING');
+        var autoStart =
+            (varStore.settings[autoStartZeroNet] as ToggleSetting).value;
+        runZeroNetService(autoStart: autoStart);
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:

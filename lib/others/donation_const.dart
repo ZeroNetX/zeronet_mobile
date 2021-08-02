@@ -3,11 +3,34 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
-const Map<String, String> donationsAddressMap = {
-  "BTC(Preferred)": "1eVStCWqLM7hFB1enaoGzAt7T3tsAB41z",
-  "ETH": "0xa81a32dcce8e5bcb9792daa19ae7f964699ee536",
-  "UPI(Indian Users)": "pramukesh@upi",
-  "Liberapay": "https://liberapay.com/canews.in/donate",
+var enableExternalDonations = false;
+var btcAddress = '1eVStCWqLM7hFB1enaoGzAt7T3tsAB41z';
+var ethAddress = '0xa81a32dcce8e5bcb9792daa19ae7f964699ee536';
+var upiAddress = 'pramukesh@upi';
+var liberaPayAddress = 'https://liberapay.com/canews.in/donate';
+
+void getDonationSettings() {
+  var dir = Utils.urlZeroNetMob.zeroNetDataPath;
+  if (Directory(dir).existsSync()) {
+    var file = File(dir + '/native.decent');
+    if (file.existsSync()) {
+      var decode = json.decode(file.readAsStringSync());
+      var settingsMap = (decode as Map<String, dynamic>)['settings'];
+      var donations = settingsMap['donations'];
+      enableExternalDonations = donations['enableExternalDonations'];
+      btcAddress = donations['btcAddress'];
+      ethAddress = donations['ethAddress'];
+      upiAddress = donations['upiAddress'];
+      liberaPayAddress = donations['liberapayAddress'];
+    }
+  }
+}
+
+Map<String, String> donationsAddressMap = {
+  "BTC(Preferred)": btcAddress,
+  "ETH": ethAddress,
+  "UPI(Indian Users)": upiAddress,
+  "Liberapay": liberaPayAddress,
 };
 
 const Set<String> kGooglePlayPurchaseOneTimeIds = {
@@ -64,7 +87,7 @@ void purchasePackage(Package package) async {
     if (isPro) {
       // Unlock that great "pro" content
     }
-    print(purchaserInfo);
+    printOut(purchaserInfo);
   } on PlatformException catch (e) {
     var errorCode = PurchasesErrorHelper.getErrorCode(e);
     if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
@@ -111,7 +134,7 @@ void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
 }
 
 _verifyPurchase(PurchaseDetails purchaseDetails) {
-  print(purchaseDetails.verificationData.localVerificationData);
+  printOut(purchaseDetails.verificationData.localVerificationData);
   return Future<bool>.value(true);
 }
 

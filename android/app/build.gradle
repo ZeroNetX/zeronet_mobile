@@ -102,7 +102,7 @@ dependencies {
     implementation "com.android.billingclient:billing:$billing_version"
     
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.android.gms:play-services-base:17.2.0'
+    implementation 'com.google.android.gms:play-services-base:17.6.0'
     
     //Duplicate Classes Issue https://stackoverflow.com/a/60492942
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
@@ -110,7 +110,7 @@ dependencies {
     debugImplementation 'com.jeppeman.locallydynamic:locallydynamic-debug:0.3'
     releaseImplementation 'com.jeppeman.locallydynamic:locallydynamic:0.3'
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    // testImplementation 'junit:junit:4.12'
+    // androidTestImplementation 'androidx.test:runner:1.2.0'
+    // androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

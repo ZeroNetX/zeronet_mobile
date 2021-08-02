@@ -140,39 +140,44 @@ class DonationWidget extends StatelessWidget {
           builder: (ctx, cons) {
             List<Widget> children = [];
             for (var crypto in donationsAddressMap.keys) {
-              children.add(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      crypto,
-                      style: GoogleFonts.roboto(
-                        fontSize: 16.0,
+              var enabled = true;
+              if (crypto == 'Liberapay') {
+                if (!enableExternalDonations) enabled = false;
+              }
+              if (enabled)
+                children.add(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        crypto,
+                        style: GoogleFonts.roboto(
+                          fontSize: 16.0,
+                        ),
                       ),
-                    ),
-                    ClickableTextWidget(
-                      text: donationsAddressMap[crypto],
-                      textStyle: GoogleFonts.roboto(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w500,
-                        height: 1.5,
-                        color: Color(0xFF8663FF),
-                        decoration: TextDecoration.underline,
+                      ClickableTextWidget(
+                        text: donationsAddressMap[crypto],
+                        textStyle: GoogleFonts.roboto(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w500,
+                          height: 1.5,
+                          color: Color(0xFF8663FF),
+                          decoration: TextDecoration.underline,
+                        ),
+                        onClick: () {
+                          FlutterClipboard.copy(donationsAddressMap[crypto]);
+                          Get.showSnackbar(GetBar(
+                            message:
+                                '$crypto Donation Address Copied to Clipboard',
+                          ));
+                        },
                       ),
-                      onClick: () {
-                        FlutterClipboard.copy(donationsAddressMap[crypto]);
-                        Get.showSnackbar(GetBar(
-                          message:
-                              '$crypto Donation Address Copied to Clipboard',
-                        ));
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(6.0),
-                    )
-                  ],
-                ),
-              );
+                      Padding(
+                        padding: const EdgeInsets.all(6.0),
+                      )
+                    ],
+                  ),
+                );
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,

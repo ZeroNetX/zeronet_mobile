@@ -7,7 +7,7 @@ import '../imports.dart';
 debugTime(Function func) {
   var start = DateTime.now();
   func();
-  print(DateTime.now().difference(start).inMilliseconds);
+  printOut(DateTime.now().difference(start).inMilliseconds);
 }
 
 printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {

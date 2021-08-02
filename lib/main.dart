@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
                   makeExecHelper().then(
                     (value) => isExecPermitted = value,
                   );
+                if (zeroNetNativeDir.isNotEmpty) saveDataFile();
                 // createTorDataDir();
                 firstTime = false;
               }
