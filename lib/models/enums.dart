@@ -304,4 +304,17 @@ extension AppThemeExt on AppTheme {
       default:
     }
   }
+
+  get browserBgColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Color(0xFFEDF2F5);
+        break;
+      case AppTheme.Dark:
+      case AppTheme.Black:
+        return Color(0xFF22272d);
+        break;
+      default:
+    }
+  }
 }

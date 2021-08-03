@@ -82,6 +82,16 @@ List<String> trackerFileNames = [
   'trackers_all_ip.txt',
 ];
 
+void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: uiStore.currentTheme.value.iconBrightness,
+        systemNavigationBarColor: uiStore.currentTheme.value.primaryColor,
+        systemNavigationBarIconBrightness:
+            uiStore.currentTheme.value.iconBrightness,
+      ),
+    );
+
 init() async {
   getArch();
   kIsPlayStoreInstall = await isPlayStoreInstall();

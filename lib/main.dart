@@ -27,17 +27,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Obx(
           () {
-            SystemChrome.setSystemUIOverlayStyle(
-              SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness:
-                    uiStore.currentTheme.value.iconBrightness,
-                systemNavigationBarColor:
-                    uiStore.currentTheme.value.primaryColor,
-                systemNavigationBarIconBrightness:
-                    uiStore.currentTheme.value.iconBrightness,
-              ),
-            );
+            setSystemUiTheme();
             if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
@@ -67,6 +57,7 @@ class MyApp extends StatelessWidget {
               }
               return Obx(
                 () {
+                  setSystemUiTheme();
                   switch (uiStore.currentAppRoute.value) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
