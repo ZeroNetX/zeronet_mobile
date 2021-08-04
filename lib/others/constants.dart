@@ -75,44 +75,19 @@ const List<AppDeveloper> appDevelopers = [
 ];
 
 const String themeSwitcher = 'Theme';
-const String themeSwitcherDes = 'Switch App Theme between Light, Dark, Black';
 const String profileSwitcher = 'Profile Switcher';
-const String profileSwitcherDes =
-    'Create and Use different Profiles on ZeroNet';
 const String debugZeroNet = 'Debug ZeroNet Code';
-const String debugZeroNetDes =
-    'Useful for Developers to find bugs and errors in the code.';
 const String enableZeroNetConsole = 'Enable ZeroNet Console';
-const String enableZeroNetConsoleDes =
-    'Useful for Developers to see the exec of ZeroNet Python code';
 const String enableZeroNetFilters = 'Enable ZeroNet Filters';
-const String enableZeroNetFiltersDes =
-    'Enabling ZeroNet Filters blocks known ametuer content sites and spam users.';
 const String enableAdditionalTrackers = 'Additional BitTorrent Trackers';
-const String enableAdditionalTrackersDes =
-    'Enabling External/Additional BitTorrent Trackers will give more ZeroNet Site Seeders or Clients.';
 const String pluginManager = 'Plugin Manager';
-const String pluginManagerDes = 'Enable/Disable ZeroNet Plugins';
 const String vibrateOnZeroNetStart = 'Vibrate on ZeroNet Start';
-const String vibrateOnZeroNetStartDes = 'Vibrates Phone When ZeroNet Starts';
 const String enableFullScreenOnWebView = 'FullScreen for ZeroNet Zites';
-const String enableFullScreenOnWebViewDes =
-    'This will Enable Full Screen for in app Webview of ZeroNet';
 const String batteryOptimisation = 'Disable Battery Optimisation';
-const String batteryOptimisationDes =
-    'This will Helps to Run App even App is in Background for long time.';
 const String publicDataFolder = 'Public DataFolder';
-const String publicDataFolderDes =
-    'This Will Make ZeroNet Data Folder Accessible via File Manager.';
 const String autoStartZeroNet = 'AutoStart ZeroNet';
-const String autoStartZeroNetDes =
-    'This Will Make ZeroNet Auto Start on App Start, So you don\'t have to click Start Button Every Time on App Start.';
 const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
-const String autoStartZeroNetonBootDes =
-    'This Will Make ZeroNet Auto Start on Device Boot.';
 const String enableTorLog = 'Enable Tor Log';
-const String enableTorLogDes =
-    'This will Enable Tor Log in ZeroNet Console helpful for debugging.';
 
 class Utils {
   static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
@@ -128,68 +103,39 @@ class Utils {
   static const String urlSites = 'Sites.ZeroNetwork.bit';
   static const String btcUrlSites = '1SiTEs2D3rCBxeMoLHXei2UYqFcxctdwB';
 
-  static const initialSites = const {
+  static var initialSites = {
     'ZeroHello': {
-      'description': 'Say Hello to ZeroNet, a Dashboard to manage ' +
-          'all your ZeroNet Z(S)ites, You can view feed of other zites like ' +
-          'posts, comments of other users from ZeroTalk as well for your posts ' +
-          'and Stats like Total Requests sent and received from other peers on ZeroNet. ' +
-          'You can also pause, clone or favourite, delete Zites from single page.',
+      'description': (strController.zerohelloSiteDesStr as RxString).value,
       'url': urlHello,
       'btcAddress': urlHello,
     },
     'ZeroNetMobile': {
-      'description': 'Forum to report ZeroNet Mobile app issues. ' +
-          'Want a new feature in the app, Request a Feature. ' +
-          'Facing any Bugs while using the app ? ' +
-          'Just report problem here, we will take care of it. ' +
-          'Want to Discuss any topic about app development ? ' +
-          'Just dive into to this Zite.',
+      'description': (strController.zeronetMobileSiteDesStr as RxString).value,
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,
     },
     'ZeroTalk': {
-      'description': 'Need a forum to discuss something, ' +
-          'we got covered you here. ZeroTalk fits your need, ' +
-          'just post something to get opinion from others on Network. ' +
-          'Have some queries ? don\'t hesitate to ask here.' +
-          'Tired of Spam ? Who don\'t! You can mute individual users also.',
+      'description': (strController.zeroTalkSiteDesStr as RxString).value,
       'url': urlTalk,
       'btcAddress': btcUrlTalk,
     },
     'ZeroBlog': {
-      'description': 'Want to Know Where ZeroNet is Going ? ' +
-          'ZeroBlog gives you latest changes and improvements ' +
-          'made to ZeroNet, including Bug Fixes, ' +
-          'Speed Improvements of ZeroNet Core Software. ' +
-          'Also Provides varies links to ZeroNet Protocol and ' +
-          'how ZeroNet works underhood and much more things to know.',
+      'description': (strController.zeroblogSiteDesStr as RxString).value,
       'url': urlBlog,
       'btcAddress': btcUrlBlog,
     },
     'ZeroMail': {
-      'description': 'So you need a mail service, use ZeroMail, ' +
-          'fully end-to-end encrypted mail service on ZeroNet, ' +
-          'don\'t let others scanning your mailbox for their profits ' +
-          'all your data is encrypted and can only opened by you. ' +
-          'Your all mails are backedup, so you can stay calm for your data.',
+      'description': (strController.zeromailSiteDesStr as RxString).value,
       'url': urlMail,
       'btcAddress': btcUrlMail,
     },
     'ZeroMe': {
-      'description': 'Social Network is everywhere, so we made one here too. ' +
-          'Twitter like, Peer to Peer Social Networking in your hands without data-tracking, ' +
-          'Follow others and post your thoughts, like, comment on others posts, it\'s that easy-peasy. ' +
-          'Find Like minded people and increase your friend circle beyond the borders.',
+      'description': (strController.zeromeSiteDesStr as RxString).value,
       'url': urlMe,
       'btcAddress': btcUrlMe,
     },
     'ZeroSites': {
-      'description': 'Want to know more sites on ZeroNet, ' +
-          'visit ZeroSites, listing of community contributed sites under various ' +
-          'categories like Blogs, Services, Forums, Chat, Video, Image, Guides, News and much more. ' +
-          'You can even filter those lists with your preferred language ' +
-          'to get more comprehensive list. Has a New Site to Show, Just Submit here.',
+      'description': (strController.zeroSitesSiteDesStr as RxString).value,
       'url': urlSites,
       'btcAddress': btcUrlSites,
     },
@@ -197,17 +143,17 @@ class Utils {
 
   // 'ZeroName': '1Name2NXVi1RDPDgf5617UoW7xA6YrhM9F',
 
-  static const String createProfile = 'Create'; // New Profile
-  static const String importProfile = 'Import'; // Profile
-  static const String backupProfile = 'Backup'; // Profile
+  // static const String createProfile = 'Create'; // New Profile
+  // static const String importProfile = 'Import'; // Profile
+  // static const String backupProfile = 'Backup'; // Profile
 
-  static const String openPluginManager = 'Open Plugin Manager';
-  static const String loadPlugin = 'Load Custom Plugin';
+  // static const String openPluginManager = 'Open Plugin Manager';
+  // static const String loadPlugin = 'Load Custom Plugin';
 
   static Map<String, Setting> defSettings = {
     themeSwitcher: MapSetting(
-      name: themeSwitcher,
-      description: themeSwitcherDes,
+      name: strController.themeSwitcherStr.value,
+      description: strController.themeSwitcherDesStr.value,
       map: {},
       options: [
         MapOptions.THEME_LIGHT,
@@ -216,8 +162,8 @@ class Utils {
       ],
     ),
     profileSwitcher: MapSetting(
-      name: profileSwitcher,
-      description: profileSwitcherDes,
+      name: strController.profileSwitcherStr.value,
+      description: strController.profileSwitcherDesStr.value,
       map: {
         "selected": '',
         "all": [],
@@ -229,66 +175,66 @@ class Utils {
       ],
     ),
     pluginManager: MapSetting(
-        name: pluginManager,
-        description: pluginManagerDes,
+        name: strController.pluginManagerStr.value,
+        description: strController.pluginManagerDesStr.value,
         map: {},
         options: [
           MapOptions.OPEN_PLUGIN_MANAGER,
           MapOptions.LOAD_PLUGIN,
         ]),
     batteryOptimisation: ToggleSetting(
-      name: batteryOptimisation,
-      description: batteryOptimisationDes,
+      name: strController.batteryOptimisationStr.value,
+      description: strController.batteryOptimisationDesStr.value,
       value: false,
     ),
     enableAdditionalTrackers: ToggleSetting(
-      name: enableAdditionalTrackers,
-      description: enableAdditionalTrackersDes,
+      name: strController.enableAdditionalTrackersStr.value,
+      description: strController.enableAdditionalTrackersDesStr.value,
       value: true,
     ),
     enableZeroNetFilters: ToggleSetting(
-      name: enableZeroNetFilters,
-      description: enableZeroNetFiltersDes,
+      name: strController.enableZeroNetFiltersStr.value,
+      description: strController.enableZeroNetFiltersDesStr.value,
       value: true,
     ),
     publicDataFolder: ToggleSetting(
-      name: publicDataFolder,
-      description: publicDataFolderDes,
+      name: strController.publicDataFolderStr.value,
+      description: strController.publicDataFolderDesStr.value,
       value: false,
     ),
     vibrateOnZeroNetStart: ToggleSetting(
-      name: vibrateOnZeroNetStart,
-      description: vibrateOnZeroNetStartDes,
+      name: strController.vibrateOnZeroNetStartStr.value,
+      description: strController.vibrateOnZeroNetStartDesStr.value,
       value: false,
     ),
     enableFullScreenOnWebView: ToggleSetting(
-      name: enableFullScreenOnWebView,
-      description: enableFullScreenOnWebViewDes,
+      name: strController.enableFullScreenOnWebViewStr.value,
+      description: strController.enableFullScreenOnWebViewDesStr.value,
       value: false,
     ),
     autoStartZeroNet: ToggleSetting(
-      name: autoStartZeroNet,
-      description: autoStartZeroNetDes,
+      name: strController.autoStartZeroNetStr.value,
+      description: strController.autoStartZeroNetDesStr.value,
       value: true,
     ),
     autoStartZeroNetonBoot: ToggleSetting(
-      name: autoStartZeroNetonBoot,
-      description: autoStartZeroNetonBootDes,
+      name: strController.autoStartZeroNetonBootStr.value,
+      description: strController.autoStartZeroNetonBootDesStr.value,
       value: false,
     ),
     debugZeroNet: ToggleSetting(
-      name: debugZeroNet,
-      description: debugZeroNetDes,
+      name: strController.debugZeroNetStr.value,
+      description: strController.debugZeroNetDesStr.value,
       value: false,
     ),
     enableZeroNetConsole: ToggleSetting(
-      name: enableZeroNetConsole,
-      description: enableZeroNetConsoleDes,
+      name: strController.enableZeroNetConsoleStr.value,
+      description: strController.enableZeroNetConsoleDesStr.value,
       value: false,
     ),
     enableTorLog: ToggleSetting(
-      name: enableTorLog,
-      description: enableTorLogDes,
+      name: strController.enableTorLogStr.value,
+      description: strController.enableTorLogDesStr.value,
       value: false,
     ),
   };
@@ -311,19 +257,19 @@ extension MapOptionExt on MapOptions {
   get description {
     switch (this) {
       case MapOptions.CREATE_PROFILE:
-        return 'Create New Profile';
+        return strController.createNewProfileStr.value;
         break;
       case MapOptions.IMPORT_PROFILE:
-        return 'Import Profile';
+        return strController.importProfileStr.value;
         break;
       case MapOptions.BACKUP_PROFILE:
-        return 'Backup Profile';
+        return strController.backupProfileStr.value;
         break;
       case MapOptions.OPEN_PLUGIN_MANAGER:
-        return 'Open Plugin Manager';
+        return strController.openPluginManagerStr.value;
         break;
       case MapOptions.LOAD_PLUGIN:
-        return 'Load Plugin';
+        return strController.loadPluginStr.value;
         break;
       case MapOptions.THEME_LIGHT:
         return 'Light';
@@ -344,12 +290,12 @@ extension MapOptionExt on MapOptions {
           if (isZeroNetUserDataExists()) {
             showDialogW(
               context: context,
-              title: 'Provide A Name for Existing Profile',
+              title: strController.existingProfileTitleStr.value,
               body: ProfileSwitcherUserNameEditText(),
               actionOk: Row(
                 children: <Widget>[
                   TextButton(
-                    child: Text('Create'),
+                    child: Text(strController.createStr.value),
                     onPressed: () {
                       if (username.isNotEmpty) {
                         File file = File(getZeroNetUsersFilePath());
@@ -372,7 +318,7 @@ extension MapOptionExt on MapOptions {
                     },
                   ),
                   TextButton(
-                    child: Text('Backup'),
+                    child: Text(strController.backupStr.value),
                     onPressed: () => backUpUserJsonFile(context),
                   ),
                 ],
@@ -391,13 +337,11 @@ extension MapOptionExt on MapOptions {
                 : false;
             showDialogW(
               context: context,
-              title: 'Restore Profile ?',
+              title: strController.restoreProfileTitleStr.value,
               body: Text(
-                'this will delete the existing profile, '
-                'backup existing profile using backup button below\n\n'
-                'Selected Userfile : \n'
+                '${strController.restoreProfileDesStr.value}'
                 '$filePath'
-                '\n\n${isSameUser ? 'You can only select users.json file, outside zeronet data folder' : ''}',
+                '\n\n${isSameUser ? '${strController.restoreProfileDes1Str.value}' : ''}',
               ),
               actionOk: Row(
                 children: <Widget>[
@@ -422,11 +366,11 @@ extension MapOptionExt on MapOptions {
                             }
                           },
                     child: Text(
-                      'Restore',
+                      strController.restoreStr.value,
                     ),
                   ),
                   TextButton(
-                    child: Text('Backup'),
+                    child: Text(strController.backupStr.value),
                     onPressed: () => backUpUserJsonFile(context),
                   ),
                 ],
@@ -442,10 +386,9 @@ extension MapOptionExt on MapOptions {
         {
           showDialogW(
             context: context,
-            title: 'Install a Plugin',
+            title: strController.zninstallAPluginTitleStr.value,
             body: Text(
-              'This will load plugin to your ZeroNet repo, '
-              '\nWarning : Loading Unknown/Untrusted plugins may compromise ZeroNet Installation.',
+              strController.zninstallAPluginDesStr.value,
               style: TextStyle(
                 color: uiStore.currentTheme.value.primaryTextColor,
               ),
@@ -458,7 +401,7 @@ extension MapOptionExt on MapOptions {
                   installPluginDialog(file, context);
                 }
               },
-              child: Text('Install'),
+              child: Text(strController.installStr.value),
             ),
           );
         }
@@ -474,7 +417,7 @@ extension MapOptionExt on MapOptions {
               service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             },
-            child: Text('Restart'),
+            child: Text(strController.restartStr.value),
           ),
         );
         break;

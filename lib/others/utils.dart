@@ -128,7 +128,7 @@ bindUnZipIsolate() {
     int totalFiles = data[2];
     var percent = (currentFile / totalFiles) * 100;
     if (percent.toInt() % 5 == 0) {
-      varStore.setLoadingStatus('Installing $name');
+      varStore.setLoadingStatus('${strController.installingStr.value} $name');
       varStore.setLoadingPercent(percent.toInt());
     }
     if (percent == 100) {

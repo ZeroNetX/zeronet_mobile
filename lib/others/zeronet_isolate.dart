@@ -198,15 +198,15 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
 
 void setZeroNetRunningNotification() {
   service.setNotificationInfo(
-    title: "ZeroNet Mobile is Running",
-    content: "Click Here on this Notification to open app",
+    title: strController.znNotiRunningTitleStr.value,
+    content: strController.znNotiRunningDesStr.value,
   );
 }
 
 void setBgServiceRunningNotification() {
   service.setNotificationInfo(
-    title: "ZeroNet Mobile is Not Running",
-    content: "Open ZeroNet Mobile App and click start to run ZeroNet",
+    title: strController.znNotiNotRunningTitleStr.value,
+    content: strController.znNotiNotRunningDesStr.value,
   );
 }
 

@@ -1,5 +1,5 @@
-import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as purchases_flutter;
+import '../imports.dart';
 
 final purchasesStore = Get.put(PurchaseController());
 

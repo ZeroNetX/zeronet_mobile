@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
@@ -137,13 +136,13 @@ Future<void> backUpUserJsonFile(BuildContext context) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
     FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
         .then(
-      (_) => printToConsole('Users.json content copied to Clipboard'),
+      (_) => printToConsole(strController.usersFileCopied.value),
     );
     String result = await saveUserJsonFile(getZeroNetUsersFilePath());
     Get.showSnackbar(GetBar(
       message: (result.contains('success'))
           ? result
-          : "Please check yourself that file back up Successfully.",
+          : strController.chkBckUpStr.value,
     ));
   } else
     zeronetNotInit(context);
@@ -151,9 +150,8 @@ Future<void> backUpUserJsonFile(BuildContext context) async {
 
 void zeronetNotInit(BuildContext context) => showDialogC(
       context: context,
-      title: 'ZeroNet data folder not Exists.',
-      body: "ZeroNet should be used atleast once (run it from home screen), "
-          "before using this option",
+      title: strController.zeroNetNotInitTitleStr.value,
+      body: strController.zeroNetNotInitDesStr.value,
     );
 
 saveDataFile() {
@@ -229,9 +227,9 @@ String maptoStringList(Map map) {
 }
 
 String log = 'Click on Fab to Run ZeroNet\n';
-String logRunning = 'Running ZeroNet\n';
+String logRunning = '${strController.statusRunningStr.value} ZeroNet\n';
 String uiServerLog = 'Ui.UiServer';
-String startZeroNetLog = 'Starting ZeroNet';
+String startZeroNetLog = '${strController.statusStartingStr.value} ZeroNet';
 Process zero;
 
 printToConsole(Object object) {
@@ -297,7 +295,7 @@ void showDialogC({
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Close'),
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -331,7 +329,7 @@ void showDialogW({
           actions: <Widget>[
             actionOk,
             TextButton(
-              child: Text('Close'),
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -432,12 +430,11 @@ void installPluginDialog(File file, BuildContext context) {
   installPlugin(file);
   showDialogW(
     context: context,
-    title: 'Installing Plugin',
+    title: strController.znPluginInstallingTitleStr.value,
     body: Column(
       children: <Widget>[
         Text(
-          "This Dialog will be automatically closed after installation, "
-          "After Installation Restart ZeroNet from Home page",
+          strController.znPluginInstallingDesStr.value,
         ),
         Padding(padding: EdgeInsets.all(12.0)),
         LinearProgressIndicator()
