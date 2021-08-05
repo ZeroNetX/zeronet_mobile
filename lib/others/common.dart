@@ -93,6 +93,7 @@ void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
 
 init() async {
   getArch();
+  await getPackageInfo();
   kIsPlayStoreInstall = await isPlayStoreInstall();
   zeroNetNativeDir = await getNativeDir();
   tempDir = await getTemporaryDirectory();
@@ -107,6 +108,26 @@ init() async {
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+}
+
+List<int> buildsRequirePatching = [60];
+
+bool requiresPatching() {
+  return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> getPackageInfo() async {
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
+}
+
+void listMetaFiles() {
+  Directory metaDirs = Directory(metaDir.path);
+  var files = metaDirs.listSync();
+  for (var item in files) {
+    print(item.path);
+  }
 }
 
 Future<File> pickUserJsonFile() async {

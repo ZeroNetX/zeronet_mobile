@@ -64,7 +64,9 @@ class ZeroBrowser extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Theme(
-              data: ThemeData.dark(),
+              data: zeroBrowserTheme == 'dark'
+                  ? ThemeData.dark()
+                  : ThemeData.light(),
               child: WebviewScaffold(
                 url: browserUrl,
                 javascriptChannels: jsChannels,

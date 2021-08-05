@@ -1,5 +1,3 @@
-import 'package:in_app_update/in_app_update.dart';
-
 import '../imports.dart';
 
 Future checkInitStatus() async {

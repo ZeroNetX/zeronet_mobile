@@ -59,9 +59,6 @@ initDownloadParams() async {
   bindDownloadIsolate();
   bindUnZipIsolate();
   FlutterDownloader.registerCallback(handleDownloads);
-  packageInfo = await PackageInfo.fromPlatform();
-  appVersion = packageInfo.version;
-  buildNumber = packageInfo.buildNumber;
 }
 
 handleDownloads(String id, DownloadTaskStatus status, int progress) {
@@ -136,6 +133,12 @@ bindUnZipIsolate() {
     }
     var nooffiles = files(arch).length;
     if (percentUnZip == nooffiles * 100) {
+      if (requiresPatching()) {
+        var patchFile = File(dataDir + '/$buildNumber.patched');
+        if (!patchFile.existsSync()) {
+          patchFile.createSync(recursive: true);
+        }
+      }
       printOut('Installation Completed', isNative: true);
       makeExecHelper().then((value) => isExecPermitted = value);
       uninstallModules();

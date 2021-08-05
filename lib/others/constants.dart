@@ -34,7 +34,6 @@ const bool kEnableDynamicModules = !kDebugMode;
 const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
-  // Feature.IN_APP_UPDATES,
 ];
 const List<String> binDirs = [
   'usr',
@@ -158,7 +157,9 @@ class Utils {
       options: [
         MapOptions.THEME_LIGHT,
         MapOptions.THEME_DARK,
-        MapOptions.THEME_BLACK,
+        //! Premium fEATURE.
+        // MapOptions.THEME_BLACK,
+        //TODO: Add more themes
       ],
     ),
     profileSwitcher: MapSetting(

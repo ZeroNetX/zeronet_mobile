@@ -45,7 +45,7 @@ class StrController extends GetxController {
     statusErrorStr.value = str;
   }
 
-  get popularSitesStr => ''.obs;
+  get popularSitesStr => 'Popular Sites'.obs;
 
   set popularSitesStr(String str) {
     popularSitesStr.value = str;
