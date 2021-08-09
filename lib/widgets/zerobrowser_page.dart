@@ -101,13 +101,20 @@ class ZeroBrowser extends StatelessWidget {
                   ),
                 ),
                 bottomNavigationBar: BottomAppBar(
-                  color: browserBgColor,
+                  color:
+                      // zeroBrowserTheme == 'dark'
+                      //     ? uiStore.currentTheme.value
+                      //         .
+                      browserBgColor, //Colors.blueGrey[900]
+                  // : Colors.white,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       IconButton(
                         icon: const Icon(Icons.home),
-                        color: uiStore.currentTheme.value.browserBgColor,
+                        color: zeroBrowserTheme == 'light'
+                            ? uiStore.currentTheme.value.browserBgColor
+                            : Colors.white,
                         onPressed: () {
                           SystemChrome.setEnabledSystemUIOverlays(
                               SystemUiOverlay.values);
@@ -126,26 +133,34 @@ class ZeroBrowser extends StatelessWidget {
                       Spacer(),
                       IconButton(
                         icon: const Icon(Icons.share),
-                        color: uiStore.currentTheme.value.browserBgColor,
+                        color: zeroBrowserTheme == 'light'
+                            ? uiStore.currentTheme.value.browserBgColor
+                            : Colors.white,
                         onPressed: () => Share.share(browserUrl),
                       ),
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
-                        color: uiStore.currentTheme.value.browserBgColor,
+                        color: zeroBrowserTheme == 'light'
+                            ? uiStore.currentTheme.value.browserBgColor
+                            : Colors.white,
                         onPressed: () {
                           flutterWebViewPlugin.goBack();
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.arrow_forward_ios),
-                        color: uiStore.currentTheme.value.browserBgColor,
+                        color: zeroBrowserTheme == 'light'
+                            ? uiStore.currentTheme.value.browserBgColor
+                            : Colors.white,
                         onPressed: () {
                           flutterWebViewPlugin.goForward();
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.autorenew),
-                        color: uiStore.currentTheme.value.browserBgColor,
+                        color: zeroBrowserTheme == 'light'
+                            ? uiStore.currentTheme.value.browserBgColor
+                            : Colors.white,
                         onPressed: () {
                           flutterWebViewPlugin.reload();
                         },
