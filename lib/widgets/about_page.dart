@@ -433,6 +433,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w500,
+                          color: uiStore.currentTheme.value.primaryTextColor,
                         ),
                       ),
                       Padding(padding: const EdgeInsets.all(8.0)),

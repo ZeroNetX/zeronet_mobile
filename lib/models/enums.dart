@@ -316,4 +316,7 @@ extension AppThemeExt on AppTheme {
       default:
     }
   }
+
+  get browserIconColor =>
+      zeroBrowserTheme == 'light' ? Color(0xFF22272d) : Color(0xFFEDF2F5);
 }
