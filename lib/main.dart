@@ -61,7 +61,16 @@ class MyApp extends StatelessWidget {
                     case AppRoute.AboutPage:
                       return WillPopScope(
                         onWillPop: () {
-                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          if (fromBrowser) {
+                            fromBrowser = false;
+                            flutterWebViewPlugin.canGoBack().then(
+                                  (value) => value
+                                      ? flutterWebViewPlugin.goBack()
+                                      : null,
+                                );
+                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                          } else
+                            uiStore.updateCurrentAppRoute(AppRoute.Home);
                           return Future.value(false);
                         },
                         child: AboutPage(),

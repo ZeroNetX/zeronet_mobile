@@ -1,9 +1,10 @@
 import '../imports.dart';
 
+final flutterWebViewPlugin = FlutterWebviewPlugin();
+
 // ignore: must_be_immutable
 class ZeroBrowser extends StatelessWidget {
   Color browserBgColor = uiStore.currentTheme.value.browserBgColor;
-  static final flutterWebViewPlugin = FlutterWebviewPlugin();
   setTheme() {
     Brightness brightness;
     switch (zeroBrowserTheme) {
@@ -46,7 +47,14 @@ class ZeroBrowser extends StatelessWidget {
         },
       ),
     ].toSet();
-    flutterWebViewPlugin.onUrlChanged.listen((newUrl) => browserUrl = newUrl);
+    flutterWebViewPlugin.onUrlChanged.listen((newUrl) {
+      browserUrl = newUrl;
+      if (browserUrl.startsWith('https://blockchain.info/address/') ||
+          browserUrl.startsWith('https://www.blockchain.com/btc/address/')) {
+        uiStore.updateCurrentAppRoute(AppRoute.AboutPage);
+        fromBrowser = true;
+      }
+    });
     return WillPopScope(
       onWillPop: () {
         if (launchUrl.isNotEmpty) {

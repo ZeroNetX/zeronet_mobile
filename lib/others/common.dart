@@ -14,6 +14,7 @@ bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
 bool patchChecked = false;
+bool fromBrowser = false;
 bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;

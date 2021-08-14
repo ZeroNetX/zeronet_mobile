@@ -72,7 +72,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
-        ZeroBrowser.flutterWebViewPlugin.close();
+        flutterWebViewPlugin.close();
         // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
         break;
