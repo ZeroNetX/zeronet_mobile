@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 
 final uiStore = Get.put(UiController());
@@ -44,7 +42,7 @@ class UiController extends GetxController {
   void updateCurrentAppRoute(AppRoute appRoute) =>
       currentAppRoute.value = appRoute;
 
-  var currentTheme = AppTheme.Black.obs;
+  var currentTheme = AppTheme.Light.obs;
 
   void setTheme(AppTheme theme) {
     currentTheme.value = theme;

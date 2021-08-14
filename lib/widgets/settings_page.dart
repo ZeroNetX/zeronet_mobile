@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -169,7 +167,7 @@ class SettingsCard extends StatelessWidget {
               if (setting is MapSetting)
                 Obx(() {
                   var i = uiStore.reload.value;
-                  printOut(i.toString());
+                  var str = i.toString();
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
                   settingL.options.forEach((element) {
@@ -181,6 +179,14 @@ class SettingsCard extends StatelessWidget {
                           settingL.options[settingL.options.indexOf(element)]
                               .onClick(Get.context);
                         },
+                        onLongPress: element == MapOptions.BACKUP_PROFILE
+                            ? () {
+                                backUpUserJsonFile(
+                                  context,
+                                  copyToClipboard: true,
+                                );
+                              }
+                            : null,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
                           child: Chip(
@@ -214,10 +220,10 @@ class SettingsCard extends StatelessWidget {
                           onTap: () {
                             showDialogW(
                               context: context,
-                              title: 'Switch Profile to $profile ?',
+                              title:
+                                  '${strController.switchProfileToStr.value} $profile ?',
                               body: Text(
-                                'this will delete the existing profile, '
-                                'backup existing profile using backup button below',
+                                strController.switchProfileToDesStr.value,
                               ),
                               actionOk:
                                   profileSwitcherActionOk(profile, context),
@@ -272,11 +278,11 @@ class SettingsCard extends StatelessWidget {
             }
           },
           child: Text(
-            'Switch',
+            strController.switchStr.value,
           ),
         ),
         TextButton(
-          child: Text('Backup'),
+          child: Text(strController.backupStr.value),
           onPressed: () => backUpUserJsonFile(context),
         ),
       ],

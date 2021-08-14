@@ -1,5 +1,4 @@
-import 'package:zeronet/others/zeronet_isolate.dart';
-
+import '../others/zeronet_isolate.dart';
 import '../imports.dart';
 
 enum ZeroNetStatus {
@@ -14,19 +13,19 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   get message {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        return 'Not Running';
+        return strController.statusNotRunningStr.value;
         break;
       case ZeroNetStatus.INITIALISING:
-        return 'Initialising...';
+        return strController.statusInitializingStr.value;
         break;
       case ZeroNetStatus.RUNNING:
-        return 'Running';
+        return strController.statusRunningStr.value;
         break;
       case ZeroNetStatus.RUNNING_WITH_TOR:
-        return 'Running with Tor';
+        return strController.statusRunningWithTorStr.value;
         break;
       case ZeroNetStatus.ERROR:
-        return 'Error';
+        return strController.statusErrorStr.value;
         break;
       default:
     }
@@ -35,17 +34,17 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   get actionText {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
-        return 'Start';
+        return strController.startStr.value;
         break;
       case ZeroNetStatus.INITIALISING:
-        return 'Please WAIT!';
+        return strController.pleaseWaitStr.value;
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
-        return 'Stop';
+        return strController.stopStr.value;
         break;
       case ZeroNetStatus.ERROR:
-        return 'View Log';
+        return strController.viewLogStr.value;
         break;
       default:
     }
@@ -56,6 +55,16 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.NOT_RUNNING:
         printOut('onAction()');
         printOut('ZeroNetStatus.NOT_RUNNING');
+        if (!patchChecked && checkPatchNeeded()) {
+          var zeroNetRevision = getZeroNetRevision(zeroNetDir);
+          downloadPatch('$zeroNetRevision').then((_) {
+            checkPatchAndApply(
+              tempDir.path + '/patches/$zeroNetRevision',
+              zeronetDir,
+            );
+          });
+          patchChecked = true;
+        }
         var autoStart =
             (varStore.settings[autoStartZeroNet] as ToggleSetting).value;
         runZeroNetService(autoStart: autoStart);
@@ -63,7 +72,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
-        ZeroBrowser.flutterWebViewPlugin.close();
+        flutterWebViewPlugin.close();
         // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
         break;
@@ -126,19 +135,19 @@ extension AppUpdateExt on AppUpdate {
   get text {
     switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
-        return 'Update';
+        return strController.updateStr.value;
         break;
       case AppUpdate.DOWNLOADING:
-        return 'Downloading';
+        return strController.downloadingStr.value;
         break;
       case AppUpdate.DOWNLOADED:
-        return 'Downloaded';
+        return strController.downloadedStr.value;
         break;
       case AppUpdate.INSTALLING:
-        return 'Installing';
+        return strController.installingStr.value;
         break;
       default:
-        return 'Not Available';
+        return strController.notAvaliableStr.value;
     }
   }
 
@@ -178,19 +187,19 @@ extension AppRouteExt on AppRoute {
   get title {
     switch (this) {
       case AppRoute.AboutPage:
-        return 'About';
+        return strController.aboutStr.value;
         break;
       case AppRoute.Home:
         return 'ZeroNet Mobile';
         break;
       case AppRoute.Settings:
-        return 'Settings';
+        return strController.settingsStr.value;
         break;
       case AppRoute.ZeroBrowser:
-        return 'ZeroBrowser';
+        return 'Zero${strController.browserStr.value}';
         break;
       case AppRoute.LogPage:
-        return 'ZeroNet Log';
+        return 'ZeroNet ${strController.logStr.value}';
         break;
       default:
     }
@@ -284,7 +293,7 @@ extension AppThemeExt on AppTheme {
         return Colors.white;
         break;
       case AppTheme.Dark:
-        return Colors.grey[900];
+        return Colors.grey[850];
         break;
       case AppTheme.Black:
         return Colors.grey[900];
@@ -304,4 +313,20 @@ extension AppThemeExt on AppTheme {
       default:
     }
   }
+
+  get browserBgColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Color(0xFFEDF2F5);
+        break;
+      case AppTheme.Dark:
+      case AppTheme.Black:
+        return Color(0xFF22272d);
+        break;
+      default:
+    }
+  }
+
+  get browserIconColor =>
+      zeroBrowserTheme == 'light' ? Color(0xFF22272d) : Color(0xFFEDF2F5);
 }

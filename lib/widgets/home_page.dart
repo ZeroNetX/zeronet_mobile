@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 
@@ -64,7 +62,7 @@ class InAppUpdateWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
-              'App Update Available : ',
+              strController.appUpdateAvailableStr.value,
               style: GoogleFonts.roboto(
                 fontSize: 20.0,
                 fontWeight: FontWeight.w500,
@@ -116,7 +114,7 @@ class AboutButtonWidget extends StatelessWidget {
             EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
-        'Know More',
+        strController.knowMoreStr.value,
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
@@ -151,7 +149,7 @@ class RatingButtonWidget extends StatelessWidget {
             EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
-        'Give Your Rating/Feedback',
+        strController.ratingWgtStr.value,
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
@@ -170,7 +168,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
         Row(
           children: <Widget>[
             Text(
-              'Status',
+              strController.statusStr.value,
               style: GoogleFonts.roboto(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -284,7 +282,7 @@ class PopularZeroNetSites extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.all(4.0),
                   child: Text(
-                    'Popular Sites',
+                    strController.popularSitesStr.value,
                     style: GoogleFonts.roboto(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w500,
@@ -416,10 +414,12 @@ class SiteDetailCard extends StatelessWidget {
                     onTap: uiStore.zeroNetStatus.value ==
                             ZeroNetStatus.NOT_RUNNING
                         ? () {
-                            Get.showSnackbar(GetBar(
-                              message:
-                                  'Please Start ZeroNet First to Browse this Zite',
-                            ));
+                            Get.showSnackbar(
+                              GetBar(
+                                message:
+                                    strController.startZeroNetFirstStr.value,
+                              ),
+                            );
                           }
                         : () async {
                             var url = zeroNetUrl;
@@ -511,7 +511,7 @@ class SiteDetailsSheet extends StatelessWidget {
                                 ZeroNetStatus.NOT_RUNNING
                             ? () {
                                 snackMessage =
-                                    'Please Start ZeroNet First to Browse this Zite';
+                                    strController.startZeroNetFirstStr.value;
                                 uiStore.updateShowSnackReply(true);
                               }
                             : () {
@@ -523,7 +523,9 @@ class SiteDetailsSheet extends StatelessWidget {
                                 );
                               },
                         child: Text(
-                          isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                          isZiteExists
+                              ? strController.openStr.value
+                              : strController.downloadStr.value,
                           maxLines: 1,
                           style: GoogleFonts.roboto(
                             fontSize: 18.0,
@@ -577,12 +579,13 @@ class SiteDetailsSheet extends StatelessWidget {
                       logoPath,
                     );
                     if (added) {
-                      snackMessage = '$name shortcut added to  HomeScreen';
+                      snackMessage =
+                          '$name ${strController.shrtAddedToHomeScreenStr.value}';
                       uiStore.updateShowSnackReply(true);
                     }
                   },
                   child: Text(
-                    'Add to HomeScreen',
+                    strController.addToHomeScreenStr.value,
                     maxLines: 1,
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
@@ -607,7 +610,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
                     },
                     child: Text(
-                      'Show Log',
+                      strController.showLogStr.value,
                       maxLines: 1,
                       style: GoogleFonts.roboto(
                         fontSize: 18.0,
@@ -639,7 +642,9 @@ class SiteDetailsSheet extends StatelessWidget {
                             sitesAvailable);
                       },
                       child: Text(
-                        currentSite.serving ? 'Pause' : 'Resume',
+                        currentSite.serving
+                            ? strController.pauseStr.value
+                            : strController.resumeStr.value,
                         maxLines: 1,
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
@@ -664,7 +669,7 @@ class SiteDetailsSheet extends StatelessWidget {
                         //TODO: Implement this function;
                       },
                       child: Text(
-                        'Delete Zite',
+                        strController.deleteZiteStr.value,
                         maxLines: 1,
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
@@ -763,7 +768,7 @@ class SiteInfoWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SiteInfo',
+          strController.siteInfoStr.value,
           style: GoogleFonts.roboto(
             fontSize: 21.0,
             fontWeight: FontWeight.w500,

@@ -1,5 +1,3 @@
-import 'package:in_app_update/in_app_update.dart';
-
 import '../imports.dart';
 
 Future checkInitStatus() async {
@@ -243,4 +241,144 @@ Future<bool> createTorDataDir() {
   Directory torDir = Directory(dataDir + '/usr/var/lib/tor');
   if (!torDir.existsSync()) torDir.createSync();
   return Future.value(true);
+}
+
+int getZeroNetRevision(String zeroNetDir) {
+  var file = File(zeroNetDir + '/src/Config.py');
+  var content = file.readAsStringSync();
+  var versionIndex = content.indexOf('self.rev = ');
+  var version = content.substring(versionIndex + 11, versionIndex + 15);
+  return int.parse(version);
+}
+
+String getZeroNetVersion(String zeroNetDir) {
+  var file = File(zeroNetDir + '/src/Config.py');
+  var content = file.readAsStringSync();
+  var versionIndex = content.indexOf('self.version = "');
+  content = content.substring(versionIndex + 16);
+  var endindex = content.indexOf('"');
+  var version = content.substring(0, endindex);
+  return version;
+}
+
+bool checkPatchNeeded() {
+  var zeroNetVersion = getZeroNetVersion(zeronetDir);
+  var zeroNetRevision = getZeroNetRevision(zeronetDir);
+  if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2') {
+    return true;
+  } else if (zeroNetRevision == 4556 && zeroNetVersion == '0.7.2-v3patched') {
+    return false;
+  }
+  return false;
+}
+
+Future<void> downloadPatch(String version) async {
+  File patchFile = File(tempDir.path + '/$version.zip');
+  if (!patchFile.existsSync()) {
+    await downloadFile(zpatches, '$version.zip', tempDir.path);
+  }
+  Directory dir = Directory(tempDir.path + '/patches/$version');
+  if (!dir.existsSync()) {
+    unzipBytes(version, patchFile.readAsBytesSync(),
+        dest: '${tempDir.path}/patches/$version/');
+  }
+}
+
+Future<String> downloadFile(String url, String fileName, String dir) async {
+  HttpClient httpClient = HttpClient();
+  File file;
+  String filePath = '';
+  String myUrl = '';
+
+  try {
+    myUrl = url + '/' + fileName;
+    var request = await httpClient.getUrl(Uri.parse(myUrl));
+    var response = await request.close();
+    if (response.statusCode == 200) {
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      filePath = '$dir/$fileName';
+      file = File(filePath);
+      await file.writeAsBytes(bytes);
+    } else
+      filePath = 'Error code: ' + response.statusCode.toString();
+  } catch (ex) {
+    filePath = 'Can not fetch url';
+  }
+
+  return filePath;
+}
+
+void checkPatchAndApply(String patchPath, String zeroNetPath) {
+  var zeroNetVersion = getZeroNetVersion(zeroNetPath);
+  var zeroNetRevision = getZeroNetRevision(zeroNetPath);
+
+  if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2') {
+    printOut('Applying patch for 0.7.2');
+    applyPatch(patchPath, zeroNetPath);
+  } else if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2-torv3') {
+    printOut('Patch Already Applied for 0.7.2');
+  }
+}
+
+void applyPatch(String patchPath, String destination) {
+  var patchManifestFile = File(
+    patchPath + '/patch.manifest',
+  ).readAsStringSync();
+  var contents = patchManifestFile.split('\n');
+  for (var line in contents) {
+    if (line.startsWith('[{D_}]')) {
+      var filePath = line.replaceAll('[{D_}]', '');
+      var file = File(destination + '/' + filePath);
+      try {
+        file.deleteSync();
+      } catch (e) {
+        print(e);
+      }
+    } else if (line.startsWith('[{A_}]')) {
+      var name = line.replaceAll('[{A_}]', '');
+      var file = File(patchPath + '/' + name);
+      if (!file.existsSync()) {
+        // throw Exception('File does not exist');
+      }
+      var p = File(destination + '/' + name).parent;
+      if (!p.existsSync()) {
+        p.createSync();
+      }
+      File(file.path).copySync(destination + '/' + name);
+    } else if (line.startsWith('[{R_}]')) {
+      var params = line.replaceAll('[{R_}]', '').split('][');
+      var oldname = params[0].replaceAll('[', '');
+      var newname = params[1].replaceAll(']', '');
+      if (oldname.endsWith('/') && newname.endsWith('/')) {
+        try {
+          Directory(destination + '/' + oldname).renameSync(
+            destination + '/' + newname,
+          );
+        } catch (e) {
+          print(e);
+        }
+      } else {
+        try {
+          File(destination + '/' + oldname).renameSync(
+            destination + '/' + newname,
+          );
+        } catch (e) {
+          print(e);
+        }
+      }
+    } else if (line.startsWith('[{M_}]')) {
+      var path = line.replaceAll('[{M_}]', '');
+      var patchFile = File(patchPath + '/' + path + '.patch');
+      var destinationFile = File(destination + '/' + path);
+      var p = patchFromText(patchFile.readAsStringSync());
+
+      var dmp = DiffMatchPatch();
+      // var diff = dmp.diff(orgContent, patchedContent);
+      var result = dmp.patch_apply(p, destinationFile.readAsStringSync());
+      print('\n' + result[1].toString() + '\n');
+      if (!(result[1] as List<bool>).contains(false)) {
+        destinationFile.writeAsString(result[0]);
+      }
+    }
+  }
 }

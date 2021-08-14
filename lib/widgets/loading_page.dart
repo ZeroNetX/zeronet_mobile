@@ -1,16 +1,8 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 
 class Loading extends StatelessWidget {
   // String data = 'Loading';
-  final String warning = """
-    Please Wait! This may take a while, happens 
-    only first time, Don't Press Back button.
-    If You Accidentally Pressed Back,
-    Clean App Storage in Settings or 
-    Uninstall and Reinstall The App.
-    """;
+  final String warning = strController.loadingPageWarningStr.value;
 
   @override
   Widget build(BuildContext context) {

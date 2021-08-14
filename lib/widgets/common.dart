@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 
 class ZeroNetAppBar extends StatelessWidget {
@@ -153,15 +151,13 @@ class _ProfileSwitcherUserNameEditTextState
     return ListBody(
       children: <Widget>[
         Text(
-          'Always remember to backup users.json before doing anything because, '
-          'we are not able to tell when a software will fail. '
-          'Click Backup below to backup your Existing users.json file.\n',
+          strController.backupWarningStr.value,
           style: TextStyle(
             color: Colors.red,
           ),
         ),
         Text(
-          'Username Phrase :',
+          strController.usernamePhraseStr.value,
           style: TextStyle(
             color: uiStore.currentTheme.value.primaryTextColor,
           ),
@@ -177,18 +173,18 @@ class _ProfileSwitcherUserNameEditTextState
               var valid = text.isNotEmpty;
               if (valid) {
                 if (text.contains(' ')) {
-                  errorText = 'username can\'t contain spaces';
+                  errorText = strController.usrnameWarning2Str.value;
                   valid = false;
                 } else if (text.length < 6) {
-                  errorText = 'username can\'t be less than 6 characters.';
+                  errorText = strController.usrnameWarning3Str.value;
                   valid = false;
                 } else if (File(getZeroNetDataDir().path + '/users-$text.json')
                     .existsSync()) {
-                  errorText = 'username already exists, choose different one.';
+                  errorText = strController.usrnameWarning4Str.value;
                   valid = false;
                 }
               } else {
-                errorText = 'username can\'t be Empty';
+                errorText = strController.usrnameWarning1Str.value;
               }
               setState(() {
                 validUsername = valid;
@@ -199,7 +195,7 @@ class _ProfileSwitcherUserNameEditTextState
               color: uiStore.currentTheme.value.primaryTextColor,
             ),
             decoration: InputDecoration(
-              hintText: 'username',
+              hintText: strController.usernameStr.value.toLowerCase(),
               errorText: validUsername ? null : errorText,
               hintStyle: TextStyle(
                 color: uiStore.currentTheme.value.primaryTextColor,

@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../imports.dart';
 
 class ZeroNetLogPage extends StatelessWidget {

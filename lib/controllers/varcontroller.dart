@@ -1,5 +1,4 @@
-import 'package:get/get.dart';
-import 'package:zeronet/imports.dart';
+import '../imports.dart';
 
 final varStore = Get.put(VarController());
 
@@ -8,10 +7,10 @@ class VarController extends GetxController {
   var settings = <String, Setting>{}.obs;
   var event = ObservableEvent.none.obs;
   var zeroNetLog = 'ZeroNet Mobile'.obs;
-  var zeroNetStatus = 'Not Running'.obs;
+  RxString zeroNetStatus = strController.statusNotRunningStr;
   var zeroNetInstalled = false.obs;
   var zeroNetDownloaded = false.obs;
-  var loadingStatus = 'Loading'.obs;
+  RxString loadingStatus = strController.loadingStr;
   var loadingPercent = 0.obs;
 
   updateSetting(Setting setting) {

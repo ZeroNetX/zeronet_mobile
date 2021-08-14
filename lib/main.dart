@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'imports.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
@@ -27,17 +26,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Obx(
           () {
-            SystemChrome.setSystemUIOverlayStyle(
-              SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness:
-                    uiStore.currentTheme.value.iconBrightness,
-                systemNavigationBarColor:
-                    uiStore.currentTheme.value.primaryColor,
-                systemNavigationBarIconBrightness:
-                    uiStore.currentTheme.value.iconBrightness,
-              ),
-            );
+            setSystemUiTheme();
             if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
                 SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
@@ -67,11 +56,21 @@ class MyApp extends StatelessWidget {
               }
               return Obx(
                 () {
+                  setSystemUiTheme();
                   switch (uiStore.currentAppRoute.value) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
                         onWillPop: () {
-                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          if (fromBrowser) {
+                            fromBrowser = false;
+                            flutterWebViewPlugin.canGoBack().then(
+                                  (value) => value
+                                      ? flutterWebViewPlugin.goBack()
+                                      : null,
+                                );
+                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                          } else
+                            uiStore.updateCurrentAppRoute(AppRoute.Home);
                           return Future.value(false);
                         },
                         child: AboutPage(),

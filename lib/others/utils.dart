@@ -19,7 +19,7 @@ printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {
     if (isNative)
       nativePrint(breaks + "$object" + breaks);
     else
-      print(breaks + object + breaks);
+      print(breaks + '$object' + breaks);
   }
 }
 
@@ -59,9 +59,6 @@ initDownloadParams() async {
   bindDownloadIsolate();
   bindUnZipIsolate();
   FlutterDownloader.registerCallback(handleDownloads);
-  packageInfo = await PackageInfo.fromPlatform();
-  appVersion = packageInfo.version;
-  buildNumber = packageInfo.buildNumber;
 }
 
 handleDownloads(String id, DownloadTaskStatus status, int progress) {
@@ -128,7 +125,7 @@ bindUnZipIsolate() {
     int totalFiles = data[2];
     var percent = (currentFile / totalFiles) * 100;
     if (percent.toInt() % 5 == 0) {
-      varStore.setLoadingStatus('Installing $name');
+      varStore.setLoadingStatus('${strController.installingStr.value} $name');
       varStore.setLoadingPercent(percent.toInt());
     }
     if (percent == 100) {
@@ -136,6 +133,12 @@ bindUnZipIsolate() {
     }
     var nooffiles = files(arch).length;
     if (percentUnZip == nooffiles * 100) {
+      if (requiresPatching()) {
+        var patchFile = File(dataDir + '/$buildNumber.patched');
+        if (!patchFile.existsSync()) {
+          patchFile.createSync(recursive: true);
+        }
+      }
       printOut('Installation Completed', isNative: true);
       makeExecHelper().then((value) => isExecPermitted = value);
       uninstallModules();
@@ -208,11 +211,19 @@ unzip() async {
     zeroNetState = state.INSTALLING;
     if (!(f2.existsSync() && f3.existsSync())) {
       if (f.path.contains('usr'))
-        _unzipBytes(item, f.readAsBytesSync(), dest: 'usr/');
+        unzipBytes(
+          item,
+          f.readAsBytesSync(),
+          dest: dataDir + '/' + 'usr/',
+        );
       else if (f.path.contains('site-packages'))
-        _unzipBytes(item, f.readAsBytesSync(), dest: 'usr/lib/python3.8/');
+        unzipBytes(
+          item,
+          f.readAsBytesSync(),
+          dest: dataDir + '/' + 'usr/lib/python3.8/',
+        );
       else
-        _unzipBytes(item, f.readAsBytesSync());
+        unzipBytes(item, f.readAsBytesSync(), dest: dataDir + '/');
       f2.createSync(recursive: true);
     }
   }
@@ -303,9 +314,9 @@ void _unzipBytesAsync(UnzipParams params) async {
 
 int percentUnZip = 0;
 
-_unzipBytes(String name, List<int> bytes, {String dest = ''}) async {
+unzipBytes(String name, List<int> bytes, {String dest = ''}) async {
   printOut("UnZippingFiles.......");
-  var out = dataDir + '/' + dest;
+  var out = dest;
   Archive archive = ZipDecoder().decodeBytes(bytes);
   for (ArchiveFile file in archive) {
     String filename = file.name;

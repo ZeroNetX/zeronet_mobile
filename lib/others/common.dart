@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
@@ -14,6 +13,8 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
+bool patchChecked = false;
+bool fromBrowser = false;
 bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;
@@ -82,8 +83,19 @@ List<String> trackerFileNames = [
   'trackers_all_ip.txt',
 ];
 
+void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: uiStore.currentTheme.value.iconBrightness,
+        systemNavigationBarColor: uiStore.currentTheme.value.primaryColor,
+        systemNavigationBarIconBrightness:
+            uiStore.currentTheme.value.iconBrightness,
+      ),
+    );
+
 init() async {
   getArch();
+  await getPackageInfo();
   kIsPlayStoreInstall = await isPlayStoreInstall();
   zeroNetNativeDir = await getNativeDir();
   tempDir = await getTemporaryDirectory();
@@ -98,6 +110,26 @@ init() async {
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+}
+
+List<int> buildsRequirePatching = [60];
+
+bool requiresPatching() {
+  return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> getPackageInfo() async {
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
+}
+
+void listMetaFiles() {
+  Directory metaDirs = Directory(metaDir.path);
+  var files = metaDirs.listSync();
+  for (var item in files) {
+    print(item.path);
+  }
 }
 
 Future<File> pickUserJsonFile() async {
@@ -123,27 +155,37 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
   return result;
 }
 
-Future<void> backUpUserJsonFile(BuildContext context) async {
+Future<void> backUpUserJsonFile(
+  BuildContext context, {
+  bool copyToClipboard = false,
+}) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
-    FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
-        .then(
-      (_) => printToConsole('Users.json content copied to Clipboard'),
-    );
-    String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-    Get.showSnackbar(GetBar(
-      message: (result.contains('success'))
-          ? result
-          : "Please check yourself that file back up Successfully.",
-    ));
+    if (copyToClipboard) {
+      FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
+          .then(
+        (_) {
+          printToConsole(strController.usersFileCopied.value);
+          Get.showSnackbar(GetBar(
+            message: strController.usersFileCopied.value,
+          ));
+        },
+      );
+    } else {
+      String result = await saveUserJsonFile(getZeroNetUsersFilePath());
+      Get.showSnackbar(GetBar(
+        message: (result.contains('success'))
+            ? result
+            : strController.chkBckUpStr.value,
+      ));
+    }
   } else
     zeronetNotInit(context);
 }
 
 void zeronetNotInit(BuildContext context) => showDialogC(
       context: context,
-      title: 'ZeroNet data folder not Exists.',
-      body: "ZeroNet should be used atleast once (run it from home screen), "
-          "before using this option",
+      title: strController.zeroNetNotInitTitleStr.value,
+      body: strController.zeroNetNotInitDesStr.value,
     );
 
 saveDataFile() {
@@ -219,9 +261,9 @@ String maptoStringList(Map map) {
 }
 
 String log = 'Click on Fab to Run ZeroNet\n';
-String logRunning = 'Running ZeroNet\n';
+String logRunning = '${strController.statusRunningStr.value} ZeroNet\n';
 String uiServerLog = 'Ui.UiServer';
-String startZeroNetLog = 'Starting ZeroNet';
+String startZeroNetLog = '${strController.statusStartingStr.value} ZeroNet';
 Process zero;
 
 printToConsole(Object object) {
@@ -287,7 +329,7 @@ void showDialogC({
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Close'),
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -321,7 +363,7 @@ void showDialogW({
           actions: <Widget>[
             actionOk,
             TextButton(
-              child: Text('Close'),
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -422,12 +464,11 @@ void installPluginDialog(File file, BuildContext context) {
   installPlugin(file);
   showDialogW(
     context: context,
-    title: 'Installing Plugin',
+    title: strController.znPluginInstallingTitleStr.value,
     body: Column(
       children: <Widget>[
         Text(
-          "This Dialog will be automatically closed after installation, "
-          "After Installation Restart ZeroNet from Home page",
+          strController.znPluginInstallingDesStr.value,
         ),
         Padding(padding: EdgeInsets.all(12.0)),
         LinearProgressIndicator()
