@@ -13,6 +13,7 @@ dependencies:
   crypto: 3.0.1
   clipboard: ^0.1.3
   device_info: ^2.0.2
+  diff_match_patch: ^0.4.1
   file_picker: ^3.0.4
   flutter_absolute_path: 
     # path: ../flutter_absolute_path

@@ -12,6 +12,7 @@ export 'package:flutter/services.dart';
 export 'package:clipboard/clipboard.dart';
 export 'package:crypto/crypto.dart';
 export 'package:device_info/device_info.dart';
+export 'package:diff_match_patch/diff_match_patch.dart';
 export 'package:equatable/equatable.dart';
 export 'package:file_picker/file_picker.dart';
 export 'package:flutter_absolute_path/flutter_absolute_path.dart';

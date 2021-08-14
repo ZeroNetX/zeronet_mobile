@@ -55,6 +55,16 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.NOT_RUNNING:
         printOut('onAction()');
         printOut('ZeroNetStatus.NOT_RUNNING');
+        if (!patchChecked && checkPatchNeeded()) {
+          var zeroNetRevision = getZeroNetRevision(zeroNetDir);
+          downloadPatch('$zeroNetRevision').then((_) {
+            checkPatchAndApply(
+              tempDir.path + '/patches/$zeroNetRevision',
+              zeronetDir,
+            );
+          });
+          patchChecked = true;
+        }
         var autoStart =
             (varStore.settings[autoStartZeroNet] as ToggleSetting).value;
         runZeroNetService(autoStart: autoStart);
