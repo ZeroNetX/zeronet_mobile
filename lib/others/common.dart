@@ -155,18 +155,29 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
   return result;
 }
 
-Future<void> backUpUserJsonFile(BuildContext context) async {
+Future<void> backUpUserJsonFile(
+  BuildContext context, {
+  bool copyToClipboard = false,
+}) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
-    FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
-        .then(
-      (_) => printToConsole(strController.usersFileCopied.value),
-    );
-    String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-    Get.showSnackbar(GetBar(
-      message: (result.contains('success'))
-          ? result
-          : strController.chkBckUpStr.value,
-    ));
+    if (copyToClipboard) {
+      FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
+          .then(
+        (_) {
+          printToConsole(strController.usersFileCopied.value);
+          Get.showSnackbar(GetBar(
+            message: strController.usersFileCopied.value,
+          ));
+        },
+      );
+    } else {
+      String result = await saveUserJsonFile(getZeroNetUsersFilePath());
+      Get.showSnackbar(GetBar(
+        message: (result.contains('success'))
+            ? result
+            : strController.chkBckUpStr.value,
+      ));
+    }
   } else
     zeronetNotInit(context);
 }

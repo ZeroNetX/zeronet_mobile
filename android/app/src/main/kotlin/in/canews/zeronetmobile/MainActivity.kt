@@ -328,6 +328,8 @@ class MainActivity : FlutterActivity() {
                 .intent
         shareIntent.data = contentUri
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        shareIntent.putExtra(Intent.EXTRA_TEXT,"Save this file to a Safe place.")
+        shareIntent.action = Intent.ACTION_SEND
         shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
         shareIntent.putExtra("finishActivityOnSaveCompleted", true)
         context.startActivityForResult(Intent.createChooser(

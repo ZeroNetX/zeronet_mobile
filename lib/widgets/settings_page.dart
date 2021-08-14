@@ -179,6 +179,14 @@ class SettingsCard extends StatelessWidget {
                           settingL.options[settingL.options.indexOf(element)]
                               .onClick(Get.context);
                         },
+                        onLongPress: element == MapOptions.BACKUP_PROFILE
+                            ? () {
+                                backUpUserJsonFile(
+                                  context,
+                                  copyToClipboard: true,
+                                );
+                              }
+                            : null,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
                           child: Chip(

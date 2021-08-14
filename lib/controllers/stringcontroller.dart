@@ -684,8 +684,11 @@ class StrController extends GetxController {
     profileSwitcherStr.value = str;
   }
 
-  get profileSwitcherDesStr =>
-      'Create and Use different Profiles on ZeroNet'.obs;
+  get profileSwitcherDesStr => 'Create and Use different Profiles on ZeroNet, '
+          'Import Existing Profiles from other devices, or Backup your Profile. '
+          '\nNote: If Backup Profile doesn\'t work. Long Press the "Backup Profile" Button, '
+          'it will copy users.json file contents to clipboard, so that you can save the private keys from this option.'
+      .obs;
 
   set profileSwitcherDesStr(String str) {
     profileSwitcherDesStr.value = str;
