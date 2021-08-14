@@ -75,6 +75,7 @@ const List<AppDeveloper> appDevelopers = [
   ),
 ];
 
+const String languageSwitcher = 'Language';
 const String themeSwitcher = 'Theme';
 const String profileSwitcher = 'Profile Switcher';
 const String debugZeroNet = 'Debug ZeroNet Code';
@@ -152,6 +153,15 @@ class Utils {
   // static const String loadPlugin = 'Load Custom Plugin';
 
   static Map<String, Setting> defSettings = {
+    languageSwitcher: MapSetting(
+      name: strController.languageSwitcherStr.value,
+      description: strController.languageSwitcherDesStr.value,
+      map: {
+        "selected": '',
+        "all": [],
+      },
+      options: [],
+    ),
     themeSwitcher: MapSetting(
       name: strController.themeSwitcherStr.value,
       description: strController.themeSwitcherDesStr.value,
