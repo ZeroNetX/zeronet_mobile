@@ -110,6 +110,39 @@ init() async {
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+  var translations = loadTranslations();
+  if (varStore.settings.keys.contains(languageSwitcher)) {
+    var setting = varStore.settings[languageSwitcher] as MapSetting;
+    var language = setting.map['selected'];
+    var code = translations[language] ?? 'en';
+    strController.loadTranslationsFromFile(
+      getZeroNetDataDir().path +
+          '/' +
+          Utils.urlZeroNetMob +
+          '/translations/' +
+          'strings-$code.json',
+    );
+  }
+}
+
+List<int> buildsRequirePatching = [60];
+
+bool requiresPatching() {
+  return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> getPackageInfo() async {
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
+}
+
+void listMetaFiles() {
+  Directory metaDirs = Directory(metaDir.path);
+  var files = metaDirs.listSync();
+  for (var item in files) {
+    print(item.path);
+  }
 }
 
 List<int> buildsRequirePatching = [60];
@@ -187,6 +220,20 @@ void zeronetNotInit(BuildContext context) => showDialogC(
       title: strController.zeroNetNotInitTitleStr.value,
       body: strController.zeroNetNotInitDesStr.value,
     );
+
+Map<String, dynamic> loadTranslations() {
+  Map<String, dynamic> langCodesMap = {};
+  var translationsDir = Directory(
+    getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob + '/translations',
+  );
+  if (translationsDir.existsSync()) {
+    var langCodeFile = File(translationsDir.path + '/language-codes.json');
+    if (langCodeFile.existsSync()) {
+      langCodesMap = json.decode(langCodeFile.readAsStringSync());
+    }
+  }
+  return langCodesMap;
+}
 
 saveDataFile() {
   Map<String, String> dataMap = {

@@ -211,11 +211,19 @@ unzip() async {
     zeroNetState = state.INSTALLING;
     if (!(f2.existsSync() && f3.existsSync())) {
       if (f.path.contains('usr'))
-        unzipBytes(item, f.readAsBytesSync(), dest: 'usr/');
+        unzipBytes(
+          item,
+          f.readAsBytesSync(),
+          dest: dataDir + '/' + 'usr/',
+        );
       else if (f.path.contains('site-packages'))
-        unzipBytes(item, f.readAsBytesSync(), dest: 'usr/lib/python3.8/');
+        unzipBytes(
+          item,
+          f.readAsBytesSync(),
+          dest: dataDir + '/' + 'usr/lib/python3.8/',
+        );
       else
-        unzipBytes(item, f.readAsBytesSync());
+        unzipBytes(item, f.readAsBytesSync(), dest: dataDir + '/');
       f2.createSync(recursive: true);
     }
   }

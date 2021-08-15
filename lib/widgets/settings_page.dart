@@ -247,6 +247,48 @@ class SettingsCard extends StatelessWidget {
                         ),
                       );
                     });
+                  else if ((setting as MapSetting).name == languageSwitcher)
+                    loadTranslations().keys.forEach((language) {
+                      children.insert(
+                        0,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(24.0),
+                          splashColor: Color(0xFF5380FF),
+                          onTap: () {
+                            String code = loadTranslations()[language];
+                            strController.loadTranslationsFromFile(
+                              getZeroNetDataDir().path +
+                                  '/' +
+                                  Utils.urlZeroNetMob +
+                                  '/translations/' +
+                                  'strings-$code.json',
+                            );
+                            varStore.updateSetting((setting as MapSetting)
+                              ..map = {'selected': language});
+                            saveSettings(varStore.settings);
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 3.0, right: 3.0),
+                            child: Chip(
+                              elevation: 2.0,
+                              backgroundColor:
+                                  uiStore.currentTheme.value.cardBgColor,
+                              label: Text(
+                                language,
+                                maxLines: 1,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: uiStore
+                                      .currentTheme.value.primaryTextColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
                   return Wrap(
                     children: children,
                   );

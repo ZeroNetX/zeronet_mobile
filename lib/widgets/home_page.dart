@@ -186,7 +186,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                     child: Text(
                       uiStore.zeroNetStatus.value.message,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
@@ -208,7 +208,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                     child: Text(
                       uiStore.zeroNetStatus.value.actionText,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
@@ -230,7 +230,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                     child: Text(
                       ZeroNetStatus.NOT_RUNNING.actionText,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colors.white,
                       ),
                     ),
