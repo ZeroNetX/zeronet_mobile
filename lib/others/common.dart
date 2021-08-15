@@ -123,25 +123,21 @@ init() async {
           'strings-$code.json',
     );
   }
-}
-
-List<int> buildsRequirePatching = [60];
-
-bool requiresPatching() {
-  return buildsRequirePatching.contains(int.parse(buildNumber));
-}
-
-Future<void> getPackageInfo() async {
-  packageInfo = await PackageInfo.fromPlatform();
-  appVersion = packageInfo.version;
-  buildNumber = packageInfo.buildNumber;
-}
-
-void listMetaFiles() {
-  Directory metaDirs = Directory(metaDir.path);
-  var files = metaDirs.listSync();
-  for (var item in files) {
-    print(item.path);
+  if (varStore.settings.keys.contains(themeSwitcher)) {
+    var setting = varStore.settings[themeSwitcher] as MapSetting;
+    var theme = setting.map['selected'] ?? 'Light';
+    switch (theme) {
+      case 'Light':
+        uiStore.setTheme(AppTheme.Light);
+        break;
+      case 'Dark':
+        uiStore.setTheme(AppTheme.Dark);
+        break;
+      case 'Black':
+        uiStore.setTheme(AppTheme.Black);
+        break;
+      default:
+    }
   }
 }
 

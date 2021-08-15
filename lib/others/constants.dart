@@ -436,12 +436,24 @@ extension MapOptionExt on MapOptions {
         break;
       case MapOptions.THEME_LIGHT:
         uiStore.setTheme(AppTheme.Light);
+        var setting = (varStore.settings[themeSwitcher] as MapSetting)
+          ..map['selected'] = 'Light';
+        varStore.updateSetting(setting);
+        saveSettings(varStore.settings);
         break;
       case MapOptions.THEME_DARK:
         uiStore.setTheme(AppTheme.Dark);
+        var setting = (varStore.settings[themeSwitcher] as MapSetting)
+          ..map['selected'] = 'Dark';
+        varStore.updateSetting(setting);
+        saveSettings(varStore.settings);
         break;
       case MapOptions.THEME_BLACK:
         uiStore.setTheme(AppTheme.Black);
+        var setting = (varStore.settings[themeSwitcher] as MapSetting)
+          ..map['selected'] = 'Black';
+        varStore.updateSetting(setting);
+        saveSettings(varStore.settings);
         break;
       default:
     }
