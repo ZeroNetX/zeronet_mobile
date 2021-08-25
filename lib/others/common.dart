@@ -13,6 +13,7 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
+bool kisProUser = false;
 bool patchChecked = false;
 bool fromBrowser = false;
 bool kIsPlayStoreInstall = false;
@@ -123,22 +124,7 @@ init() async {
           'strings-$code.json',
     );
   }
-  if (varStore.settings.keys.contains(themeSwitcher)) {
-    var setting = varStore.settings[themeSwitcher] as MapSetting;
-    var theme = setting.map['selected'] ?? 'Light';
-    switch (theme) {
-      case 'Light':
-        uiStore.setTheme(AppTheme.Light);
-        break;
-      case 'Dark':
-        uiStore.setTheme(AppTheme.Dark);
-        break;
-      case 'Black':
-        uiStore.setTheme(AppTheme.Black);
-        break;
-      default:
-    }
-  }
+  kisProUser = await isProUser();
 }
 
 List<int> buildsRequirePatching = [60];

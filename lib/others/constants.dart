@@ -37,6 +37,12 @@ const List<Feature> unImplementedFeatures = [
   Feature.SITE_DELETE,
   Feature.SITE_PAUSE_RESUME,
 ];
+
+const List proFeatures = [
+  MapOptions.THEME_BLACK,
+  MapOptions.LOAD_PLUGIN,
+];
+
 const List<String> binDirs = [
   'usr',
   'site-packages',
@@ -169,9 +175,7 @@ class Utils {
       options: [
         MapOptions.THEME_LIGHT,
         MapOptions.THEME_DARK,
-        //! Premium fEATURE.
-        // MapOptions.THEME_BLACK,
-        //TODO: Add more themes
+        MapOptions.THEME_BLACK,
       ],
     ),
     profileSwitcher: MapSetting(
@@ -397,26 +401,27 @@ extension MapOptionExt on MapOptions {
         break;
       case MapOptions.LOAD_PLUGIN:
         {
-          showDialogW(
-            context: context,
-            title: strController.zninstallAPluginTitleStr.value,
-            body: Text(
-              strController.zninstallAPluginDesStr.value,
-              style: TextStyle(
-                color: uiStore.currentTheme.value.primaryTextColor,
+          if (kisProUser)
+            showDialogW(
+              context: context,
+              title: strController.zninstallAPluginTitleStr.value,
+              body: Text(
+                strController.zninstallAPluginDesStr.value,
+                style: TextStyle(
+                  color: uiStore.currentTheme.value.primaryTextColor,
+                ),
               ),
-            ),
-            actionOk: TextButton(
-              onPressed: () async {
-                var file = await getPluginZipFile();
-                if (file != null) {
-                  Navigator.pop(context);
-                  installPluginDialog(file, context);
-                }
-              },
-              child: Text(strController.installStr.value),
-            ),
-          );
+              actionOk: TextButton(
+                onPressed: () async {
+                  var file = await getPluginZipFile();
+                  if (file != null) {
+                    Navigator.pop(context);
+                    installPluginDialog(file, context);
+                  }
+                },
+                child: Text(strController.installStr.value),
+              ),
+            );
         }
         break;
       case MapOptions.OPEN_PLUGIN_MANAGER:
@@ -449,11 +454,7 @@ extension MapOptionExt on MapOptions {
         saveSettings(varStore.settings);
         break;
       case MapOptions.THEME_BLACK:
-        uiStore.setTheme(AppTheme.Black);
-        var setting = (varStore.settings[themeSwitcher] as MapSetting)
-          ..map['selected'] = 'Black';
-        varStore.updateSetting(setting);
-        saveSettings(varStore.settings);
+        if (kisProUser) uiStore.setTheme(AppTheme.Black);
         break;
       default:
     }
