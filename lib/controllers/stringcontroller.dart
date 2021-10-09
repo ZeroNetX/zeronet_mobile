@@ -398,7 +398,13 @@ class StrController extends GetxController {
 
   void loadTranslationsFromFile(String path) {
     File translationsFile = File(path);
-    Map map = json.decode(translationsFile.readAsStringSync());
+    String readAsStringSync = '';
+    try {
+      readAsStringSync = translationsFile.readAsStringSync();
+    } catch (e) {
+      if (e is FileSystemException) return;
+    }
+    Map map = json.decode(readAsStringSync);
     updatestatusStr(map['statusStr']);
     updatestatusNotRunningStr(map['statusNotRunningStr']);
     updatestatusInitializingStr(map['statusInitializingStr']);
