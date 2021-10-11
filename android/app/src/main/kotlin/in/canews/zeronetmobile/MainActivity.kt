@@ -305,6 +305,7 @@ class MainActivity : FlutterActivity() {
             tempFile.createNewFile()
             inputStream?.toFile(tempFilePath)
             resultT?.success(File(tempFilePath).absoluteFile.absolutePath)
+            Log.e("copyFileToTempPath: ", filename + " copied to " + tempFilePath)
             tempFile.deleteOnExit()
         }
     }
@@ -356,6 +357,7 @@ class MainActivity : FlutterActivity() {
                 getAssetFiles("tor_$archName.zip")
             }
         } catch (e: IOException) {
+            Log.e("copyAssetsToCache", e.toString())
             return false
         }
         return true
@@ -364,6 +366,7 @@ class MainActivity : FlutterActivity() {
     private fun getAssetFiles(fileName: String) {
         val assetManager = createPackageContext(packageName, 0).assets
         val assistContent = assetManager.open(fileName)
+        Log.e("getAssetFiles: ", fileName)
         copyFileToTempPath(inputStreamA = assistContent, filename = fileName, path = null)
     }
 
