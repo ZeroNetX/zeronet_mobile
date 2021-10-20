@@ -371,8 +371,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun isModuleInstallSupported(): Boolean =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && isGooglePlayServicesAvailable(this)
+            Build.VERSION.SDK_INT <= 30 && isGooglePlayServicesAvailable(this)
 
     private fun isGooglePlayServicesAvailable(activity: Activity?): Boolean {
         val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
