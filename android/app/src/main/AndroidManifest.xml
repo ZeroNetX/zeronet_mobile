@@ -38,7 +38,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <receiver android:name="com.dexterous.flutterlocalnotifications.NotificationActionReceiver" />
+        <receiver 
+            android:name="com.dexterous.flutterlocalnotifications.NotificationActionReceiver"
+            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:grantUriPermissions="true"

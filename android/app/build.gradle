@@ -39,7 +39,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.jeppeman.locallydynamic'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -52,10 +52,15 @@ android {
     defaultConfig {
         applicationId "in.canews.zeronetmobile"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     signingConfigs {
@@ -79,7 +84,7 @@ android {
             applicationIdSuffix '.debug'
             signingConfig signingConfigs.release
             locallyDynamic {
-                enabled = true
+                enabled = false
                 throttleDownloadBy = 1000
             }
             defaultConfig.ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
@@ -98,10 +103,10 @@ flutter {
 }
 
 dependencies {
-    def billing_version = "3.0.0"
+    def billing_version = '4.0.0'
     implementation "com.android.billingclient:billing:$billing_version"
 
-    def work_version = "2.5.0"
+    def work_version = "2.7.0"
     // Force WorkManager 2.6.0 for transitive dependency
     implementation("androidx.work:work-runtime-ktx:$work_version") {
         force = true

@@ -175,7 +175,7 @@ class Utils {
       options: [
         MapOptions.THEME_LIGHT,
         MapOptions.THEME_DARK,
-        MapOptions.THEME_BLACK,
+        // MapOptions.THEME_BLACK,
       ],
     ),
     profileSwitcher: MapSetting(
