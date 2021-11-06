@@ -137,7 +137,9 @@ List<String> getZeroNameProfiles() {
 }
 
 String getZeroIdUserName() {
-  File file = File(getZeroNetUsersFilePath());
+  var zeroNetUsersFilePath = getZeroNetUsersFilePath();
+  if (zeroNetUsersFilePath.isEmpty) return '';
+  File file = File(zeroNetUsersFilePath);
   if (!file.existsSync()) return '';
   Map map = json.decode(file.readAsStringSync());
   var key = map.keys.first;

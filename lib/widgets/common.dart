@@ -91,6 +91,9 @@ class _PluginManagerState extends State<PluginManager> {
           itemBuilder: (ctx, i) {
             final isDisabled = disabledPlugins.contains(plugins[i]);
             final pluginName = plugins[i];
+            if (pluginName == 'MyDonationMessage') {
+              if (!kisProUser) return Container();
+            }
             return Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -66,7 +66,7 @@ class StrController extends GetxController {
           "if want to contribute translations or code, visit official GitHub repo."
       .obs;
   var googlePurchasesStr = 'Google Play Purchases'.obs;
-  var googleFeeWarningStr = '(30% taken by Google) :'.obs;
+  var googleFeeWarningStr = '(including 15% Google Tax) :'.obs;
   var oneTimeSubStr = 'One Time'.obs;
   var monthlySubStr = 'Monthly Subscriptions'.obs;
   var tipStr = 'Tip'.obs;
@@ -398,7 +398,13 @@ class StrController extends GetxController {
 
   void loadTranslationsFromFile(String path) {
     File translationsFile = File(path);
-    Map map = json.decode(translationsFile.readAsStringSync());
+    String readAsStringSync = '';
+    try {
+      readAsStringSync = translationsFile.readAsStringSync();
+    } catch (e) {
+      if (e is FileSystemException) return;
+    }
+    Map map = json.decode(readAsStringSync);
     updatestatusStr(map['statusStr']);
     updatestatusNotRunningStr(map['statusNotRunningStr']);
     updatestatusInitializingStr(map['statusInitializingStr']);

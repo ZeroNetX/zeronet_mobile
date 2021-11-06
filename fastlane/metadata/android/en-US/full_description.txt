@@ -1,0 +1,59 @@
+ZeroNet - Open, free and uncensorable websites, using Bitcoin cryptography and BitTorrent network.
+
+TLDR(Short and Simple) Version
+Slides : http://bit.ly/howzeronetworks
+
+PEER-TO-PEER
+ - Your content distributed directly to other visitors without any central server.
+
+Unstopable
+ - It's nowhere because it's everywhere!
+ - No hosting costs
+ - Sites are served by visitors.
+ - Always accessible
+ - No single point of failure.
+
+SIMPLE
+ - No configuration needed:
+ - Download, unpack and start using it.
+
+.BIT DOMAINS
+ - Decentralized domains using Namecoin cryptocurrency.
+
+NO PASSWORDS
+ - Your account is protected by the same cryptography as your Bitcoin wallet.
+
+FAST
+ - Page response time is not limited by your connection speed.
+
+DYNAMIC CONTENT
+ - Real-time updated, multi-user websites.
+
+WORKS EVERYWHERE
+ - Supports any modern browser on
+ - Windows, Linux or Mac and Android platforms.
+
+ANONYMITY
+ - You can easily hide your IP address using the Tor network.
+
+OFFLINE
+ - Browse the sites you're seeding even if your internet connection is down.
+
+OPEN SOURCE
+ - Developed by the community for the community.
+
+We believe in
+open, free, and uncensored
+network and communication.
+
+About Mobile Client
+ZeroNet Mobile is an Android Client for ZeroNet, Project uses flutter framework for runner and is Open Sourced at https://github.com/canewsin/zeronet_mobile, you can contribute to the app by forking the project.
+
+Contribute
+  If you want to support project's further development, you can contribute your time or money, If you want to contribute money you can send bitcoin or other supported crypto currencies to above addresses or buy in-app purchases, if want to contribute translations or code, visit official GitHub repo.
+
+Links :
+Facebook         https://www.facebook.com/HelloZeroNet
+Twitter          https://twitter.com/HelloZeroNet
+Reddit           https://www.reddit.com/r/zeronet/
+Github           https://github.com/HelloZeroNet/ZeroNet

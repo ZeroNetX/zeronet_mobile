@@ -63,13 +63,16 @@ Future<bool> isProUser() async {
   try {
     final userName = getZeroIdUserName();
     PurchaserInfo purchaserInfo;
-    if (userName.isNotEmpty)
+    if (userName.isNotEmpty) {
       purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
-    purchaserInfo = await Purchases.getPurchaserInfo();
-    if (purchaserInfo.entitlements.active.length > 0) return true;
+      purchaserInfo = await Purchases.getPurchaserInfo();
+      if (purchaserInfo.entitlements.active.length > 0) return true;
+    } else
+      return false;
   } on PlatformException catch (e) {
     printOut(e);
     // Error fetching purchaser info
+    return false;
   }
   return false;
 }
@@ -82,8 +85,8 @@ void purchasePackage(Package package) async {
       purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.purchasePackage(package);
 
-    var isPro = await isProUser();
-    if (isPro) {
+    kisProUser = await isProUser();
+    if (kisProUser) {
       // Unlock that great "pro" content
     }
     printOut(purchaserInfo);

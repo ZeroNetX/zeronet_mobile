@@ -1,0 +1,9 @@
+v 0.7.0
+
+- Major UI Changes with Modern UI 😍😍.
+- Faster Startup of ZeroNet 😁😁.
+- Individual Site Details for Popular Sites with Stats and useful functions 😘😘.
+- Update Minimum Android Support Version to API 21 (Android 5.0 Lollipop).
+- Add Site Shortcut to HomeScreen.
+- Added In-App Review so that you can give your feedback quickly.
+- Several Bug Fixes and Improvements.
