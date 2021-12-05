@@ -53,4 +53,16 @@ class UiController extends GetxController {
   void setZeroNetStatus(ZeroNetStatus status) {
     zeroNetStatus.value = status;
   }
+
+  var zeroNetUserStatus = ZeroNetUserStatus.NOT_REGISTERED.obs;
+
+  void setZeroNetUserStatus(ZeroNetUserStatus status) {
+    zeroNetUserStatus.value = status;
+  }
+
+  var zeroNetUserId = ''.obs;
+
+  void setZeroNetUserId(String id) {
+    zeroNetUserId.value = id;
+  }
 }

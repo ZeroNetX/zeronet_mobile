@@ -51,7 +51,7 @@ FlutterBackgroundService service;
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
 
-String trackerRepo = 'https://cdn.jsdelivr.net/gh/ngosang/trackerslist/';
+String trackerRepo = 'https://newtrackon.com/api/';
 String downloadTrackerLink(String item) => trackerRepo + item;
 
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
@@ -74,14 +74,7 @@ List<String> files(String arch) => [
     ];
 
 List<String> trackerFileNames = [
-  'trackers_best.txt',
-  'trackers_all.txt',
-  'trackers_all_udp.txt',
-  'trackers_all_http.txt',
-  'trackers_all_https.txt',
-  'trackers_all_ws.txt',
-  'trackers_best_ip.txt',
-  'trackers_all_ip.txt',
+  'stable',
 ];
 
 void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
@@ -116,13 +109,24 @@ init() async {
     var setting = varStore.settings[languageSwitcher] as MapSetting;
     var language = setting.map['selected'];
     var code = translations[language] ?? 'en';
-    strController.loadTranslationsFromFile(
-      getZeroNetDataDir().path +
-          '/' +
-          Utils.urlZeroNetMob +
-          '/translations/' +
-          'strings-$code.json',
-    );
+    if (code != 'en')
+      strController.loadTranslationsFromFile(
+        getZeroNetDataDir().path +
+            '/' +
+            Utils.urlZeroNetMob +
+            '/translations/' +
+            'strings-$code.json',
+      );
+  }
+  loadUsersFromFileSystem();
+  if (varStore.settings.keys.contains(themeSwitcher)) {
+    var setting = varStore.settings[themeSwitcher] as MapSetting;
+    var theme = setting.map['selected'];
+    if (theme == 'Dark') {
+      uiStore.setTheme(AppTheme.Dark);
+    } else {
+      uiStore.setTheme(AppTheme.Light);
+    }
   }
   kisProUser = await isProUser();
 }

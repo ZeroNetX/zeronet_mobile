@@ -71,8 +71,14 @@ loadSitesFromFileSystem() {
 
 loadUsersFromFileSystem() {
   File usersFile = File(getZeroNetDataDir().path + '/users.json');
-  if (usersFile.existsSync())
+  if (usersFile.existsSync()) {
     usersAvailable = UserManager().loadUsersFromFile(usersFile);
+    var zeronetUser = getZeroIdUserName();
+    if (zeronetUser.isNotEmpty) {
+      uiStore.setZeroNetUserStatus(ZeroNetUserStatus.REGISTERED);
+      uiStore.setZeroNetUserId(zeronetUser);
+    }
+  }
 }
 
 setZeroBrowserThemeValues() {

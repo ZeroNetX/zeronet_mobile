@@ -13,7 +13,7 @@ class VarController extends GetxController {
   RxString loadingStatus = strController.loadingStr;
   var loadingPercent = 0.obs;
 
-  updateSetting(Setting setting) {
+  void updateSetting(Setting setting) {
     settings[setting.name] = setting;
   }
 

@@ -15,18 +15,18 @@ class ContentDb {
   }
 }
 
-Map content_db = {};
+Map contentDb = {};
 
 getContentDb({String path}) {
   if (path == null) {
     path = "../content.db";
   }
 
-  var result = content_db.keys.where((element) => path == element).toList();
+  var result = contentDb.keys.where((element) => path == element).toList();
 
   if (result.isEmpty) {
-    content_db[path] = ContentDb(path);
-    content_db[path].init();
-    return content_db[path];
+    contentDb[path] = ContentDb(path);
+    contentDb[path].init();
+    return contentDb[path];
   }
 }

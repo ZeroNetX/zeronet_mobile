@@ -61,7 +61,7 @@ class AboutPage extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: 'https://zeronet.io/',
+                              text: 'https://zeronet.dev/',
                               style: GoogleFonts.roboto(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w500,
@@ -71,7 +71,7 @@ class AboutPage extends StatelessWidget {
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  launch('https://zeronet.io/');
+                                  launch('https://zeronet.dev/');
                                 },
                             ),
                           ],
@@ -420,7 +420,15 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onPressed: () => purchasePackage(package),
+                      onPressed: () => uiStore.zeroNetUserStatus.value ==
+                              ZeroNetUserStatus.NOT_REGISTERED
+                          ? () {
+                              Get.snackbar(
+                                strController.tipStr.value + ':',
+                                strController.createUserIdFirstStr.value,
+                              );
+                            }
+                          : purchasePackage(package),
                     ),
                   );
                 }

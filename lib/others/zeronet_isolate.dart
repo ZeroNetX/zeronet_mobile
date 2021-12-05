@@ -49,7 +49,7 @@ void runZeroNet() {
     service.sendData({'console': startZeroNetLog + '\n'});
     var python = zeroNetNativeDir + '/libpython3.8.so';
     var openssl = zeroNetNativeDir + '/libopenssl.so';
-    var trackerFile = trackersDir.path + '/${trackerFileNames[7]}';
+    var trackerFile = trackersDir.path + '/${trackerFileNames[0]}';
     printOut('python file : $python');
     printOut('openssl file : $openssl');
     if (File(python).existsSync()) {
@@ -62,6 +62,8 @@ void runZeroNet() {
         openssl,
         if (enableZeroNetAddTrackers) '--trackers_file',
         if (enableZeroNetAddTrackers) trackerFile,
+        "--updatesite",
+        "1Update8crprmciJHwp2WXqkx2c4iYp18"
       ], environment: {
         "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
         'PYTHONHOME': '$dataDir/usr',

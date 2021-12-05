@@ -22,6 +22,7 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 30),
                   ),
                   ZeroNetStatusWidget(),
+                  ZeroNetUserStatusWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -240,6 +241,77 @@ class ZeroNetStatusWidget extends StatelessWidget {
               ),
             Spacer(
               flex: 4,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class ZeroNetUserStatusWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: <Widget>[
+            Text(
+              strController.userStatusStr.value,
+              style: GoogleFonts.roboto(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
+              ),
+            ),
+            Spacer(
+              flex: 1,
+            ),
+            Obx(
+              () {
+                return Chip(
+                  label: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      uiStore.zeroNetUserStatus.value.message,
+                      style: GoogleFonts.roboto(
+                        fontSize: 16,
+                        color: uiStore.currentTheme.value.btnTextColor,
+                      ),
+                    ),
+                  ),
+                  backgroundColor:
+                      uiStore.zeroNetUserStatus.value.statusChipColor,
+                );
+              },
+            ),
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
+              Spacer(
+                flex: 1,
+              ),
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
+              Obx(() {
+                return InkWell(
+                  onTap: uiStore.zeroNetUserStatus.value.onAction,
+                  child: Chip(
+                    elevation: 8.0,
+                    label: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Text(
+                        uiStore.zeroNetUserStatus.value.actionText,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                          color: uiStore.currentTheme.value.btnTextColor,
+                        ),
+                      ),
+                    ),
+                    backgroundColor:
+                        uiStore.zeroNetUserStatus.value.actionBtnColor,
+                  ),
+                );
+              }),
+            Spacer(
+              flex: 6,
             ),
           ],
         ),

@@ -123,6 +123,72 @@ extension ZeroNetStatusExt on ZeroNetStatus {
   }
 }
 
+enum ZeroNetUserStatus {
+  NOT_REGISTERED,
+  REGISTERED,
+}
+
+extension ZeroNetUserStatusExt on ZeroNetUserStatus {
+  get message {
+    switch (this) {
+      case ZeroNetUserStatus.NOT_REGISTERED:
+        return strController.userNameNotCreatedStr.value;
+        break;
+      case ZeroNetUserStatus.REGISTERED:
+        return uiStore.zeroNetUserId.value;
+        break;
+      default:
+    }
+  }
+
+  get actionText {
+    switch (this) {
+      case ZeroNetUserStatus.NOT_REGISTERED:
+        return strController.createStr.value;
+        break;
+      case ZeroNetUserStatus.REGISTERED:
+        return strController.switchStr.value;
+        break;
+      default:
+    }
+  }
+
+  void onAction() {
+    switch (this) {
+      case ZeroNetUserStatus.NOT_REGISTERED:
+        var url = zeroNetUrl;
+        browserUrl = url + Utils.urlZeroId;
+        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+        break;
+      case ZeroNetUserStatus.REGISTERED:
+        MapOptions.CREATE_PROFILE.onClick(Get.context);
+        break;
+      default:
+        return null;
+    }
+  }
+
+  get actionBtnColor {
+    switch (this) {
+      case ZeroNetUserStatus.NOT_REGISTERED:
+      case ZeroNetUserStatus.REGISTERED:
+        return Color(0xFF52F7C5);
+        break;
+      default:
+    }
+  }
+
+  get statusChipColor {
+    switch (this) {
+      case ZeroNetUserStatus.NOT_REGISTERED:
+      case ZeroNetUserStatus.REGISTERED:
+        return Color(0xFF5A53FF);
+        break;
+      default:
+    }
+  }
+}
+
 enum AppUpdate {
   NOT_AVAILABLE,
   AVAILABLE,

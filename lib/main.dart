@@ -4,11 +4,6 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  if (kEnableInAppPurchases) {
-    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
-    final Stream purchaseUpdates = InAppPurchase.instance.purchaseStream;
-    purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
-  }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -29,7 +24,13 @@ class MyApp extends StatelessWidget {
             setSystemUiTheme();
             if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
-                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+                SystemChrome.setEnabledSystemUIMode(
+                  SystemUiMode.manual,
+                  overlays: [
+                    SystemUiOverlay.top,
+                    SystemUiOverlay.bottom,
+                  ],
+                );
                 activateFilters();
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 if (!isExecPermitted)

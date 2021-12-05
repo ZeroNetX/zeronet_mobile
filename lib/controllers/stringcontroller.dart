@@ -4,6 +4,8 @@ final strController = Get.put(StrController());
 
 class StrController extends GetxController {
   var statusStr = 'Status'.obs;
+  var userStatusStr = 'User Id'.obs;
+  var userNameNotCreatedStr = 'Not Created'.obs;
   var statusNotRunningStr = 'Not Running'.obs;
   var statusInitializingStr = 'Initializing..'.obs;
   var statusStartingStr = 'Starting'.obs;
@@ -226,8 +228,18 @@ class StrController extends GetxController {
   var enableTorLogStr = 'Enable Tor Log'.obs;
   var enableTorLogDesStr =
       'This will Enable Tor Log in ZeroNet Console helpful for debugging.'.obs;
+  var createUserIdFirstStr =
+      'Please create User Id or Import your ZeroNet users.json File, to continue your donation. '
+              'You can create your User ID at App Home Page. '
+              'This will helps to restore your purchase in future.'
+          .obs;
 
   void updatestatusStr(String str) => statusStr.value = str;
+  void updateUserStatusStr(String str) => userStatusStr.value = str;
+  void updateUserNameNotCreatedStr(String str) =>
+      userNameNotCreatedStr.value = str;
+  void updateCreateUserIdFirstStr(String str) =>
+      createUserIdFirstStr.value = str;
   void updatestatusNotRunningStr(String str) => statusNotRunningStr.value = str;
   void updatestatusInitializingStr(String str) =>
       statusInitializingStr.value = str;
@@ -406,6 +418,9 @@ class StrController extends GetxController {
     }
     Map map = json.decode(readAsStringSync);
     updatestatusStr(map['statusStr']);
+    updateUserStatusStr(map['userStatusStr']);
+    updateUserNameNotCreatedStr(map['userNameNotCreatedStr']);
+    updateCreateUserIdFirstStr(map['createUserIdFirstStr']);
     updatestatusNotRunningStr(map['statusNotRunningStr']);
     updatestatusInitializingStr(map['statusInitializingStr']);
     updatestatusStartingStr(map['statusStartingStr']);

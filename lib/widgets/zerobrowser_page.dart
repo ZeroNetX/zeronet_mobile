@@ -37,7 +37,8 @@ class ZeroBrowser extends StatelessWidget {
     setTheme();
     bool fullScreenWebView =
         (varStore.settings[enableFullScreenOnWebView] as ToggleSetting)?.value;
-    if (fullScreenWebView) SystemChrome.setEnabledSystemUIOverlays([]);
+    if (fullScreenWebView)
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     // ignore: prefer_collection_literals
     final Set<JavascriptChannel> jsChannels = [
       JavascriptChannel(
@@ -60,7 +61,13 @@ class ZeroBrowser extends StatelessWidget {
         if (launchUrl.isNotEmpty) {
           return Future.value(true);
         } else {
-          SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+          SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: [
+              SystemUiOverlay.top,
+              SystemUiOverlay.bottom,
+            ],
+          );
           loadUsersFromFileSystem();
           setZeroBrowserThemeValues();
           setSystemUiTheme();
@@ -117,8 +124,13 @@ class ZeroBrowser extends StatelessWidget {
                         icon: const Icon(Icons.home),
                         color: uiStore.currentTheme.value.browserIconColor,
                         onPressed: () {
-                          SystemChrome.setEnabledSystemUIOverlays(
-                              SystemUiOverlay.values);
+                          SystemChrome.setEnabledSystemUIMode(
+                            SystemUiMode.manual,
+                            overlays: [
+                              SystemUiOverlay.top,
+                              SystemUiOverlay.bottom,
+                            ],
+                          );
                           SystemChrome.setSystemUIOverlayStyle(
                             SystemUiOverlayStyle(
                               statusBarColor: Colors.transparent,

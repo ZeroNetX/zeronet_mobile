@@ -98,7 +98,8 @@ const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
 const String enableTorLog = 'Enable Tor Log';
 
 class Utils {
-  static const String urlHello = '1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D';
+  static const String urlHello = '1HELLoE3sFD9569CLCbHEAVqvqV7U2Ri9d';
+  static const String urlZeroId = '1iD5ZQJMNXu43w1qLB8sfdHVKppVMduGz';
   static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
   static const String urlTalk = 'Talk.ZeroNetwork.bit';
   static const String btcUrlTalk = '1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT';
@@ -113,37 +114,37 @@ class Utils {
 
   static var initialSites = {
     'ZeroHello': {
-      'description': (strController.zerohelloSiteDesStr as RxString).value,
+      'description': strController.zerohelloSiteDesStr.value,
       'url': urlHello,
       'btcAddress': urlHello,
     },
     'ZeroNetMobile': {
-      'description': (strController.zeronetMobileSiteDesStr as RxString).value,
+      'description': strController.zeronetMobileSiteDesStr.value,
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,
     },
     'ZeroTalk': {
-      'description': (strController.zeroTalkSiteDesStr as RxString).value,
+      'description': strController.zeroTalkSiteDesStr.value,
       'url': urlTalk,
       'btcAddress': btcUrlTalk,
     },
     'ZeroBlog': {
-      'description': (strController.zeroblogSiteDesStr as RxString).value,
+      'description': strController.zeroblogSiteDesStr.value,
       'url': urlBlog,
       'btcAddress': btcUrlBlog,
     },
     'ZeroMail': {
-      'description': (strController.zeromailSiteDesStr as RxString).value,
+      'description': strController.zeromailSiteDesStr.value,
       'url': urlMail,
       'btcAddress': btcUrlMail,
     },
     'ZeroMe': {
-      'description': (strController.zeromeSiteDesStr as RxString).value,
+      'description': strController.zeromeSiteDesStr.value,
       'url': urlMe,
       'btcAddress': btcUrlMe,
     },
     'ZeroSites': {
-      'description': (strController.zeroSitesSiteDesStr as RxString).value,
+      'description': strController.zeroSitesSiteDesStr.value,
       'url': urlSites,
       'btcAddress': btcUrlSites,
     },
@@ -328,6 +329,7 @@ extension MapOptionExt on MapOptions {
                         uiStore.updateCurrentAppRoute(AppRoute.Settings);
                         var value2 = uiStore.reload.value;
                         uiStore.updateReload(value2 + 1);
+                        loadUsersFromFileSystem();
                       } else {
                         validUsername = false;
                         // _reload();

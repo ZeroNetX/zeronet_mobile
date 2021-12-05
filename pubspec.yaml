@@ -26,7 +26,6 @@ dependencies:
   # mobx: ^1.2.1+4
   get: ^4.3.0
   google_fonts: ^2.1.0
-  in_app_purchase: ^1.0.6
   in_app_review: ^2.0.2
   in_app_update: ^2.0.0
     # git:
@@ -36,7 +35,7 @@ dependencies:
   time_ago_provider: ^4.1.0
   package_info: ^2.0.2
   path_provider: ^2.0.2
-  purchases_flutter: ^3.4.1
+  purchases_flutter: ^3.5.0
   random_string: 2.3.1
   share: ^2.0.4
   url_launcher: ^6.0.9
@@ -45,8 +44,8 @@ dependencies:
     git:
       url: https://github.com/ekasetiawans/flutter_background_service
     #   ref: zeronet
-  flutter_webview_plugin: #^0.4.0
-    git: https://github.com/nuc134r/flutter_webview_plugin.git
+  flutter_webview_plugin: ^0.4.0
+    # git: https://github.com/nuc134r/flutter_webview_plugin.git
     # git:
     #   url: https://github.com/canewsin/flutter_webview_plugin
     #   ref: fullscreen-support
