@@ -5,17 +5,25 @@ Future checkInitStatus() async {
   loadUsersFromFileSystem();
   setZeroBrowserThemeValues();
   try {
-    String url = defZeroNetUrl + Utils.initialSites['ZeroNetMobile']['url'];
+    var url = '';
+    var address = '';
+    if (Directory(getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob)
+        .existsSync()) {
+      address = Utils.urlHello;
+    } else {
+      address = Utils.urlZeroNetMob;
+    }
+    url = defZeroNetUrl + address;
     String key = await ZeroNet.instance.getWrapperKey(url);
     zeroNetUrl = defZeroNetUrl;
     varStore.zeroNetWrapperKey = key;
+    // zeroNetIPwithPort(defZeroNetUrl),
+    ZeroNet.instance.connect(address).catchError(
+      (onError) {
+        printToConsole(onError);
+      },
+    );
     uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-    ZeroNet.instance
-        .connect(
-          zeroNetIPwithPort(defZeroNetUrl),
-          Utils.urlZeroNetMob,
-        )
-        .catchError((onError) => printToConsole(onError));
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
@@ -48,7 +56,8 @@ checkForAppUpdates() async {
   if (updateDays > 3 && !kDebugMode) {
     if (kIsPlayStoreInstall) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
-      if (info.updateAvailable && info.flexibleUpdateAllowed)
+      if (info.updateAvailability == UpdateAvailability.updateAvailable &&
+          info.flexibleUpdateAllowed)
         uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
@@ -62,281 +71,19 @@ loadSitesFromFileSystem() {
 
 loadUsersFromFileSystem() {
   File usersFile = File(getZeroNetDataDir().path + '/users.json');
-  if (usersFile.existsSync())
+  if (usersFile.existsSync()) {
     usersAvailable = UserManager().loadUsersFromFile(usersFile);
+    var zeronetUser = getZeroIdUserName();
+    if (zeronetUser.isNotEmpty) {
+      uiStore.setZeroNetUserStatus(ZeroNetUserStatus.REGISTERED);
+      uiStore.setZeroNetUserId(zeronetUser);
+    }
+  }
 }
 
 setZeroBrowserThemeValues() {
   if (usersAvailable.length > 0)
     zeroBrowserTheme = usersAvailable.first.settings.theme ?? 'light';
-}
-
-runTorEngine() {
-  service = FlutterBackgroundService();
-  final tor = zeroNetNativeDir + '/libtor.so';
-  if (File(tor).existsSync()) {
-    service.sendData({'console': 'Running Tor Engine..'});
-    Process.start('$tor', [], environment: {
-      "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
-    }).then((proc) {
-      zero = proc;
-      if (enableTorLogConsole) {
-        zero.stderr.listen((onData) {
-          service.sendData({'console': utf8.decode(onData)});
-        });
-        zero.stdout.listen((onData) {
-          service.sendData({'console': utf8.decode(onData)});
-        });
-      }
-    }).catchError((e) {
-      if (e is ProcessException) {
-        printOut(e.toString());
-      }
-    });
-  } else {
-    //TODO: Improve Error Trace here
-    service.sendData({'console': 'Tor Binary Not Found'});
-    uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-  }
-}
-
-runZeroNet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING ||
-      uiStore.zeroNetStatus == ZeroNetStatus.ERROR) {
-    uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
-    service.sendData({'ZeroNetStatus': 'INITIALISING'});
-    runTorEngine();
-    log = '';
-    service.sendData({'console': logRunning});
-    service.sendData({'console': startZeroNetLog + '\n'});
-    var python = zeroNetNativeDir + '/libpython3.8.so';
-    var openssl = zeroNetNativeDir + '/libopenssl.so';
-    var trackerFile = trackersDir.path + '/${trackerFileNames[7]}';
-
-    if (File(python).existsSync()) {
-      Process.start('$python', [
-        zeronet,
-        if (debugZeroNetCode) '--debug',
-        "--start_dir",
-        zeroNetDir,
-        "--openssl_bin_file",
-        openssl,
-        if (enableZeroNetAddTrackers) '--trackers_file',
-        if (enableZeroNetAddTrackers) trackerFile,
-      ], environment: {
-        "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
-        'PYTHONHOME': '$dataDir/usr',
-        'PYTHONPATH': '$python',
-      }).then((proc) {
-        zero = proc;
-        zero.stderr.listen((onData) {
-          service.sendData({'console': utf8.decode(onData)});
-        });
-        zero.stdout.listen((onData) {
-          service.sendData({'console': utf8.decode(onData)});
-        });
-      }).catchError((e) {
-        if (e is ProcessException) {
-          printOut(e.toString());
-        }
-        uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
-        service.sendData({'ZeroNetStatus': 'ERROR'});
-        service.sendData({'console': e.toString()});
-      });
-    } else {
-      //TODO: Improve Error Trace here
-      service.sendData({'console': 'Python Binary Not Found'});
-      uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
-      service.sendData({'ZeroNetStatus': 'ERROR'});
-      service.sendData({'console': 'zeroNetNativeDir : $zeroNetNativeDir'});
-      var contents = Directory(zeroNetNativeDir).listSync(recursive: true);
-      for (var item in contents) {
-        service.sendData({'console': item.name()});
-        service.sendData({'console': item.path});
-      }
-    }
-  } else {
-    shutDownZeronet();
-  }
-}
-
-void runZeroNetService({bool autoStart = false}) async {
-  bool autoStartService = autoStart
-      ? true
-      : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
-  bool filtersEnabled =
-      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value ?? true;
-  if (filtersEnabled) await activateFilters();
-  printToConsole(startZeroNetLog);
-  //TODO?: Check for Bugs Here.
-  if (await FlutterBackgroundService().isServiceRunning())
-    FlutterBackgroundService.initialize(
-      runBgIsolate,
-      autoStart: autoStartService,
-    ).then((value) {
-      if (value) {
-        service = FlutterBackgroundService();
-        service.onDataReceived.listen(onBgServiceDataReceived);
-        if (zeroNetNativeDir.isNotEmpty) saveDataFile();
-        uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING);
-        if (autoStart) service.sendData({'cmd': 'runZeroNet'});
-      }
-    });
-}
-
-void runBgIsolate() {
-  WidgetsFlutterBinding.ensureInitialized();
-  service = FlutterBackgroundService();
-  service.onDataReceived.listen(onBgServiceDataReceivedForIsolate);
-  service.sendData({'status': 'Started Background Service Successfully'});
-  Timer(Duration(milliseconds: 500), () {
-    if (zeroNetStartedFromBoot) {
-      setBgServiceRunningNotification();
-      if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
-        loadSettings();
-        loadDataFile();
-        debugZeroNetCode =
-            (varStore.settings[debugZeroNet] as ToggleSetting).value;
-        enableTorLogConsole =
-            (varStore.settings[enableTorLog] as ToggleSetting).value;
-        enableZeroNetAddTrackers =
-            (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
-                .value;
-        vibrateonZeroNetStart =
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
-        runZeroNet();
-        setZeroNetRunningNotification();
-      }
-    }
-  });
-}
-
-void onBgServiceDataReceivedForIsolate(Map<String, dynamic> data) {
-  if (data.keys.first == 'cmd') {
-    switch (data.values.first) {
-      case 'runZeroNet':
-        runZeroNet();
-        break;
-      case 'shutDownZeronet':
-        service.stopBackgroundService();
-        break;
-      default:
-    }
-  } else if (data.keys.first == 'init') {
-    Map initMap = data['init'];
-    zeroNetNativeDir = initMap['zeroNetNativeDir'];
-    debugZeroNetCode = initMap['debugZeroNetCode'];
-    enableTorLogConsole = initMap['enableTorLog'];
-    zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
-    vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
-    enableZeroNetAddTrackers = initMap['enableAdditionalTrackers'];
-    setBgServiceRunningNotification();
-  } else if (data.keys.first == 'notification') {
-    if (data.values.first == 'ZeroNetStatus.RUNNING') {
-      setZeroNetRunningNotification();
-    } else if (data.values.first == 'BgService.RUNNING') {
-      setBgServiceRunningNotification();
-    }
-  }
-}
-
-setZeroNetRunningNotification() {
-  service.setNotificationInfo(
-    title: "ZeroNet Mobile is Running",
-    content: "Click Here on this Notification to open app",
-  );
-}
-
-setBgServiceRunningNotification() {
-  service.setNotificationInfo(
-    title: "ZeroNet Mobile is Not Running",
-    content: "Open ZeroNet Mobile App and click start to run ZeroNet",
-  );
-}
-
-void onBgServiceDataReceived(Map<String, dynamic> data) {
-  if (data.keys.first == 'status') {
-    service.sendData({'notification': 'BgService.RUNNING'});
-    service.sendData({
-      'init': {
-        'zeroNetNativeDir': zeroNetNativeDir,
-        'zeroNetStartedFromBoot': false,
-        'debugZeroNetCode':
-            (varStore.settings[debugZeroNet] as ToggleSetting).value,
-        'enableTorLog':
-            (varStore.settings[enableTorLog] as ToggleSetting).value,
-        'vibrateOnZeroNetStart':
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value,
-        'enableAdditionalTrackers':
-            (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
-                .value,
-      }
-    });
-    if (zeroNetNativeDir.isEmpty || zeroNetNativeDir == null) {
-      printToConsole('zeroNetNativeDir is Empty');
-    } else if ((varStore.settings[autoStartZeroNet] as ToggleSetting).value ==
-        true) {
-      service.sendData({'cmd': 'runZeroNet'});
-    }
-  } else if (data.keys.first == 'ZeroNetStatus') {
-    switch (data.values.first) {
-      case 'INITIALISING':
-        uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
-        break;
-      case 'ERROR':
-        uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
-        break;
-      default:
-    }
-  } else if (data.keys.first == 'console') {
-    printToConsole(data.values.first);
-  }
-}
-
-shutDownZeronet() {
-  if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
-    service.sendData({'cmd': 'shutDownZeronet'});
-    if (ZeroNet.isInitialised)
-      ZeroNet.instance.shutDown();
-    else {
-      runZeroNetWs(address: Utils.urlHello);
-      try {
-        ZeroNet.instance.shutDown();
-      } catch (e) {
-        printOut(e);
-      }
-    }
-    zeroNetUrl = '';
-    uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
-  }
-}
-
-runZeroNetWs({String address}) {
-  var zeroNetUrlL = zeroNetUrl.isNotEmpty ? zeroNetUrl : defZeroNetUrl;
-  zeroNetUrl = zeroNetUrlL;
-  if (varStore.zeroNetWrapperKey.isEmpty) {
-    ZeroNet.instance
-        .getWrapperKey(zeroNetUrl + Utils.initialSites['ZeroHello']['url'])
-        .then((value) {
-      if (value != null) {
-        // ZeroNet.wrapperKey = value;
-        varStore.zeroNetWrapperKey = value;
-        browserUrl = zeroNetUrl;
-        ZeroNet.instance.connect(
-          zeroNetIPwithPort(defZeroNetUrl),
-          address ?? Utils.urlZeroNetMob,
-        );
-      }
-    });
-  } else {
-    // ZeroNet.wrapperKey = varStore.zeroNetWrapperKey;
-    browserUrl = zeroNetUrl;
-  }
-}
-
-restartZeroNet() {
-  ZeroNet.instance.shutDown();
-  service.sendData({'cmd': 'runZeroNet'});
 }
 
 writeZeroNetConf(String str) {
@@ -396,7 +143,9 @@ List<String> getZeroNameProfiles() {
 }
 
 String getZeroIdUserName() {
-  File file = File(getZeroNetUsersFilePath());
+  var zeroNetUsersFilePath = getZeroNetUsersFilePath();
+  if (zeroNetUsersFilePath.isEmpty) return '';
+  File file = File(zeroNetUsersFilePath);
   if (!file.existsSync()) return '';
   Map map = json.decode(file.readAsStringSync());
   var key = map.keys.first;
@@ -438,13 +187,29 @@ bool isLocalZitesExists() {
 
 Future<bool> activateFilters() async {
   File file = File(getZeroNetDataDir().path + '/filters.json');
-  if (!file.existsSync()) {
+  File fileTemp = File(getZeroNetDataDir().path + '/filters-tmp.json');
+  if (!file.existsSync() || fileTemp.existsSync()) {
     File deFile = File(getZeroNetDataDir().path + '/filters.json-deactive');
     if (deFile.existsSync()) {
       deFile.renameSync(getZeroNetDataDir().path + '/filters.json');
       return true;
-    } else
-      return await saveFilterstoDevice(file);
+    } else {
+      await saveInAppFilterstoDevice();
+      var filtersFileName = '';
+      var filtersPath =
+          getZeroNetDataDir().path + '/${Utils.urlZeroNetMob}/filters/';
+      int len = 0;
+      var directory = Directory(filtersPath);
+      if (directory.existsSync()) len = directory.listSync().length;
+      if (len >= 4) {
+        filtersFileName = 'assets/filters/filters.json';
+        fileTemp.deleteSync(recursive: true);
+      } else {
+        filtersFileName = 'assets/filters/filters-tmp.json';
+        await saveFilterstoDevice(fileTemp, filtersFileName);
+      }
+      return await saveFilterstoDevice(file, filtersFileName);
+    }
   }
   return true;
 }
@@ -457,9 +222,21 @@ Future<bool> deactivateFilters() async {
   return true;
 }
 
-Future<bool> saveFilterstoDevice(File file) async {
+Future<bool> saveInAppFilterstoDevice() async {
+  for (var filterName in filterFileNames) {
+    File file = File(
+      getZeroNetDataDir().path + '/tmp/filters/$filterName',
+    );
+    if (!file.existsSync()) {
+      await saveFilterstoDevice(file, 'assets/filters/$filterName');
+    }
+  }
+  return true;
+}
+
+Future<bool> saveFilterstoDevice(File file, String assetPath) async {
   file.createSync(recursive: true);
-  var data = (await rootBundle.load('assets/filters.json'));
+  var data = (await rootBundle.load(assetPath));
   var buffer = data.buffer;
   file.writeAsBytesSync(buffer.asUint8List(
     data.offsetInBytes,
@@ -472,4 +249,144 @@ Future<bool> createTorDataDir() {
   Directory torDir = Directory(dataDir + '/usr/var/lib/tor');
   if (!torDir.existsSync()) torDir.createSync();
   return Future.value(true);
+}
+
+int getZeroNetRevision(String zeroNetDir) {
+  var file = File(zeroNetDir + '/src/Config.py');
+  var content = file.readAsStringSync();
+  var versionIndex = content.indexOf('self.rev = ');
+  var version = content.substring(versionIndex + 11, versionIndex + 15);
+  return int.parse(version);
+}
+
+String getZeroNetVersion(String zeroNetDir) {
+  var file = File(zeroNetDir + '/src/Config.py');
+  var content = file.readAsStringSync();
+  var versionIndex = content.indexOf('self.version = "');
+  content = content.substring(versionIndex + 16);
+  var endindex = content.indexOf('"');
+  var version = content.substring(0, endindex);
+  return version;
+}
+
+bool checkPatchNeeded() {
+  var zeroNetVersion = getZeroNetVersion(zeronetDir);
+  var zeroNetRevision = getZeroNetRevision(zeronetDir);
+  if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2') {
+    return true;
+  } else if (zeroNetRevision == 4556 && zeroNetVersion == '0.7.2-v3patched') {
+    return false;
+  }
+  return false;
+}
+
+Future<void> downloadPatch(String version) async {
+  File patchFile = File(tempDir.path + '/$version.zip');
+  if (!patchFile.existsSync()) {
+    await downloadFile(zpatches, '$version.zip', tempDir.path);
+  }
+  Directory dir = Directory(tempDir.path + '/patches/$version');
+  if (!dir.existsSync()) {
+    unzipBytes(version, patchFile.readAsBytesSync(),
+        dest: '${tempDir.path}/patches/$version/');
+  }
+}
+
+Future<String> downloadFile(String url, String fileName, String dir) async {
+  HttpClient httpClient = HttpClient();
+  File file;
+  String filePath = '';
+  String myUrl = '';
+
+  try {
+    myUrl = url + '/' + fileName;
+    var request = await httpClient.getUrl(Uri.parse(myUrl));
+    var response = await request.close();
+    if (response.statusCode == 200) {
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      filePath = '$dir/$fileName';
+      file = File(filePath);
+      await file.writeAsBytes(bytes);
+    } else
+      filePath = 'Error code: ' + response.statusCode.toString();
+  } catch (ex) {
+    filePath = 'Can not fetch url';
+  }
+
+  return filePath;
+}
+
+void checkPatchAndApply(String patchPath, String zeroNetPath) {
+  var zeroNetVersion = getZeroNetVersion(zeroNetPath);
+  var zeroNetRevision = getZeroNetRevision(zeroNetPath);
+
+  if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2') {
+    printOut('Applying patch for 0.7.2');
+    applyPatch(patchPath, zeroNetPath);
+  } else if (zeroNetRevision == 4555 && zeroNetVersion == '0.7.2-torv3') {
+    printOut('Patch Already Applied for 0.7.2');
+  }
+}
+
+void applyPatch(String patchPath, String destination) {
+  var patchManifestFile = File(
+    patchPath + '/patch.manifest',
+  ).readAsStringSync();
+  var contents = patchManifestFile.split('\n');
+  for (var line in contents) {
+    if (line.startsWith('[{D_}]')) {
+      var filePath = line.replaceAll('[{D_}]', '');
+      var file = File(destination + '/' + filePath);
+      try {
+        file.deleteSync();
+      } catch (e) {
+        print(e);
+      }
+    } else if (line.startsWith('[{A_}]')) {
+      var name = line.replaceAll('[{A_}]', '');
+      var file = File(patchPath + '/' + name);
+      if (!file.existsSync()) {
+        // throw Exception('File does not exist');
+      }
+      var p = File(destination + '/' + name).parent;
+      if (!p.existsSync()) {
+        p.createSync();
+      }
+      File(file.path).copySync(destination + '/' + name);
+    } else if (line.startsWith('[{R_}]')) {
+      var params = line.replaceAll('[{R_}]', '').split('][');
+      var oldname = params[0].replaceAll('[', '');
+      var newname = params[1].replaceAll(']', '');
+      if (oldname.endsWith('/') && newname.endsWith('/')) {
+        try {
+          Directory(destination + '/' + oldname).renameSync(
+            destination + '/' + newname,
+          );
+        } catch (e) {
+          print(e);
+        }
+      } else {
+        try {
+          File(destination + '/' + oldname).renameSync(
+            destination + '/' + newname,
+          );
+        } catch (e) {
+          print(e);
+        }
+      }
+    } else if (line.startsWith('[{M_}]')) {
+      var path = line.replaceAll('[{M_}]', '');
+      var patchFile = File(patchPath + '/' + path + '.patch');
+      var destinationFile = File(destination + '/' + path);
+      var p = patchFromText(patchFile.readAsStringSync());
+
+      var dmp = DiffMatchPatch();
+      // var diff = dmp.diff(orgContent, patchedContent);
+      var result = dmp.patch_apply(p, destinationFile.readAsStringSync());
+      print('\n' + result[1].toString() + '\n');
+      if (!(result[1] as List<bool>).contains(false)) {
+        destinationFile.writeAsString(result[0]);
+      }
+    }
+  }
 }

@@ -8,56 +8,58 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  auto_size_text: 2.1.0
-  archive: 2.0.13
-  crypto: 2.1.5
-  clipboard: 0.1.2+8
-  device_info: 0.4.2+9
-  file_picker: 2.0.9+1
+  auto_size_text: ^3.0.0
+  archive: ^3.1.6
+  crypto: ^3.0.1
+  clipboard: ^0.1.3
+  device_info: ^2.0.2
+  diff_match_patch: ^0.4.1
+  file_picker: ^4.2.0
   flutter_absolute_path: 
     # path: ../flutter_absolute_path
     git:
       url: https://github.com/canewsin/flutter_absolute_path.git
-      ref: android-v2
-  flutter_downloader: 1.5.1
-  flutter_mobx: 0.3.3+3
-  http: 0.12.2
-  mobx: 0.3.3+1
-  google_fonts: 1.1.1
-  in_app_purchase: 0.3.4+15
-  in_app_review: 0.2.1+1
-  in_app_update: 1.1.13
+      # ref: android-v2
+  flutter_downloader: ^1.6.1
+  # flutter_mobx: ^1.1.0+2
+  http: ^0.13.4
+  # mobx: ^1.2.1+4
+  get: ^4.3.0
+  google_fonts: ^2.1.0
+  in_app_review: ^2.0.2
+  in_app_update: ^2.0.0
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
-  outline_material_icons: 0.1.1
-  equatable: 1.2.5
-  time_ago_provider: 2.3.1
-  package_info: 0.4.3
-  path_provider: 1.6.21
-  purchases_flutter: 1.4.0
-  random_string: 2.1.0
-  share: 0.6.5+3
-  url_launcher: 5.7.6
-  flutter_background_service: 0.0.1+21
+  outline_material_icons: ^0.1.1
+  equatable: ^2.0.2
+  time_ago_provider: ^4.1.0
+  package_info: ^2.0.2
+  path_provider: ^2.0.2
+  purchases_flutter: ^3.5.0
+  random_string: 2.3.1
+  share: ^2.0.4
+  url_launcher: ^6.0.9
+  flutter_background_service: #^0.1.5
     # path: ../flutter_background_service
-    # git:
-    #   url: https://github.com/canewsin/flutter_background_service
+    git:
+      url: https://github.com/ekasetiawans/flutter_background_service
     #   ref: zeronet
-  flutter_webview_plugin: #0.3.11
-    git:
-      url: https://github.com/canewsin/flutter_webview_plugin
-      ref: fullscreen-support
-  web_socket_channel: 1.1.0
-  zeronet_ws:
+  flutter_webview_plugin: ^0.4.0
+    # git: https://github.com/nuc134r/flutter_webview_plugin.git
+    # git:
+    #   url: https://github.com/canewsin/flutter_webview_plugin
+    #   ref: fullscreen-support
+  # web_socket_channel: 1.1.0
+  zeronet_ws: ^0.0.3
     # path: ../zeronet_ws
-    git:
-      url : https://github.com/canewsin/zeronet_ws.git
+    # git:
+    #   url : https://github.com/canewsin/zeronet_ws.git
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: 1.9.0
-  mobx_codegen: 0.3.4
+  # build_runner: ^1.11.5
+  # mobx_codegen: ^1.1.2
 
 flutter:
   uses-material-design: true
@@ -65,3 +67,4 @@ flutter:
     - assets/
     - assets/developers/
     - assets/icons/
+    - assets/filters/

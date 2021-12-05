@@ -2,17 +2,11 @@ import '../imports.dart';
 
 class Loading extends StatelessWidget {
   // String data = 'Loading';
-  final String warning = """
-    Please Wait! This may take a while, happens 
-    only first time, Don't Press Back button.
-    If You Accidentally Pressed Back,
-    Clean App Storage in Settings or 
-    Uninstall and Reinstall The App.
-    """;
+  final String warning = strController.loadingPageWarningStr.value;
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     check();
     return Scaffold(
       body: Center(
@@ -23,11 +17,11 @@ class Loading extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(24.0),
             ),
-            Observer(
-              builder: (context) {
+            Obx(
+              () {
                 var status = varStore.loadingStatus;
                 return Text(
-                  status,
+                  status.value,
                   style: TextStyle(
                     fontSize: 24.0,
                     fontStyle: FontStyle.italic,
@@ -35,7 +29,7 @@ class Loading extends StatelessWidget {
                 );
               },
             ),
-            Observer(builder: (context) {
+            Obx(() {
               var percent = varStore.loadingPercent;
               return (percent < 1)
                   ? CircularProgressIndicator()

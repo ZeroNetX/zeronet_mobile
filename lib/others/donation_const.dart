@@ -2,11 +2,34 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
-const Map<String, String> donationsAddressMap = {
-  "BTC(Preferred)": "35NgjpB3pzkdHkAPrNh2EMERGxnXgwCb6G",
-  "ETH": "0xa81a32dcce8e5bcb9792daa19ae7f964699ee536",
-  "UPI(Indian Users)": "pramukesh@upi",
-  "Liberapay": "https://liberapay.com/canews.in/donate",
+var enableExternalDonations = false;
+var btcAddress = '1ZeroNetyV5mKY9JF1gsm82TuBXHpfdLX';
+var ethAddress = '0xa7064577f79ece591143F5CccBA2afAE057903C6';
+var upiAddress = 'pramukesh@upi';
+var liberaPayAddress = 'https://liberapay.com/canews.in/donate';
+
+void getDonationSettings() {
+  var dir = Utils.urlZeroNetMob.zeroNetDataPath;
+  if (Directory(dir).existsSync()) {
+    var file = File(dir + '/native.decent');
+    if (file.existsSync()) {
+      var decode = json.decode(file.readAsStringSync());
+      var settingsMap = (decode as Map<String, dynamic>)['settings'];
+      var donations = settingsMap['donations'];
+      enableExternalDonations = donations['enableExternalDonations'];
+      btcAddress = donations['btcAddress'];
+      ethAddress = donations['ethAddress'];
+      upiAddress = donations['upiAddress'];
+      liberaPayAddress = donations['liberapayAddress'];
+    }
+  }
+}
+
+Map<String, String> donationsAddressMap = {
+  "BTC(Preferred)": btcAddress,
+  "ETH": ethAddress,
+  "UPI(Indian Users)": upiAddress,
+  "Liberapay": liberaPayAddress,
 };
 
 const Set<String> kGooglePlayPurchaseOneTimeIds = {
@@ -40,11 +63,16 @@ Future<bool> isProUser() async {
   try {
     final userName = getZeroIdUserName();
     PurchaserInfo purchaserInfo;
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
-    purchaserInfo = await Purchases.getPurchaserInfo();
-    if (purchaserInfo.entitlements.active.length > 0) return true;
+    if (userName.isNotEmpty) {
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
+      purchaserInfo = await Purchases.getPurchaserInfo();
+      if (purchaserInfo.entitlements.active.length > 0) return true;
+    } else
+      return false;
   } on PlatformException catch (e) {
+    printOut(e);
     // Error fetching purchaser info
+    return false;
   }
   return false;
 }
@@ -53,67 +81,19 @@ void purchasePackage(Package package) async {
   try {
     PurchaserInfo purchaserInfo;
     final userName = getZeroIdUserName();
-    if (userName.isNotEmpty) purchaserInfo = await Purchases.identify(userName);
+    if (userName.isNotEmpty)
+      purchaserInfo = (await Purchases.logIn(userName)).purchaserInfo;
     purchaserInfo = await Purchases.purchasePackage(package);
 
-    var isPro = await isProUser();
-    if (isPro) {
+    kisProUser = await isProUser();
+    if (kisProUser) {
       // Unlock that great "pro" content
     }
-    print(purchaserInfo);
+    printOut(purchaserInfo);
   } on PlatformException catch (e) {
     var errorCode = PurchasesErrorHelper.getErrorCode(e);
     if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
       // showError(e);
     }
   }
-}
-
-void listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
-  purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
-    if (purchaseDetails.status == PurchaseStatus.pending) {
-      // showPendingUI();
-    } else {
-      if (purchaseDetails.status == PurchaseStatus.error) {
-        scaffoldState.showSnackBar(
-          SnackBar(
-            content: Text(
-              //!TODO Improve Error Messages sp that user can understand easily.
-              'PurchaseStatus.error :: ${purchaseDetails.error.message}',
-            ),
-          ),
-        );
-      } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-        bool valid = await _verifyPurchase(purchaseDetails);
-        if (valid) {
-          deliverProduct(purchaseDetails);
-        } else {
-          // _handleInvalidPurchase(purchaseDetails);
-          return;
-        }
-      }
-
-      if (purchaseDetails.productID != null &&
-          purchaseDetails.productID.contains('zeronet_one')) {
-        await InAppPurchaseConnection.instance.consumePurchase(purchaseDetails);
-        purchasesStore.addConsumedPurchases(purchaseDetails.purchaseID);
-      }
-      if (purchaseDetails.pendingCompletePurchase) {
-        await InAppPurchaseConnection.instance
-            .completePurchase(purchaseDetails);
-      }
-    }
-  });
-}
-
-_verifyPurchase(PurchaseDetails purchaseDetails) {
-  print(purchaseDetails.verificationData.localVerificationData);
-  return Future<bool>.value(true);
-}
-
-void deliverProduct(PurchaseDetails purchaseDetails) async {
-  // IMPORTANT!! Always verify a purchase purchase details before delivering the product.
-  if (purchaseDetails.productID.contains('zeronet_one')) {
-    purchasesStore.addPurchases(purchaseDetails.purchaseID);
-  } else {}
 }

@@ -6,6 +6,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
+      color: uiStore.currentTheme.value.primaryColor,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,6 +22,7 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 30),
                   ),
                   ZeroNetStatusWidget(),
+                  ZeroNetUserStatusWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -54,33 +56,38 @@ class HomePage extends StatelessWidget {
 class InAppUpdateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      if (uiStore.appUpdate != AppUpdate.NOT_AVAILABLE)
+    return Obx(() {
+      if (uiStore.appUpdate.value != AppUpdate.NOT_AVAILABLE)
         return Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
-              'App Update Available : ',
+              strController.appUpdateAvailableStr.value,
               style: GoogleFonts.roboto(
                 fontSize: 20.0,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            RaisedButton(
-              onPressed: uiStore.appUpdate.action,
-              color: Color(0xFF008297),
-              padding: EdgeInsets.only(left: 10, right: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
+            ElevatedButton(
+              onPressed: uiStore.appUpdate.value.action,
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+                padding: MaterialStateProperty.all(
+                    EdgeInsets.only(left: 10, right: 10)),
               ),
-              child: Observer(builder: (context) {
+              child: Obx(() {
                 return Text(
-                  uiStore.appUpdate.text,
+                  uiStore.appUpdate.value.text,
                   style: GoogleFonts.roboto(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: uiStore.currentTheme.value.btnTextColor,
                   ),
                 );
               }),
@@ -95,19 +102,24 @@ class InAppUpdateWidget extends StatelessWidget {
 class AboutButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () => uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
-      color: Color(0xFFAA5297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFFAA5297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
-        'Know More',
+        strController.knowMoreStr.value,
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
-          color: Colors.white,
+          color: uiStore.currentTheme.value.btnTextColor,
         ),
       ),
     );
@@ -117,7 +129,7 @@ class AboutButtonWidget extends StatelessWidget {
 class RatingButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
         //TODO: remove this once we support non playstore reviews.
@@ -127,17 +139,22 @@ class RatingButtonWidget extends StatelessWidget {
           //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
         }
       },
-      color: Color(0xFF008297),
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Color(0xFF008297)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+        padding: MaterialStateProperty.all(
+            EdgeInsets.only(top: 10, bottom: 10, left: 30, right: 30)),
       ),
       child: Text(
-        'Give Your Rating/Feedback',
+        strController.ratingWgtStr.value,
         style: GoogleFonts.roboto(
           fontSize: 16.0,
           fontWeight: FontWeight.normal,
-          color: Colors.white,
+          color: uiStore.currentTheme.value.btnTextColor,
         ),
       ),
     );
@@ -152,59 +169,60 @@ class ZeroNetStatusWidget extends StatelessWidget {
         Row(
           children: <Widget>[
             Text(
-              'Status',
+              strController.statusStr.value,
               style: GoogleFonts.roboto(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
             Spacer(
               flex: 1,
             ),
-            Observer(
-              builder: (context) {
+            Obx(
+              () {
                 return Chip(
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.message,
+                      uiStore.zeroNetStatus.value.message,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
-                        color: Colors.white,
+                        fontSize: 18,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.statusChipColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.statusChipColor,
                 );
               },
             ),
             Spacer(
               flex: 1,
             ),
-            Observer(builder: (context) {
+            Obx(() {
               return InkWell(
-                onTap: uiStore.zeroNetStatus.onAction,
+                onTap: uiStore.zeroNetStatus.value.onAction,
                 child: Chip(
                   elevation: 8.0,
                   label: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      uiStore.zeroNetStatus.actionText,
+                      uiStore.zeroNetStatus.value.actionText,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
-                        color: Colors.white,
+                        fontSize: 18,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
-                  backgroundColor: uiStore.zeroNetStatus.actionBtnColor,
+                  backgroundColor: uiStore.zeroNetStatus.value.actionBtnColor,
                 ),
               );
             }),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               Spacer(
                 flex: 1,
               ),
-            if (uiStore.zeroNetStatus == ZeroNetStatus.ERROR)
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR)
               InkWell(
                 onTap: ZeroNetStatus.NOT_RUNNING.onAction,
                 child: Chip(
@@ -213,7 +231,7 @@ class ZeroNetStatusWidget extends StatelessWidget {
                     child: Text(
                       ZeroNetStatus.NOT_RUNNING.actionText,
                       style: GoogleFonts.roboto(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colors.white,
                       ),
                     ),
@@ -223,6 +241,77 @@ class ZeroNetStatusWidget extends StatelessWidget {
               ),
             Spacer(
               flex: 4,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class ZeroNetUserStatusWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: <Widget>[
+            Text(
+              strController.userStatusStr.value,
+              style: GoogleFonts.roboto(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
+              ),
+            ),
+            Spacer(
+              flex: 1,
+            ),
+            Obx(
+              () {
+                return Chip(
+                  label: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      uiStore.zeroNetUserStatus.value.message,
+                      style: GoogleFonts.roboto(
+                        fontSize: 16,
+                        color: uiStore.currentTheme.value.btnTextColor,
+                      ),
+                    ),
+                  ),
+                  backgroundColor:
+                      uiStore.zeroNetUserStatus.value.statusChipColor,
+                );
+              },
+            ),
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
+              Spacer(
+                flex: 1,
+              ),
+            if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
+              Obx(() {
+                return InkWell(
+                  onTap: uiStore.zeroNetUserStatus.value.onAction,
+                  child: Chip(
+                    elevation: 8.0,
+                    label: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Text(
+                        uiStore.zeroNetUserStatus.value.actionText,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                          color: uiStore.currentTheme.value.btnTextColor,
+                        ),
+                      ),
+                    ),
+                    backgroundColor:
+                        uiStore.zeroNetUserStatus.value.actionBtnColor,
+                  ),
+                );
+              }),
+            Spacer(
+              flex: 6,
             ),
           ],
         ),
@@ -265,10 +354,11 @@ class PopularZeroNetSites extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.all(4.0),
                   child: Text(
-                    'Popular Sites',
+                    strController.popularSitesStr.value,
                     style: GoogleFonts.roboto(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ),
@@ -311,6 +401,7 @@ class SiteDetailCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(9),
       ),
+      color: uiStore.currentTheme.value.cardBgColor,
       margin: EdgeInsets.only(bottom: 14.0),
       child: Container(
         height: 60.0,
@@ -331,6 +422,7 @@ class SiteDetailCard extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ],
@@ -346,11 +438,14 @@ class SiteDetailCard extends StatelessWidget {
                     onPressed: () {
                       uiStore.currentBottomSheetController = showBottomSheet(
                         context: context,
+                        backgroundColor:
+                            uiStore.currentTheme.value.primaryColor,
                         elevation: 16.0,
                         builder: (ctx) {
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16.0),
+                              color: uiStore.currentTheme.value.cardBgColor,
                             ),
                             constraints: BoxConstraints(
                               minHeight: 300.0,
@@ -388,19 +483,27 @@ class SiteDetailCard extends StatelessWidget {
                       size: 36,
                       color: Color(isZiteExists ? 0xFF6EB69E : 0xDF6EB69E),
                     ),
-                    onTap: uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING
+                    onTap: uiStore.zeroNetStatus.value ==
+                            ZeroNetStatus.NOT_RUNNING
                         ? () {
-                            Scaffold.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Please Start ZeroNet First to Browse this Zite',
-                                ),
+                            Get.showSnackbar(
+                              GetBar(
+                                message:
+                                    strController.startZeroNetFirstStr.value,
                               ),
                             );
                           }
-                        : () {
-                            browserUrl =
-                                zeroNetUrl + Utils.initialSites[name]['url'];
+                        : () async {
+                            var url = zeroNetUrl;
+                            if (url.isEmpty) {
+                              var isServiceRunning =
+                                  await FlutterBackgroundService()
+                                      .isServiceRunning();
+                              if (isServiceRunning) {
+                                url = defZeroNetUrl;
+                              }
+                            }
+                            browserUrl = url + Utils.initialSites[name]['url'];
                             uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                           },
                   ),
@@ -450,6 +553,7 @@ class SiteDetailsSheet extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontSize: 31.0,
                       fontWeight: FontWeight.w500,
+                      color: uiStore.currentTheme.value.primaryTextColor,
                     ),
                   ),
                 ),
@@ -464,16 +568,22 @@ class SiteDetailsSheet extends StatelessWidget {
                         Utils.initialSites[name]['url'],
                       ),
                     ),
-                    Observer(builder: (context) {
-                      return RaisedButton(
-                        color: Color(0xFF009764),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        onPressed: uiStore.zeroNetStatus ==
+                    Obx(() {
+                      return ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Color(0xFF009764),
+                          ),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                          ),
+                        ),
+                        onPressed: uiStore.zeroNetStatus.value ==
                                 ZeroNetStatus.NOT_RUNNING
                             ? () {
                                 snackMessage =
-                                    'Please Start ZeroNet First to Browse this Zite';
+                                    strController.startZeroNetFirstStr.value;
                                 uiStore.updateShowSnackReply(true);
                               }
                             : () {
@@ -485,12 +595,14 @@ class SiteDetailsSheet extends StatelessWidget {
                                 );
                               },
                         child: Text(
-                          isZiteExists ? 'OPEN' : 'DOWNLOAD',
+                          isZiteExists
+                              ? strController.openStr.value
+                              : strController.downloadStr.value,
                           maxLines: 1,
                           style: GoogleFonts.roboto(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: uiStore.currentTheme.value.btnTextColor,
                           ),
                         ),
                       );
@@ -505,6 +617,7 @@ class SiteDetailsSheet extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
             Padding(padding: EdgeInsets.all(6.0)),
@@ -513,10 +626,15 @@ class SiteDetailsSheet extends StatelessWidget {
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                RaisedButton(
-                  color: Color(0xFF008297),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Color(0xFF008297)),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
                   ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
@@ -533,45 +651,58 @@ class SiteDetailsSheet extends StatelessWidget {
                       logoPath,
                     );
                     if (added) {
-                      snackMessage = '$name shortcut added to  HomeScreen';
+                      snackMessage =
+                          '$name ${strController.shrtAddedToHomeScreenStr.value}';
                       uiStore.updateShowSnackReply(true);
                     }
                   },
                   child: Text(
-                    'Add to HomeScreen',
+                    strController.addToHomeScreenStr.value,
                     maxLines: 1,
                     style: GoogleFonts.roboto(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w300,
-                      color: Colors.white,
+                      color: uiStore.currentTheme.value.btnTextColor,
                     ),
                   ),
                 ),
                 if (isZiteExists)
-                  RaisedButton(
-                    color: Color(0xFF517184),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF517184)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       uiStore.currentBottomSheetController?.close();
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
                     },
                     child: Text(
-                      'Show Log',
+                      strController.showLogStr.value,
                       maxLines: 1,
                       style: GoogleFonts.roboto(
                         fontSize: 18.0,
                         fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                        color: uiStore.currentTheme.value.btnTextColor,
                       ),
                     ),
                   ),
                 if (!unImplementedFeatures.contains(Feature.SITE_PAUSE_RESUME))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFF009793),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Color(0xFF009793)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                         currentSite = (currentSite.serving)
@@ -583,31 +714,39 @@ class SiteDetailsSheet extends StatelessWidget {
                             sitesAvailable);
                       },
                       child: Text(
-                        currentSite.serving ? 'Pause' : 'Resume',
+                        currentSite.serving
+                            ? strController.pauseStr.value
+                            : strController.resumeStr.value,
                         maxLines: 1,
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w300,
-                          color: Colors.white,
+                          color: uiStore.currentTheme.value.btnTextColor,
                         ),
                       ),
                     ),
                 if (!unImplementedFeatures.contains(Feature.SITE_DELETE))
                   if (isZiteExists && currentSite != null)
-                    RaisedButton(
-                      color: Color(0xFFBB4848),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Color(0xFFBB4848),
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                        ),
+                      ),
                       onPressed: () {
                         //TODO: Implement this function;
                       },
                       child: Text(
-                        'Delete Zite',
+                        strController.deleteZiteStr.value,
                         maxLines: 1,
                         style: GoogleFonts.roboto(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w300,
-                          color: Colors.white,
+                          color: uiStore.currentTheme.value.btnTextColor,
                         ),
                       ),
                     ),
@@ -615,20 +754,20 @@ class SiteDetailsSheet extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(6.0)),
             if (isZiteExists)
-              Observer(builder: (context) {
+              Obx(() {
                 return SiteInfoWidget(
-                  uiStore.currentSiteInfo,
+                  uiStore.currentSiteInfo.value,
                 );
               }),
           ],
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Observer(builder: (context) {
+          child: Obx(() {
             Timer(Duration(seconds: 3), () {
               uiStore.updateShowSnackReply(false);
             });
-            return uiStore.showSnackReply
+            return uiStore.showSnackReply.value
                 ? Container(
                     height: 50.0,
                     color: Colors.grey[900],
@@ -665,6 +804,7 @@ class SiteInfoWidget extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 12,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
       );
@@ -690,6 +830,7 @@ class SiteInfoWidget extends StatelessWidget {
             style: GoogleFonts.roboto(
               fontSize: 12.0,
               fontWeight: FontWeight.normal,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         );
@@ -699,10 +840,11 @@ class SiteInfoWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SiteInfo',
+          strController.siteInfoStr.value,
           style: GoogleFonts.roboto(
             fontSize: 21.0,
             fontWeight: FontWeight.w500,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(padding: EdgeInsets.all(2.0)),

@@ -1,0 +1,208 @@
+{
+"mutes" : {
+    "16LErDGxiEQgmerLmwT2sBrtBeg2PBH3jN": {
+      "cert_user_id": "zaranet@zeroid.bit",
+      "date_added": 1549505685.860143,
+      "reason": "Posting spam about crypto mining sites",
+      "source": "15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk"
+    },
+    "12fkBZP8Pt6WPujhx1Xc8Rqve8rDKmHoBk": {
+      "cert_user_id": "lkgskhg@zeroid.bit",
+      "date_added": 1549505685.860143,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "14fdwxPt83nTw5vFaXTCR7KQkAxkXuGbAR": {
+      "cert_user_id": "doom1b@zeroid.bit",
+      "date_added": 1495182803.383208,
+      "reason": "Spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "18EuCdX79X4qbLEFBDLiaTSbkXU1ojM9A2": {
+      "cert_user_id": "miter@zeroid.bit",
+      "date_added": 1549506339.578346,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1Abwpgjt1RmxDhhMzCKDsePVUUDSruW4cT": {
+      "cert_user_id": "zeronetisashi@zeroid.bit",
+      "date_added": 1549500655.330371,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1BKYZXxnwD1Ci92XE4VNkQmWy5HjCC51Lh": {
+      "cert_user_id": "kasjslg@zeroid.bit",
+      "date_added": 1549505927.418664,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1D4B7XbRYY5p9kx79NtKr3qiShR5Tcpnvo": {
+      "cert_user_id": "doom1@zeroid.bit",
+      "date_added": 1495182789.474986,
+      "reason": "Spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1FCtdTcT4Y1LimfEpRhaHsGKKYiAGjtMaZ": {
+      "cert_user_id": "goodone@zeroid.bit",
+      "date_added": 1549489420.202482,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1MRSDFESsBXDGvNoZ5ifztA89XfEahA5ka": {
+      "cert_user_id": "bbxxx@zeroid.bit",
+      "date_added": 1495183369.513695,
+      "reason": "Spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1EFPRZRhijiQv6MvhJQLgV2SdPtHR6tJZ": {
+      "cert_user_id": "immortal0000@zeroid.bit",
+      "date_added": 1495183624.231652,
+      "reason": "Spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1GXJzsEWCBdesJY5BtKgJXFQLuMoVPD6ed": {
+      "cert_user_id": "abnah@zeroid.bit",
+      "date_added": 1549528840.535473,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1QYERLpyBWwtprzJNTtyaNpjgq4aq2kfB": {
+      "cert_user_id": "afjzvmh@zeroid.bit",
+      "date_added": 1549536521.766814,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1HQsX5fubepwWtHnf4SqNcFVEMa4t8N1jP": {
+      "cert_user_id": "afnaui@zeroid.bit",
+      "date_added": 1549538136.695098,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1QYERLpyBWwtprzJNTtyaNpjgq4aq2kfB": {
+      "cert_user_id": "afjzvmh@zeroid.bit",
+      "date_added": 1549539112.699984,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "18KRHZjWh7HjvoRLAbVygq94waeWU69SSH": {
+      "cert_user_id": "ajgaho@zeroid.bit",
+      "date_added": 1549539909.840917,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1Fi7HAnhZ1iu3kuG4oEZPhkiGCqp9WcMaG": {
+      "cert_user_id": "ajgalfj@zeroid.bit",
+      "date_added": 1549540102.139871,
+      "reason": "Chinese spammer",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "17VS3A2eHFeMuoRsQX5YofXuCRetQsHVJX": {
+      "cert_user_id": "17VS3A2eHFeMuoR@millchan",
+      "date_added": 1550169460.500,
+      "reason": "Spammer on millchan /jessicanigri/",
+      "source": "1ADQAHsqsie5PBeQhQgjcKmUu3qdPFg6aA"
+    },
+    "16u5SZKMv9gnxLKQfFE8hYPB9UhFGn5FJw": {
+      "cert_user_id": "16u5SZKMv9gnxLK@millchan",
+      "date_added": 1550169460.500,
+      "reason": "Spammer on millchan /jessicanigri/",
+      "source": "1ADQAHsqsie5PBeQhQgjcKmUu3qdPFg6aA"
+    },
+    "1QJj8o4h2zgcuozSecB2WqmL6FBeQS1XSB": {
+      "cert_user_id": "1QJj8o4h2zgcuoz@millchan",
+      "date_added": 1550169460.500,
+      "reason": "Spammer on millchan /jessicanigri/",
+      "source": "1ADQAHsqsie5PBeQhQgjcKmUu3qdPFg6aA"
+    },
+    "15wTgdNkMoX4keYro96QiefAwXtf8FvxYY": {
+      "cert_user_id": "15wTgdNkMoX4keY@millchan",
+      "date_added": 1550169460.500,
+      "reason": "Spammer on millchan /jessicanigri/",
+      "source": "1ADQAHsqsie5PBeQhQgjcKmUu3qdPFg6aA"
+    },
+    "19eXGqVBwGmKWSfw7MjWknbX5kG5VEwML2": {
+      "cert_user_id": "19eXGqVBwGmKWSf@millchan",
+      "date_added": 1550169460.500,
+      "reason": "Spammer on millchan /jessicanigri/",
+      "source": "1ADQAHsqsie5PBeQhQgjcKmUu3qdPFg6aA"
+    },
+    "14JRUax64emMFVVxN2ikjz5J74CjqoJtFr": {
+      "cert_user_id": "yeahyi@zeroid.bit",
+      "date_added": 1550206131.422221,
+      "reason": "Spammer",
+      "source": "1iD5ZQJMNXu43w1qLB8sfdHVKppVMduGz"
+    },
+    "14Y1Vbo7Mz2efjpMnc4t5iSEYixVQhqQpL": {
+      "cert_user_id": "goody@zeroid.bit",
+      "date_added": 1550717228.894357,
+      "reason": "Spammed ZeroTalk threads",
+      "source": "1iD5ZQJMNXu43w1qLB8sfdHVKppVMduGz"
+    },
+    "13wJrWgzjwKU1zgXJMDCGhkSjsaUvYjZM2": {
+      "cert_user_id": "duende@zeroid.bit",
+      "date_added": 1555902803.067858,
+      "reason": "Pedo who's encouraging me to suicide and spamming his bullshit.",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "17AMQVbBa12XB3xFWKDnP2dCEx92TaiY7X": {
+      "cert_user_id": "anonymouslogin@zeroid.bit",
+      "date_added": 1564403461.560763,
+      "reason": "Public cert, spamming kill yourself messages",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "1A1JcKDgksT5pQJoSo7g1P1cC9kAKvG93m": {
+      "cert_user_id": "publicid@zeroid.bit",
+      "date_added": 1564403486.731043,
+      "reason": "Public cert, spamming kill yourself messages",
+      "source": "1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH"
+    },
+    "18oN5jkSiB1SLb4Jywb4ZnKiwXqtQN5Fau": {
+      "cert_user_id": "qqqqqqqqqqqqqqqq@zeroid.bit",
+      "date_added": 1568807655.9091918,
+      "reason": "spammer",
+      "source": "1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT"
+    },
+    "1JrUPjJmdTq5UsiKefuGTkNMd8MUNvP8Ss": {
+      "cert_user_id": "tedreamraffle@zeroid.bit",
+      "date_added": 1574046190.8304808,
+      "reason": "Spam raffles/lotto",
+      "source": "1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT"
+    },
+    "12ShAsoQVkbEgqfjS2JmXt7cXBSbf8ifuS": {
+      "cert_user_id": "caropc2@zeroid.bit",
+      "date_added": 1574420510.623536,
+      "reason": "Spamming kopykate clone",
+      "source": "1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT"
+    },
+    "1D5iCU5XE1D25ce2fV2XZqH95jGRtRaKZL": {
+      "cert_user_id": "caropc10@zeroid.bit",
+      "date_added": 1574420502.4061,
+      "reason": "spamming kopykate clone",
+      "source": "1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT"
+    },
+    "13EafRdDw5sZF42dTn68uDdcssTWKbdauJ": {
+      "cert_user_id": "deepnude@zeroid.bit",
+      "date_added": 1583066012.629051,
+      "reason": "harmful user",
+      "source": "1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT"
+    },
+	"1EZTWytasXcKdiUFnN4KHqAfvg1nwkTkKv": {
+      "cert_user_id": "kai0@zeroid.bit",
+      "date_added": 1530012685,
+      "source": "ZeroTalk",
+      "reason": "Spammer"
+    },    
+	"14ytAKDfNjArMTqGecTi7ginG3aZTsRAum": {
+      "cert_user_id": "polar2@zeroid.bit",
+      "date_added": 1530012685,
+      "source": "ZeroTalk",
+      "reason": "Spammer"
+    },
+	"1JMXM9eSCpGAocrYxkfUmwiXeqcJw637vC": {
+      "cert_user_id": "mrc@zeroid.bit",
+      "date_added": 1530012685,
+      "source": "ZeroTalk",
+      "reason": "Spammer"
+    }
+	}
+}

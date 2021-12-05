@@ -5,6 +5,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
+      color: uiStore.currentTheme.value.primaryColor,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,9 +17,6 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   ZeroNetAppBar(),
-                  // Padding(
-                  //   padding: EdgeInsets.only(bottom: 30),
-                  // ),
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
@@ -65,6 +63,7 @@ class SettingsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(9),
       ),
       margin: EdgeInsets.only(bottom: 14.0),
+      color: uiStore.currentTheme.value.cardBgColor,
       child: Container(
         // height: 60.0,
         constraints: BoxConstraints(
@@ -93,6 +92,7 @@ class SettingsCard extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w500,
+                          color: uiStore.currentTheme.value.primaryTextColor,
                         ),
                       ),
                     ],
@@ -109,14 +109,10 @@ class SettingsCard extends StatelessWidget {
                           showBottomSheet(
                             context: context,
                             elevation: 16.0,
+                            backgroundColor:
+                                uiStore.currentTheme.value.cardBgColor,
                             builder: (ctx) {
-                              return
-                                  // Card(
-                                  //   color: Color(0xFFFCFCFC),
-                                  //   borderOnForeground: false,
-                                  //   elevation: 16.0,
-                                  //   child:
-                                  Container(
+                              return Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16.0),
                                 ),
@@ -146,16 +142,14 @@ class SettingsCard extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                // ),
-                                //   shadowColor: Colors.grey,
                               );
                             },
                           );
                         },
                       ),
                       if (setting is ToggleSetting)
-                        Observer(
-                          builder: (context) {
+                        Obx(
+                          () {
                             bool enabled = (varStore.settings[setting.name]
                                     as ToggleSetting)
                                 .value;
@@ -171,8 +165,9 @@ class SettingsCard extends StatelessWidget {
                 ],
               ),
               if (setting is MapSetting)
-                Observer(builder: (ctx) {
-                  var i = uiStore.reload;
+                Obx(() {
+                  var i = uiStore.reload.value;
+                  var str = i.toString();
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
                   settingL.options.forEach((element) {
@@ -182,12 +177,22 @@ class SettingsCard extends StatelessWidget {
                         splashColor: Color(0xFF5380FF),
                         onTap: () {
                           settingL.options[settingL.options.indexOf(element)]
-                              .onClick(ctx);
+                              .onClick(Get.context);
                         },
+                        onLongPress: element == MapOptions.BACKUP_PROFILE
+                            ? () {
+                                backUpUserJsonFile(
+                                  context,
+                                  copyToClipboard: true,
+                                );
+                              }
+                            : null,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
                           child: Chip(
                             elevation: 2.0,
+                            backgroundColor:
+                                uiStore.currentTheme.value.cardBgColor,
                             label: Text(
                               settingL
                                   .options[settingL.options.indexOf(element)]
@@ -196,6 +201,8 @@ class SettingsCard extends StatelessWidget {
                               style: GoogleFonts.roboto(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w500,
+                                color:
+                                    uiStore.currentTheme.value.primaryTextColor,
                               ),
                             ),
                           ),
@@ -213,10 +220,10 @@ class SettingsCard extends StatelessWidget {
                           onTap: () {
                             showDialogW(
                               context: context,
-                              title: 'Switch Profile to $profile ?',
+                              title:
+                                  '${strController.switchProfileToStr.value} $profile ?',
                               body: Text(
-                                'this will delete the existing profile, '
-                                'backup existing profile using backup button below',
+                                strController.switchProfileToDesStr.value,
                               ),
                               actionOk:
                                   profileSwitcherActionOk(profile, context),
@@ -240,6 +247,48 @@ class SettingsCard extends StatelessWidget {
                         ),
                       );
                     });
+                  else if ((setting as MapSetting).name == languageSwitcher)
+                    loadTranslations().keys.forEach((language) {
+                      children.insert(
+                        0,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(24.0),
+                          splashColor: Color(0xFF5380FF),
+                          onTap: () {
+                            String code = loadTranslations()[language];
+                            strController.loadTranslationsFromFile(
+                              getZeroNetDataDir().path +
+                                  '/' +
+                                  Utils.urlZeroNetMob +
+                                  '/translations/' +
+                                  'strings-$code.json',
+                            );
+                            varStore.updateSetting((setting as MapSetting)
+                              ..map = {'selected': language});
+                            saveSettings(varStore.settings);
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 3.0, right: 3.0),
+                            child: Chip(
+                              elevation: 2.0,
+                              backgroundColor:
+                                  uiStore.currentTheme.value.cardBgColor,
+                              label: Text(
+                                language,
+                                maxLines: 1,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: uiStore
+                                      .currentTheme.value.primaryTextColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
                   return Wrap(
                     children: children,
                   );
@@ -254,7 +303,7 @@ class SettingsCard extends StatelessWidget {
   Row profileSwitcherActionOk(String profile, BuildContext context) {
     return Row(
       children: <Widget>[
-        FlatButton(
+        TextButton(
           onPressed: () {
             File f = File(getZeroNetUsersFilePath());
             if (f.existsSync()) {
@@ -264,18 +313,18 @@ class SettingsCard extends StatelessWidget {
             if (file.existsSync()) {
               file.renameSync(getZeroNetDataDir().path + '/users.json');
               // _reload();
-              if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING)
+              if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
                 ZeroNet.instance.shutDown();
               service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             }
           },
           child: Text(
-            'Switch',
+            strController.switchStr.value,
           ),
         ),
-        FlatButton(
-          child: Text('Backup'),
+        TextButton(
+          child: Text(strController.backupStr.value),
           onPressed: () => backUpUserJsonFile(context),
         ),
       ],
@@ -300,6 +349,7 @@ class SettingDetailsSheet extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 24.0,
                 fontWeight: FontWeight.w500,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
           ],
@@ -310,6 +360,7 @@ class SettingDetailsSheet extends StatelessWidget {
           style: GoogleFonts.roboto(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
       ],

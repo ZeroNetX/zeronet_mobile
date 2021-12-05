@@ -4,12 +4,6 @@ import 'imports.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  if (kEnableInAppPurchases) {
-    InAppPurchaseConnection.enablePendingPurchases();
-    final Stream purchaseUpdates =
-        InAppPurchaseConnection.instance.purchaseUpdatedStream;
-    purchaseUpdates.listen((purchases) => listenToPurchaseUpdated(purchases));
-  }
   launchUrl = await launchZiteUrl();
   runApp(MyApp());
 }
@@ -17,15 +11,7 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'ZeroNet Mobile',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
@@ -33,22 +19,29 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Observer(
-          builder: (context) {
-            if (varStore.zeroNetInstalled) {
-              scaffoldState = Scaffold.of(context);
+        body: Obx(
+          () {
+            setSystemUiTheme();
+            if (varStore.zeroNetInstalled.value) {
               if (firstTime) {
-                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+                SystemChrome.setEnabledSystemUIMode(
+                  SystemUiMode.manual,
+                  overlays: [
+                    SystemUiOverlay.top,
+                    SystemUiOverlay.bottom,
+                  ],
+                );
                 activateFilters();
                 uiStore.updateCurrentAppRoute(AppRoute.Settings);
                 if (!isExecPermitted)
                   makeExecHelper().then(
                     (value) => isExecPermitted = value,
                   );
+                if (zeroNetNativeDir.isNotEmpty) saveDataFile();
                 // createTorDataDir();
                 firstTime = false;
               }
-              if (uiStore.zeroNetStatus == ZeroNetStatus.NOT_RUNNING &&
+              if (uiStore.zeroNetStatus.value == ZeroNetStatus.NOT_RUNNING &&
                   !manuallyStoppedZeroNet) {
                 checkInitStatus();
               }
@@ -57,18 +50,28 @@ class MyApp extends StatelessWidget {
                         ? "http://127.0.0.1:43110/"
                         : zeroNetUrl) +
                     launchUrl;
-                if (uiStore.zeroNetStatus == ZeroNetStatus.RUNNING) {
+                if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
                   uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
                 } else
                   uiStore.updateCurrentAppRoute(AppRoute.ShortcutLoadingPage);
               }
-              return Observer(
-                builder: (ctx) {
-                  switch (uiStore.currentAppRoute) {
+              return Obx(
+                () {
+                  setSystemUiTheme();
+                  switch (uiStore.currentAppRoute.value) {
                     case AppRoute.AboutPage:
                       return WillPopScope(
                         onWillPop: () {
-                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                          if (fromBrowser) {
+                            fromBrowser = false;
+                            flutterWebViewPlugin.canGoBack().then(
+                                  (value) => value
+                                      ? flutterWebViewPlugin.goBack()
+                                      : null,
+                                );
+                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                          } else
+                            uiStore.updateCurrentAppRoute(AppRoute.Home);
                           return Future.value(false);
                         },
                         child: AboutPage(),

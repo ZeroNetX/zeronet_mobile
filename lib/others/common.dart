@@ -1,6 +1,7 @@
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
+import 'zeronet_isolate.dart';
 
 Directory appPrivDir;
 Directory tempDir;
@@ -12,6 +13,9 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool canLaunchUrl = false;
 bool firstTime = false;
+bool kisProUser = false;
+bool patchChecked = false;
+bool fromBrowser = false;
 bool kIsPlayStoreInstall = false;
 bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
 bool manuallyStoppedZeroNet = false;
@@ -42,13 +46,12 @@ List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
-ScaffoldState scaffoldState;
 FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
 
-String trackerRepo = 'https://cdn.jsdelivr.net/gh/ngosang/trackerslist/';
+String trackerRepo = 'https://newtrackon.com/api/';
 String downloadTrackerLink(String item) => trackerRepo + item;
 
 bool isUsrBinExists() => Directory(dataDir + '/usr').existsSync();
@@ -64,25 +67,29 @@ String installedMetaDir(String dir, String name) =>
 Duration secs(int sec) => Duration(seconds: sec);
 List<String> files(String arch) => [
       'python38_$arch',
-      'site_packages_common',
+      if (arch != 'arm64') 'site_packages_common',
       'site_packages_$arch',
       'zeronet_py3',
       'tor_$arch',
     ];
 
 List<String> trackerFileNames = [
-  'trackers_best.txt',
-  'trackers_all.txt',
-  'trackers_all_udp.txt',
-  'trackers_all_http.txt',
-  'trackers_all_https.txt',
-  'trackers_all_ws.txt',
-  'trackers_best_ip.txt',
-  'trackers_all_ip.txt',
+  'stable',
 ];
+
+void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: uiStore.currentTheme.value.iconBrightness,
+        systemNavigationBarColor: uiStore.currentTheme.value.primaryColor,
+        systemNavigationBarIconBrightness:
+            uiStore.currentTheme.value.iconBrightness,
+      ),
+    );
 
 init() async {
   getArch();
+  await getPackageInfo();
   kIsPlayStoreInstall = await isPlayStoreInstall();
   zeroNetNativeDir = await getNativeDir();
   tempDir = await getTemporaryDirectory();
@@ -92,13 +99,56 @@ init() async {
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
     checkForAppUpdates();
-    downloadTrackerFiles();
-    runZeroNetService(
-      autoStart: (varStore.settings[autoStartZeroNet] as ToggleSetting).value,
-    );
+    if (enableZeroNetAddTrackers) await downloadTrackerFiles();
+    ZeroNetStatus.NOT_RUNNING.onAction();
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
   Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+  var translations = loadTranslations();
+  if (varStore.settings.keys.contains(languageSwitcher)) {
+    var setting = varStore.settings[languageSwitcher] as MapSetting;
+    var language = setting.map['selected'];
+    var code = translations[language] ?? 'en';
+    if (code != 'en')
+      strController.loadTranslationsFromFile(
+        getZeroNetDataDir().path +
+            '/' +
+            Utils.urlZeroNetMob +
+            '/translations/' +
+            'strings-$code.json',
+      );
+  }
+  loadUsersFromFileSystem();
+  if (varStore.settings.keys.contains(themeSwitcher)) {
+    var setting = varStore.settings[themeSwitcher] as MapSetting;
+    var theme = setting.map['selected'];
+    if (theme == 'Dark') {
+      uiStore.setTheme(AppTheme.Dark);
+    } else {
+      uiStore.setTheme(AppTheme.Light);
+    }
+  }
+  kisProUser = await isProUser();
+}
+
+List<int> buildsRequirePatching = [60];
+
+bool requiresPatching() {
+  return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> getPackageInfo() async {
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+  buildNumber = packageInfo.buildNumber;
+}
+
+void listMetaFiles() {
+  Directory metaDirs = Directory(metaDir.path);
+  var files = metaDirs.listSync();
+  for (var item in files) {
+    print(item.path);
+  }
 }
 
 Future<File> pickUserJsonFile() async {
@@ -124,25 +174,52 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
   return result;
 }
 
-Future<void> backUpUserJsonFile(BuildContext context) async {
+Future<void> backUpUserJsonFile(
+  BuildContext context, {
+  bool copyToClipboard = false,
+}) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
-    String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-    Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(
-      (result.contains('success'))
-          ? result
-          : "Please check yourself that file back up Successfully.",
-    )));
+    if (copyToClipboard) {
+      FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
+          .then(
+        (_) {
+          printToConsole(strController.usersFileCopied.value);
+          Get.showSnackbar(GetBar(
+            message: strController.usersFileCopied.value,
+          ));
+        },
+      );
+    } else {
+      String result = await saveUserJsonFile(getZeroNetUsersFilePath());
+      Get.showSnackbar(GetBar(
+        message: (result.contains('success'))
+            ? result
+            : strController.chkBckUpStr.value,
+      ));
+    }
   } else
     zeronetNotInit(context);
 }
 
 void zeronetNotInit(BuildContext context) => showDialogC(
       context: context,
-      title: 'ZeroNet data folder not Exists.',
-      body: "ZeroNet should be used atleast once (run it from home screen), "
-          "before using this option",
+      title: strController.zeroNetNotInitTitleStr.value,
+      body: strController.zeroNetNotInitDesStr.value,
     );
+
+Map<String, dynamic> loadTranslations() {
+  Map<String, dynamic> langCodesMap = {};
+  var translationsDir = Directory(
+    getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob + '/translations',
+  );
+  if (translationsDir.existsSync()) {
+    var langCodeFile = File(translationsDir.path + '/language-codes.json');
+    if (langCodeFile.existsSync()) {
+      langCodesMap = json.decode(langCodeFile.readAsStringSync());
+    }
+  }
+  return langCodesMap;
+}
 
 saveDataFile() {
   Map<String, String> dataMap = {
@@ -155,7 +232,7 @@ saveDataFile() {
 loadDataFile() {
   File f = File(dataDir + '/data.json');
   Map m = json.decode(f.readAsStringSync());
-  print(m);
+  printOut(m);
   zeroNetNativeDir = m['zeroNetNativeDir'];
 }
 
@@ -217,9 +294,9 @@ String maptoStringList(Map map) {
 }
 
 String log = 'Click on Fab to Run ZeroNet\n';
-String logRunning = 'Running ZeroNet\n';
+String logRunning = '${strController.statusRunningStr.value} ZeroNet\n';
 String uiServerLog = 'Ui.UiServer';
-String startZeroNetLog = 'Starting ZeroNet';
+String startZeroNetLog = '${strController.statusStartingStr.value} ZeroNet';
 Process zero;
 
 printToConsole(Object object) {
@@ -274,13 +351,18 @@ void showDialogC({
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(title),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: uiStore.currentTheme.value.primaryTextColor,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Text(body),
           ),
           actions: <Widget>[
-            FlatButton(
-              child: Text('Close'),
+            TextButton(
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -301,14 +383,20 @@ void showDialogW({
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(title),
+          backgroundColor: uiStore.currentTheme.value.cardBgColor,
+          title: Text(
+            title,
+            style: TextStyle(
+              color: uiStore.currentTheme.value.primaryTextColor,
+            ),
+          ),
           content: SingleChildScrollView(
             child: body,
           ),
           actions: <Widget>[
             actionOk,
-            FlatButton(
-              child: Text('Close'),
+            TextButton(
+              child: Text(strController.closeStr.value),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -409,12 +497,11 @@ void installPluginDialog(File file, BuildContext context) {
   installPlugin(file);
   showDialogW(
     context: context,
-    title: 'Installing Plugin',
+    title: strController.znPluginInstallingTitleStr.value,
     body: Column(
       children: <Widget>[
         Text(
-          "This Dialog will be automatically closed after installation, "
-          "After Installation Restart ZeroNet from Home page",
+          strController.znPluginInstallingDesStr.value,
         ),
         Padding(padding: EdgeInsets.all(12.0)),
         LinearProgressIndicator()

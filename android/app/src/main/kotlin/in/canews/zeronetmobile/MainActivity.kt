@@ -56,13 +56,13 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if(intent.getStringExtra("LAUNCH_SHORTCUT_URL") != null) {
-            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")
+            mLaunchShortcutUrl = intent.getStringExtra("LAUNCH_SHORTCUT_URL")!!
         }
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
-        MethodChannel(flutterEngine?.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "addToHomeScreen" -> addShortcutToHomeScreen(context, result,
                         call.argument("title"),call.argument("url"),
@@ -237,7 +237,7 @@ class MainActivity : FlutterActivity() {
             success(msg)
         }.onFailure {
             if (it is IllegalStateException) {
-                Log.e("MainActivity>resultSuc>", it.message)
+                Log.e("MainActivity>resultSuc>", it.message!!)
             }
         }
     }
@@ -305,6 +305,7 @@ class MainActivity : FlutterActivity() {
             tempFile.createNewFile()
             inputStream?.toFile(tempFilePath)
             resultT?.success(File(tempFilePath).absoluteFile.absolutePath)
+            Log.e("copyFileToTempPath: ", filename + " copied to " + tempFilePath)
             tempFile.deleteOnExit()
         }
     }
@@ -328,6 +329,9 @@ class MainActivity : FlutterActivity() {
                 .intent
         shareIntent.data = contentUri
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        shareIntent.putExtra(Intent.EXTRA_TEXT,"Save this file to a Safe place.")
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
         shareIntent.putExtra("finishActivityOnSaveCompleted", true)
         context.startActivityForResult(Intent.createChooser(
                 shareIntent, "Backup Users.json File"), SAVE_USERJSON_FILE)
@@ -338,18 +342,22 @@ class MainActivity : FlutterActivity() {
         getArchName()
         try {
             if (splitInstallManager?.installedModules!!.contains("common")) {
-                val list = listOf("zeronet_py3.zip", "site_packages_common.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("zeronet_py3.zip")
+            }
+            if (archName != "arm64" && splitInstallManager?.installedModules!!.contains("common_python")) {
+                getAssetFiles("site_packages_common.zip")
             }
             if (splitInstallManager?.installedModules!!.contains(archName)) {
-                val list = listOf("python38_$archName.zip", "site_packages_$archName.zip", "tor_$archName.zip")
-                for (item in list) {
-                    getAssetFiles(item)
-                }
+                getAssetFiles("site_packages_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_python")) {
+                getAssetFiles("python38_$archName.zip")
+            }
+            if (splitInstallManager?.installedModules!!.contains(archName + "_tor")) {
+                getAssetFiles("tor_$archName.zip")
             }
         } catch (e: IOException) {
+            Log.e("copyAssetsToCache", e.toString())
             return false
         }
         return true
@@ -358,16 +366,16 @@ class MainActivity : FlutterActivity() {
     private fun getAssetFiles(fileName: String) {
         val assetManager = createPackageContext(packageName, 0).assets
         val assistContent = assetManager.open(fileName)
+        Log.e("getAssetFiles: ", fileName)
         copyFileToTempPath(inputStreamA = assistContent, filename = fileName, path = null)
     }
 
     private fun isModuleInstallSupported(): Boolean =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && isGooglePlayServicesAvailable(this)
+            Build.VERSION.SDK_INT <= 30 && isGooglePlayServicesAvailable(this)
 
     private fun isGooglePlayServicesAvailable(activity: Activity?): Boolean {
         val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-        val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+        val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(applicationContext)
         if (status != ConnectionResult.SUCCESS) {
             // if (googleApiAvailability.isUserResolvableError(status)) {
             //     googleApiAvailability.getErrorDialog(activity, status, 2404).show()
@@ -402,10 +410,15 @@ class MainActivity : FlutterActivity() {
     private fun loadAndLaunchModule(name: String, eventSink: EventChannel.EventSink?) {
         if (isModuleInstalled(name) == true)
             return
-        val request = SplitInstallRequest.newBuilder()
+        val builder = SplitInstallRequest.newBuilder()
                 .addModule("common")
                 .addModule(name)
-                .build()
+                .addModule(name + "_python")
+                .addModule(name + "_tor")
+        if (name != "arm64") {
+            builder.addModule("common_python")
+        }
+        val request = builder.build();
         splitInstallManager?.startInstall(request)?.addOnSuccessListener { sessionId ->
             mSessionId = sessionId
         }
@@ -442,7 +455,10 @@ class MainActivity : FlutterActivity() {
             splitInstallManager?.installedModules?.contains(name)
 
     private fun isRequiredModulesInstalled(): Boolean = isModuleInstalled("common") == true &&
-            isModuleInstalled(archName) == true
+            ((archName == "arm64") ||  isModuleInstalled("common_python") == true)&&
+            isModuleInstalled(archName) == true &&
+            isModuleInstalled(archName + "_python") == true &&
+            isModuleInstalled(archName + "_tor") == true
 
     private fun uninstallModules() {
         val installedModules = splitInstallManager?.installedModules?.toList()

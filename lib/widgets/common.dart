@@ -7,39 +7,40 @@ class ZeroNetAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
+    return Obx(() {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            uiStore.currentAppRoute.title,
+            uiStore.currentAppRoute.value.title,
             style: GoogleFonts.roboto(
               fontSize: 32.0,
               fontWeight: FontWeight.bold,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
           Row(
             children: [
-              if (uiStore.currentAppRoute == AppRoute.Settings)
+              if (uiStore.currentAppRoute.value == AppRoute.Settings)
                 InkWell(
                   child: Icon(
                     OMIcons.info,
                     size: 32.0,
-                    color: Colors.black,
+                    color: uiStore.currentTheme.value.primaryTextColor,
                   ),
                   onTap: () =>
                       uiStore.updateCurrentAppRoute(AppRoute.AboutPage),
                 ),
-              if (uiStore.currentAppRoute == AppRoute.Settings)
+              if (uiStore.currentAppRoute.value == AppRoute.Settings)
                 Padding(padding: const EdgeInsets.only(right: 20.0)),
               InkWell(
                 child: Icon(
-                  uiStore.currentAppRoute.icon,
+                  uiStore.currentAppRoute.value.icon,
                   size: 32.0,
-                  color: Colors.black,
+                  color: uiStore.currentTheme.value.primaryTextColor,
                 ),
-                onTap: uiStore.currentAppRoute.onClick,
+                onTap: uiStore.currentAppRoute.value.onClick,
               )
             ],
           )
@@ -90,11 +91,19 @@ class _PluginManagerState extends State<PluginManager> {
           itemBuilder: (ctx, i) {
             final isDisabled = disabledPlugins.contains(plugins[i]);
             final pluginName = plugins[i];
+            if (pluginName == 'MyDonationMessage') {
+              if (!kisProUser) return Container();
+            }
             return Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(pluginName),
+                Text(
+                  pluginName,
+                  style: TextStyle(
+                    color: uiStore.currentTheme.value.primaryTextColor,
+                  ),
+                ),
                 Switch(
                   onChanged: (value) {
                     if (isDisabled)
@@ -145,14 +154,17 @@ class _ProfileSwitcherUserNameEditTextState
     return ListBody(
       children: <Widget>[
         Text(
-          'Always remember to backup users.json before doing anything because, '
-          'we are not able to tell when a software will fail. '
-          'Click Backup below to backup your Existing users.json file.\n',
+          strController.backupWarningStr.value,
           style: TextStyle(
             color: Colors.red,
           ),
         ),
-        Text('Username Phrase :'),
+        Text(
+          strController.usernamePhraseStr.value,
+          style: TextStyle(
+            color: uiStore.currentTheme.value.primaryTextColor,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(
             left: 8.0,
@@ -164,18 +176,18 @@ class _ProfileSwitcherUserNameEditTextState
               var valid = text.isNotEmpty;
               if (valid) {
                 if (text.contains(' ')) {
-                  errorText = 'username can\'t contain spaces';
+                  errorText = strController.usrnameWarning2Str.value;
                   valid = false;
                 } else if (text.length < 6) {
-                  errorText = 'username can\'t be less than 6 characters.';
+                  errorText = strController.usrnameWarning3Str.value;
                   valid = false;
                 } else if (File(getZeroNetDataDir().path + '/users-$text.json')
                     .existsSync()) {
-                  errorText = 'username already exists, choose different one.';
+                  errorText = strController.usrnameWarning4Str.value;
                   valid = false;
                 }
               } else {
-                errorText = 'username can\'t be Empty';
+                errorText = strController.usrnameWarning1Str.value;
               }
               setState(() {
                 validUsername = valid;
@@ -183,10 +195,14 @@ class _ProfileSwitcherUserNameEditTextState
             },
             style: TextStyle(
               fontSize: 18.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
             decoration: InputDecoration(
-              hintText: 'username',
+              hintText: strController.usernameStr.value.toLowerCase(),
               errorText: validUsername ? null : errorText,
+              hintStyle: TextStyle(
+                color: uiStore.currentTheme.value.primaryTextColor,
+              ),
             ),
           ),
         ),

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
@@ -13,6 +11,7 @@ class AboutPage extends StatelessWidget {
         return Future.value(false);
       },
       child: Container(
+        color: uiStore.currentTheme.value.primaryColor,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -37,11 +36,13 @@ class AboutPage extends StatelessWidget {
                         Flexible(
                           child: Container(
                             child: Text(
-                              'ZeroNet Mobile is a full native client for ZeroNet, a platform for decentralized websites using Bitcoin ',
+                              strController.aboutAppDesStr.value,
                               style: GoogleFonts.roboto(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w500,
                                 height: 1.5,
+                                color:
+                                    uiStore.currentTheme.value.primaryTextColor,
                               ),
                             ),
                           ),
@@ -51,16 +52,16 @@ class AboutPage extends StatelessWidget {
                     Container(
                       child: Text.rich(
                         TextSpan(
-                          text:
-                              'crypto and the BitTorrent network. you can learn more about ZeroNet at ',
+                          text: strController.aboutAppDes1Str.value,
                           style: GoogleFonts.roboto(
                             fontSize: 20.0,
                             fontWeight: FontWeight.w500,
                             height: 1.5,
+                            color: uiStore.currentTheme.value.primaryTextColor,
                           ),
                           children: [
                             TextSpan(
-                              text: 'https://zeronet.io/',
+                              text: 'https://zeronet.dev/',
                               style: GoogleFonts.roboto(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w500,
@@ -70,7 +71,7 @@ class AboutPage extends StatelessWidget {
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  launch('https://zeronet.io/');
+                                  launch('https://zeronet.dev/');
                                 },
                             ),
                           ],
@@ -89,19 +90,21 @@ class AboutPage extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                     ),
                     Text(
-                      'Contribute',
+                      strController.contributeStr.value,
                       style: GoogleFonts.roboto(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
+                        color: uiStore.currentTheme.value.primaryTextColor,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(4.0),
                     ),
                     Text(
-                      "If you want to support project's further development, you can contribute your time or money, If you want to contribute money you can send bitcoin or other supported crypto currencies to above addresses or buy in-app purchases, if want to contribute translations or code, visit official GitHub repo.",
+                      strController.contributeDesStr.value,
                       style: GoogleFonts.roboto(
                         fontSize: 18.0,
+                        color: uiStore.currentTheme.value.primaryTextColor,
                       ),
                     ),
                     Padding(
@@ -126,10 +129,11 @@ class DonationWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Donation Addresses',
+          strController.donationAddrsStr.value,
           style: GoogleFonts.roboto(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(
@@ -139,42 +143,45 @@ class DonationWidget extends StatelessWidget {
           builder: (ctx, cons) {
             List<Widget> children = [];
             for (var crypto in donationsAddressMap.keys) {
-              children.add(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      crypto,
-                      style: GoogleFonts.roboto(
-                        fontSize: 16.0,
+              var enabled = true;
+              if (crypto == 'Liberapay') {
+                if (!enableExternalDonations) enabled = false;
+              }
+              if (enabled)
+                children.add(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        crypto,
+                        style: GoogleFonts.roboto(
+                          fontSize: 16.0,
+                          color: uiStore.currentTheme.value.primaryTextColor,
+                        ),
                       ),
-                    ),
-                    ClickableTextWidget(
-                      text: donationsAddressMap[crypto],
-                      textStyle: GoogleFonts.roboto(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w500,
-                        height: 1.5,
-                        color: Color(0xFF8663FF),
-                        decoration: TextDecoration.underline,
+                      ClickableTextWidget(
+                        text: donationsAddressMap[crypto],
+                        textStyle: GoogleFonts.roboto(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w500,
+                          height: 1.5,
+                          color: Color(0xFF8663FF),
+                          decoration: TextDecoration.underline,
+                        ),
+                        onClick: () {
+                          FlutterClipboard.copy(donationsAddressMap[crypto]);
+                          Get.showSnackbar(GetBar(
+                            message: '$crypto '
+                                '${strController.donAddrCopiedStr.value}',
+                          ));
+                        },
                       ),
-                      onClick: () {
-                        FlutterClipboard.copy(donationsAddressMap[crypto]);
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '$crypto Donation Address Copied to Clipboard',
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(6.0),
-                    )
-                  ],
-                ),
-              );
+                      Padding(
+                        padding: const EdgeInsets.all(6.0),
+                      )
+                    ],
+                  ),
+                );
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,9 +191,10 @@ class DonationWidget extends StatelessWidget {
         ),
         Flexible(
           child: Text(
-            "* Click on Address to copy",
+            strController.clickAddrToCopyStr.value,
             style: GoogleFonts.roboto(
               fontSize: 16.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         ),
@@ -199,15 +207,10 @@ class DonationWidget extends StatelessWidget {
         ),
         Flexible(
           child: Text(
-            "* Any Donation can activate all pro-features in app, "
-            "these are just an encouragement to me to work more on the app. "
-            "Pro-features will be made available to general public after certain time, "
-            "thus you don't need to worry about exclusiveness of a feature. "
-            "If you donate from any source other than Google Play Purchase, "
-            "just send your transaction id to canews.in@gmail.com / ZeroMail: zeromepro, "
-            "so than I can send activation code to activate pro-features.",
+            strController.donationDes.value,
             style: GoogleFonts.roboto(
               fontSize: 16.0,
+              color: uiStore.currentTheme.value.primaryTextColor,
             ),
           ),
         )
@@ -223,10 +226,11 @@ class DeveloperWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Developers',
+          strController.developersStr.value,
           style: GoogleFonts.roboto(
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
+            color: uiStore.currentTheme.value.primaryTextColor,
           ),
         ),
         Padding(padding: const EdgeInsets.all(4.0)),
@@ -240,6 +244,7 @@ class DeveloperWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   elevation: 4.0,
+                  color: uiStore.currentTheme.value.cardBgColor,
                   child: Container(
                     padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                     decoration: BoxDecoration(
@@ -264,15 +269,17 @@ class DeveloperWidget extends StatelessWidget {
                                 style: GoogleFonts.roboto(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.w500,
+                                  color: uiStore
+                                      .currentTheme.value.primaryTextColor,
                                 ),
                               ),
                               LayoutBuilder(builder: (context, cons) {
                                 List<Widget> children = [];
                                 final iconsPath = 'assets/icons';
                                 List<String> assets = [
-                                  '$iconsPath/github_dark.png',
-                                  '$iconsPath/twitter_dark.png',
-                                  '$iconsPath/facebook_dark.png',
+                                  '$iconsPath/github${uiStore.currentTheme.value == AppTheme.Light ? '_dark' : ''}.png',
+                                  '$iconsPath/twitter${uiStore.currentTheme.value == AppTheme.Light ? '_dark' : ''}.png',
+                                  '$iconsPath/facebook${uiStore.currentTheme.value == AppTheme.Light ? '_dark' : ''}.png',
                                 ];
                                 List<String> links = [
                                   developer.githubLink,
@@ -327,26 +334,29 @@ class GooglePlayInAppPurchases extends StatelessWidget {
         children: [
           Text.rich(
             TextSpan(
-              text: 'Google Play Purchases ',
+              text: strController.googlePurchasesStr.value,
               children: [
                 TextSpan(
-                  text: '(30% taken by Google) :',
+                  text: strController.googleFeeWarningStr.value,
                   style: GoogleFonts.roboto(
                     fontSize: 14.0,
+                    color: uiStore.currentTheme.value.primaryTextColor,
                   ),
                 ),
               ],
               style: GoogleFonts.roboto(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
           ),
-          Observer(builder: (ctx) {
+          Obx(() {
             List<Widget> mChildren = [];
             Map<String, List<Package>> googlePurchasesTypes = {
-              'One Time': purchasesStore.oneTimePurchases,
-              'Monthly Subscriptions': purchasesStore.subscriptions,
+              strController.oneTimeSubStr.value:
+                  purchasesStore.oneTimePurchases,
+              strController.monthlySubStr.value: purchasesStore.subscriptions,
             };
             for (var item in googlePurchasesTypes.keys) {
               List<Package> purchases = googlePurchasesTypes[item];
@@ -372,23 +382,27 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                   String label = '';
                   switch (i) {
                     case 0:
-                      label = 'Tip';
+                      label = strController.tipStr.value;
                       c = Color(0xFF06CAB6);
                       break;
                     case 1:
-                      label = 'Coffee';
+                      label = strController.coffeeStr.value;
                       c = Color(0xFF0696CA);
                       break;
                     case 2:
-                      label = 'Lunch';
+                      label = strController.lunchStr.value;
                       c = Color(0xFFCA067B);
                       break;
                     default:
                   }
                   children.add(
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(c),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0)),
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -406,8 +420,15 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                           ),
                         ),
                       ),
-                      color: c,
-                      onPressed: () => purchasePackage(package),
+                      onPressed: () => uiStore.zeroNetUserStatus.value ==
+                              ZeroNetUserStatus.NOT_REGISTERED
+                          ? () {
+                              Get.snackbar(
+                                strController.tipStr.value + ':',
+                                strController.createUserIdFirstStr.value,
+                              );
+                            }
+                          : purchasePackage(package),
                     ),
                   );
                 }
@@ -420,6 +441,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w500,
+                          color: uiStore.currentTheme.value.primaryTextColor,
                         ),
                       ),
                       Padding(padding: const EdgeInsets.all(8.0)),
