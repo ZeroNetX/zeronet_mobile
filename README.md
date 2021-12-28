@@ -21,7 +21,7 @@ You need Flutter Framework to compile this App from Source.
 #### Installing Flutter : https://flutter.dev/docs/get-started/install
 
 ```
-git clone https://github.com/canewsin/zeronet_mobile.git
+git clone --recurse-submodules https://github.com/canewsin/zeronet_mobile.git
 cd zeronet_mobile
 flutter packages get
 ```
