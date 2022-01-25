@@ -123,6 +123,8 @@ runZeroNet() {
         openssl,
         if (enableZeroNetAddTrackers) '--trackers_file',
         if (enableZeroNetAddTrackers) trackerFile,
+        "--updatesite",
+        "1Update8crprmciJHwp2WXqkx2c4iYp18"
       ], environment: {
         "LD_LIBRARY_PATH": "$libDir:$libDir64:/system/lib64",
         'PYTHONHOME': '$dataDir/usr',

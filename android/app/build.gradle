@@ -70,6 +70,7 @@ android {
     buildTypes {
 
         release {
+            shrinkResources false
             signingConfig signingConfigs.release
         }
 
@@ -80,7 +81,7 @@ android {
                 enabled = true
                 throttleDownloadBy = 1000
             }
-            defaultConfig.ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
+            defaultConfig.ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
         }
     }
     dynamicFeatures = [":arm64", ":arm", ":common", ":x86", ":x86_64"]
@@ -95,10 +96,10 @@ flutter {
 dependencies {
     def billing_version = "3.0.0"
     implementation "com.android.billingclient:billing:$billing_version"
-    
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.gms:play-services-base:17.2.0'
-    
+
     //Duplicate Classes Issue https://stackoverflow.com/a/60492942
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
