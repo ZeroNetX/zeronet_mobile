@@ -118,15 +118,24 @@ void runZeroNetService({bool autoStart = false}) async {
   //TODO?: Check for Bugs Here.
   var serviceRunning = await FlutterBackgroundService().isServiceRunning();
   printOut('serviceRunning : $serviceRunning');
-  if (!serviceRunning) {
+  if (service == null || !serviceRunning) {
     uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
     service = FlutterBackgroundService();
   }
 
-  FlutterBackgroundService.initialize(
-    runBgIsolate,
-    autoStart: autoStartService,
-  ).then((value) {
+  // FlutterBackgroundService.initialize(
+  //   runBgIsolate,
+  //   autoStart: autoStartService,
+  // )
+  service
+      .configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: runBgIsolate,
+      autoStart: autoStartService,
+      isForegroundMode: true,
+    ),
+  )
+      .then((value) {
     printOut('FlutterBackgroundService.initialize() : $value');
     if (value) {
       service = FlutterBackgroundService();

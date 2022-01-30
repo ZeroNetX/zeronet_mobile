@@ -25,7 +25,7 @@ export 'package:http/http.dart';
 export 'package:in_app_review/in_app_review.dart';
 export 'package:in_app_update/in_app_update.dart';
 export 'package:outline_material_icons/outline_material_icons.dart';
-export 'package:package_info/package_info.dart';
+export 'package:package_info_plus/package_info_plus.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:random_string/random_string.dart';
 export 'package:share/share.dart';

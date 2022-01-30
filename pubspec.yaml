@@ -33,7 +33,8 @@ dependencies:
   outline_material_icons: ^0.1.1
   equatable: ^2.0.2
   time_ago_provider: ^4.1.0
-  package_info: ^2.0.2
+  package_info_plus: 
+  package_info_plus_web: 
   path_provider: ^2.0.2
   purchases_flutter: ^3.5.0
   random_string: 2.3.1
