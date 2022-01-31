@@ -123,10 +123,19 @@ void runZeroNetService({bool autoStart = false}) async {
     service = FlutterBackgroundService();
   }
 
-  FlutterBackgroundService.initialize(
-    runBgIsolate,
-    autoStart: autoStartService,
-  ).then((value) {
+  // FlutterBackgroundService.initialize(
+  //   runBgIsolate,
+  //   autoStart: autoStartService,
+  // )
+  service
+      .configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: runBgIsolate,
+      autoStart: autoStartService,
+      isForegroundMode: true,
+    ),
+  )
+      .then((value) {
     printOut('FlutterBackgroundService.initialize() : $value');
     if (value) {
       service = FlutterBackgroundService();

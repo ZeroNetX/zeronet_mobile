@@ -90,10 +90,33 @@ void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
 init() async {
   getArch();
   await getPackageInfo();
-  kIsPlayStoreInstall = await isPlayStoreInstall();
-  zeroNetNativeDir = await getNativeDir();
-  tempDir = await getTemporaryDirectory();
-  appPrivDir = await getExternalStorageDirectory();
+  if (Platform.isAndroid) {
+    kIsPlayStoreInstall = await isPlayStoreInstall();
+    zeroNetNativeDir = await getNativeDir();
+    tempDir = await getTemporaryDirectory();
+    appPrivDir = await getExternalStorageDirectory();
+  } else if (Platform.isWindows) {
+    var appDir = File(Platform.resolvedExecutable).parent;
+    var directory = Directory(appDir.path + Platform.pathSeparator + 'bin');
+
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    zeroNetNativeDir = directory.path;
+
+    tempDir = Directory(appDir.path + Platform.pathSeparator + 'tmp');
+    if (!tempDir.existsSync()) {
+      tempDir.createSync(recursive: true);
+    }
+    appPrivDir = Directory(appDir.path +
+        Platform.pathSeparator +
+        'data' +
+        Platform.pathSeparator +
+        'app');
+    if (!appPrivDir.existsSync()) {
+      appPrivDir.createSync(recursive: true);
+    }
+  }
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) {
