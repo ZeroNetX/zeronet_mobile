@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(24)),
+            Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
             Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18.0),
               child: Column(

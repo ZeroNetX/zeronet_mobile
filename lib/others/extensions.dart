@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:zeronet/imports.dart';
 
 extension FileSystemExtension on FileSystemEntity {
@@ -21,4 +20,15 @@ extension DynamicExt on dynamic {
     }
     return -1;
   }
+}
+
+extension PlatformExt on Platform {
+  static get isDesktop =>
+      (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  static get isMobile => (Platform.isAndroid || Platform.isIOS);
+
+  static get isSupportedDesktop => (Platform.isWindows);
+  static get isSupportedMobile => (Platform.isAndroid);
+
+  static get isSupported => (isSupportedDesktop || isSupportedMobile);
 }

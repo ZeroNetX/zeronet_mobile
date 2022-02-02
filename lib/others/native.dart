@@ -112,6 +112,9 @@ Future<File> getPluginZipFile() async {
 }
 
 getArch() async {
+  if (!PlatformExt.isMobile) {
+    return 'x86_64';
+  }
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
   String archL = deviceInfo.supportedAbis[0];
   if (archL.contains('arm64'))

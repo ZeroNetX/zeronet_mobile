@@ -7,7 +7,7 @@ class ZeroNetLogPage extends StatelessWidget {
       color: uiStore.currentTheme.value.primaryColor,
       child: Column(
         children: [
-          Padding(padding: EdgeInsets.all(24)),
+          Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
           Padding(
             padding: const EdgeInsets.only(left: 18.0, right: 18.0),
             child: Column(

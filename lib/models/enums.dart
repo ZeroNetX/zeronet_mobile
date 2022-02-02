@@ -55,7 +55,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.NOT_RUNNING:
         printOut('onAction()');
         printOut('ZeroNetStatus.NOT_RUNNING');
-        if (!patchChecked && checkPatchNeeded()) {
+        if (PlatformExt.isMobile && !patchChecked && checkPatchNeeded()) {
           var zeroNetRevision = getZeroNetRevision(zeroNetDir);
           downloadPatch('$zeroNetRevision').then((_) {
             checkPatchAndApply(
@@ -256,7 +256,7 @@ extension AppRouteExt on AppRoute {
         return strController.aboutStr.value;
         break;
       case AppRoute.Home:
-        return 'ZeroNet Mobile';
+        return 'ZeroNetX';
         break;
       case AppRoute.Settings:
         return strController.settingsStr.value;

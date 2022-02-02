@@ -5,9 +5,10 @@ import 'zeronet_isolate.dart';
 
 Directory appPrivDir;
 Directory tempDir;
-Directory metaDir = Directory(dataDir + '/meta');
-Directory trackersDir = Directory(dataDir + '/trackers');
+Directory metaDir = Directory(dataDir + sep + 'meta');
+Directory trackersDir = Directory(dataDir + sep + 'trackers');
 AndroidDeviceInfo deviceInfo;
+String settingsFile = dataDir + sep + 'settings.json';
 bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
@@ -46,7 +47,11 @@ List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
-FlutterBackgroundService service;
+SystemTray _systemTray;
+AppWindow _appWindow;
+
+ZeroNetService service;
+// FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
@@ -90,14 +95,17 @@ void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
 init() async {
   getArch();
   await getPackageInfo();
-  if (Platform.isAndroid) {
+  if (PlatformExt.isMobile) {
     kIsPlayStoreInstall = await isPlayStoreInstall();
     zeroNetNativeDir = await getNativeDir();
     tempDir = await getTemporaryDirectory();
     appPrivDir = await getExternalStorageDirectory();
-  } else if (Platform.isWindows) {
+    Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+  } else if (PlatformExt.isDesktop) {
     var appDir = File(Platform.resolvedExecutable).parent;
-    var directory = Directory(appDir.path + Platform.pathSeparator + 'bin');
+    var directory = Directory(
+      appDir.path + sep + 'data' + sep + 'app' + sep + 'ZeroNet-win',
+    );
 
     if (!directory.existsSync()) {
       directory.createSync(recursive: true);
@@ -121,12 +129,11 @@ init() async {
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
-    checkForAppUpdates();
+    if (PlatformExt.isMobile) checkForAppUpdates();
     if (enableZeroNetAddTrackers) await downloadTrackerFiles();
     ZeroNetStatus.NOT_RUNNING.onAction();
   }
   if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
-  Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
   var translations = loadTranslations();
   if (varStore.settings.keys.contains(languageSwitcher)) {
     var setting = varStore.settings[languageSwitcher] as MapSetting;
@@ -152,12 +159,71 @@ init() async {
     }
   }
   kisProUser = await isProUser();
+  if (PlatformExt.isMobile) launchUrl = await launchZiteUrl();
+
+  if (PlatformExt.isDesktop) {
+    _systemTray = SystemTray();
+    _appWindow = AppWindow();
+  }
 }
 
 List<int> buildsRequirePatching = [60];
 
 bool requiresPatching() {
   return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> initSystemTray() async {
+  String path = Platform.isWindows ? 'assets/app_icon.ico' : 'assets/logo.png';
+  if (Platform.isMacOS) {
+    path = 'AppIcon';
+  }
+
+  List<MenuItem> popularSites = [];
+  Utils.initialSites.forEach((key, value) {
+    popularSites.add(
+      MenuItem(
+        label: key,
+        onClicked: () {
+          zeroNetUrl = 'http://127.0.0.1:43110/' + value['url'];
+          launch(zeroNetUrl);
+        },
+      ),
+    );
+  });
+
+  final menu = [
+    SubMenu(
+      label: "Popular Sites",
+      children: [
+        ...popularSites,
+      ],
+    ),
+    MenuSeparator(),
+    MenuItem(
+      label: 'Exit',
+      onClicked: _appWindow.close,
+    ),
+  ];
+
+  await _systemTray.initSystemTray(
+    title: "ZeroNetX",
+    iconPath: path,
+    toolTip: "ZeroNetX - ZeroNet Desktop Client",
+  );
+
+  await _systemTray.setContextMenu(menu);
+
+  // _systemTray.registerSystemTrayEventHandler((eventName) {
+  //   debugPrint("eventName: $eventName");
+  //   if (eventName == "leftMouseDown") {
+  //   } else if (eventName == "leftMouseUp") {
+  //     _appWindow.show();
+  //   } else if (eventName == "rightMouseDown") {
+  //   } else if (eventName == "rightMouseUp") {
+  //     _systemTray.popUpContextMenu();
+  //   }
+  // });
 }
 
 Future<void> getPackageInfo() async {
@@ -299,7 +365,10 @@ loadSettings() {
 }
 
 saveSettings(Map map) {
-  File f = File(dataDir + '/settings.json');
+  File f = File(settingsFile);
+  if (!f.existsSync()) {
+    f.createSync(recursive: true);
+  }
   f.writeAsStringSync(maptoStringList(map));
 }
 
@@ -442,7 +511,8 @@ check() async {
           varStore.isZeroNetInstalled(onValue);
           if (!isZeroNetInstalledm) {
             if (!unZipIsolateBound) bindUnZipIsolate();
-            unZipinBg();
+            if (PlatformExt.isMobile) unZipinBg();
+            if (PlatformExt.isDesktop) unZipinBgWin();
           }
         });
       }
@@ -452,10 +522,12 @@ check() async {
         isZeroNetDownloadedm = await isZeroNetDownloaded();
         if (isZeroNetDownloadedm) {
           varStore.isZeroNetDownloaded(true);
+          if (PlatformExt.isDesktop) unZipinBgWin();
         } else {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
-            if (await isModuleInstallSupported() &&
+            if (PlatformExt.isMobile &&
+                await isModuleInstallSupported() &&
                 kEnableDynamicModules &&
                 await isPlayStoreInstall()) {
               await initSplitInstall();
@@ -490,8 +562,12 @@ check() async {
                 handleModuleDownloadStatus();
               }
             } else {
-              await initDownloadParams();
-              downloadBins();
+              if (PlatformExt.isMobile) {
+                await initDownloadParams();
+                downloadBins();
+              } else {
+                downloadFiles();
+              }
             }
           }
         }
@@ -500,6 +576,28 @@ check() async {
       }
     }
   }
+}
+
+void downloadFiles() async {
+  //TODO: Handle Download for Other Platforms
+  //TODO: Add progress bar
+  var fileExists = await File(dataDir + sep + 'ZeroNet-win.zip').exists();
+  if (!fileExists) {
+    final storageIO = InternetFileStorageIO();
+    await InternetFile.get(
+      'https://github.com/ZeroNetX/ZeroNet/releases/latest/download/ZeroNet-win.zip',
+      storage: storageIO,
+      storageAdditional: {
+        'filename': 'ZeroNet-win.zip',
+        'location': dataDir,
+      },
+    );
+  }
+  isZeroNetDownloadedm = true;
+  varStore.isZeroNetDownloaded(true);
+  varStore.setLoadingStatus(installing);
+  varStore.setLoadingPercent(0);
+  check();
 }
 
 void installPluginDialog(File file, BuildContext context) {

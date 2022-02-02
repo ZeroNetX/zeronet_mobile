@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(24)),
+            Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
             Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18.0),
               child: Column(
@@ -504,7 +504,12 @@ class SiteDetailCard extends StatelessWidget {
                               }
                             }
                             browserUrl = url + Utils.initialSites[name]['url'];
-                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                            if (PlatformExt.isMobile) {
+                              uiStore.updateCurrentAppRoute(
+                                AppRoute.ZeroBrowser,
+                              );
+                            } else
+                              launch(browserUrl);
                           },
                   ),
                 ],

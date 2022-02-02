@@ -1,14 +1,28 @@
 import '../imports.dart';
 
-const String pkgName = 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}';
-const String dataDir = "/data/data/$pkgName/files";
-const String zeroNetDir = dataDir + '/ZeroNet-py3';
-const String bin = '$dataDir/usr/bin';
-const String python = '$bin/python';
-const String libDir = '$dataDir/usr/lib';
-const String libDir64 = '$dataDir/usr/lib64';
-const String zeronetDir = '$dataDir/ZeroNet-py3';
-const String zeronet = '$zeronetDir/zeronet.py';
+// export 'constants/platform_constants.dart';
+
+/// [Platform] specific implementation of PathSeparator.
+final sep = Platform.pathSeparator;
+final exeDir = Directory(Platform.resolvedExecutable).parent.path;
+final String pkgName = Directory(
+  Platform.isAndroid
+      ? 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}'
+      : exeDir + sep + 'data' + sep + 'app',
+).path;
+final String dataDir = Directory(
+  Platform.isAndroid
+      ? "${sep}data${sep}data${sep}$pkgName${sep}files"
+      : pkgName,
+).path;
+final String zeroNetDir =
+    dataDir + sep + (Platform.isWindows ? 'ZeroNet-win' : 'ZeroNet-py3');
+final String bin = '$dataDir${sep}usr${sep}bin';
+final String python = '$bin${sep}python';
+final String libDir = '$dataDir${sep}usr${sep}lib';
+final String libDir64 = '$dataDir${sep}usr${sep}lib64';
+final String zeronetDir = zeroNetDir;
+final String zeronet = '$zeronetDir${sep}zeronet.py';
 const String defZeroNetUrl = 'http://127.0.0.1:43110/';
 const String downloading = 'Downloading Files';
 const String installing = 'Installing ZeroNet Files';
@@ -118,7 +132,7 @@ class Utils {
       'url': urlHello,
       'btcAddress': urlHello,
     },
-    'ZeroNetMobile': {
+    'ZeroTalkX': {
       'description': strController.zeronetMobileSiteDesStr.value,
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,

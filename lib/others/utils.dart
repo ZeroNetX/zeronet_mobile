@@ -281,6 +281,60 @@ unZipinBg() async {
   // check();
 }
 
+unZipinBgWin() async {
+  bindUnZipIsolate();
+  File item = File(dataDir + sep + 'ZeroNet-win.zip');
+  var name = item.path.split(sep).last;
+  zeroNetState = state.INSTALLING;
+  await compute(
+    _unzipBytesAsyncWin,
+    UnzipParams(
+      name,
+      item.readAsBytesSync(),
+      dest: '',
+    ),
+  );
+  check();
+}
+
+void _unzipBytesAsyncWin(UnzipParams params) async {
+  var installedMetaDir2 = installedMetaDir(metaDir.path, params.item);
+  var installMetaFile = File(installedMetaDir2);
+  if (installMetaFile.existsSync()) {
+    varStore.isZeroNetInstalled(true);
+    isZeroNetInstalledm = true;
+    return;
+  }
+  printOut("UnZippingFiles.......");
+  var out = dataDir + '/' + params.dest;
+  Archive archive = ZipDecoder().decodeBytes(params.bytes);
+  int totalfiles = archive.length;
+  int i = 0;
+  for (ArchiveFile file in archive) {
+    String filename = file.name;
+    printOut('$out$filename');
+    i++;
+    final SendPort send = IsolateNameServer.lookupPortByName(isolateUnZipPort);
+    send.send([params.item, i, totalfiles]);
+    String outName = '$out' + filename;
+    if (file.isFile) {
+      List<int> data = file.content;
+      // if (!File(outName).existsSync()) {
+      File f = File(outName);
+      if (!f.existsSync())
+        f
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(data);
+      // }
+    } else {
+      Directory(outName).exists().then((exists) {
+        if (!exists) Directory(outName)..create(recursive: true);
+      });
+    }
+  }
+  File(installedMetaDir(metaDir.path, params.item)).createSync(recursive: true);
+}
+
 void _unzipBytesAsync(UnzipParams params) async {
   printOut("UnZippingFiles.......");
   var out = dataDir + '/' + params.dest;
@@ -384,18 +438,23 @@ load() async {
 
 Future<bool> isZeroNetInstalled() async {
   bool isExists = false;
-  for (var item in files(arch)) {
-    File f = File(installedMetaDir(metaDir.path, item));
-    var exists = f.existsSync();
-    if (!exists) return Future.value(exists);
-    isExists = exists;
+  if (Platform.isWindows) {
+    isExists = File(dataDir + sep + 'meta' + sep + 'ZeroNet-win.zip.installed')
+        .existsSync();
+  } else {
+    for (var item in files(arch)) {
+      File f = File(installedMetaDir(metaDir.path, item));
+      var exists = f.existsSync();
+      if (!exists) return Future.value(exists);
+      isExists = exists;
+    }
   }
   return isExists;
 }
 
 Future<bool> isZeroNetDownloaded() async {
   bool isExists = false;
-  if (await isModuleInstallSupported()) {
+  if (Platform.isAndroid && await isModuleInstallSupported()) {
     if (await isRequiredModulesInstalled()) {
       for (var item in files(arch)) {
         var i = files(arch).indexOf(item);
@@ -408,19 +467,25 @@ Future<bool> isZeroNetDownloaded() async {
       }
     }
   } else {
-    for (var item in files(arch)) {
-      var i = binDirs.indexOf(item);
-      bool f = File(downloadedMetaDir(tempDir.path, item)).existsSync();
-      // bool f1 = File(tempDir.path + '/$item.downloading').existsSync();
-      bool f2 = File(tempDir.path + '/$item.zip').existsSync();
-      bool isAllDownloaded = allFilesDownloaded();
-      var exists = ((f && f2) || isAllDownloaded);
-      if (!exists) return Future.value(exists);
-      if (i == binDirs.length - 1) {
-        isExists = exists;
+    if (Platform.isAndroid) {
+      for (var item in files(arch)) {
+        var i = binDirs.indexOf(item);
+        bool f = File(downloadedMetaDir(tempDir.path, item)).existsSync();
+        // bool f1 = File(tempDir.path + '/$item.downloading').existsSync();
+        bool f2 = File(tempDir.path + '/$item.zip').existsSync();
+        bool isAllDownloaded = allFilesDownloaded();
+        var exists = ((f && f2) || isAllDownloaded);
+        if (!exists) return Future.value(exists);
+        if (i == binDirs.length - 1) {
+          isExists = exists;
+        }
       }
+      varStore.isZeroNetDownloaded(isExists);
+    } else {
+      var f = File(dataDir + sep + 'ZeroNet-win.zip');
+      isExists = f.existsSync();
+      varStore.isZeroNetDownloaded(isExists);
     }
-    varStore.isZeroNetDownloaded(isExists);
   }
   return isExists;
 }
