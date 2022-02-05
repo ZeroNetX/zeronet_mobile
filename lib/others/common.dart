@@ -214,16 +214,15 @@ Future<void> initSystemTray() async {
 
   await _systemTray.setContextMenu(menu);
 
-  // _systemTray.registerSystemTrayEventHandler((eventName) {
-  //   debugPrint("eventName: $eventName");
-  //   if (eventName == "leftMouseDown") {
-  //   } else if (eventName == "leftMouseUp") {
-  //     _appWindow.show();
-  //   } else if (eventName == "rightMouseDown") {
-  //   } else if (eventName == "rightMouseUp") {
-  //     _systemTray.popUpContextMenu();
-  //   }
-  // });
+  _systemTray.registerSystemTrayEventHandler((eventName) {
+    if (eventName == "leftMouseDown") {
+    } else if (eventName == "leftMouseUp") {
+      _appWindow.show();
+    } else if (eventName == "rightMouseDown") {
+    } else if (eventName == "rightMouseUp") {
+      _systemTray.popUpContextMenu();
+    }
+  });
 }
 
 Future<void> getPackageInfo() async {

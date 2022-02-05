@@ -395,4 +395,6 @@ extension AppThemeExt on AppTheme {
 
   get browserIconColor =>
       zeroBrowserTheme == 'light' ? Color(0xFF22272d) : Color(0xFFEDF2F5);
+
+  get titleBarColor => this == AppTheme.Light ? Colors.white : Colors.grey[900];
 }

@@ -127,30 +127,15 @@ class Utils {
   static const String btcUrlSites = '1SiTEs2D3rCBxeMoLHXei2UYqFcxctdwB';
 
   static var initialSites = {
-    'ZeroHello': {
+    'Dashboard': {
       'description': strController.zerohelloSiteDesStr.value,
       'url': urlHello,
       'btcAddress': urlHello,
     },
-    'ZeroTalkX': {
+    'ThreadIt': {
       'description': strController.zeronetMobileSiteDesStr.value,
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,
-    },
-    'ZeroTalk': {
-      'description': strController.zeroTalkSiteDesStr.value,
-      'url': urlTalk,
-      'btcAddress': btcUrlTalk,
-    },
-    'ZeroBlog': {
-      'description': strController.zeroblogSiteDesStr.value,
-      'url': urlBlog,
-      'btcAddress': btcUrlBlog,
-    },
-    'ZeroMail': {
-      'description': strController.zeromailSiteDesStr.value,
-      'url': urlMail,
-      'btcAddress': btcUrlMail,
     },
     'ZeroMe': {
       'description': strController.zeromeSiteDesStr.value,
@@ -162,6 +147,21 @@ class Utils {
       'url': urlSites,
       'btcAddress': btcUrlSites,
     },
+    'ZeroBlog': {
+      'description': strController.zeroblogSiteDesStr.value,
+      'url': urlBlog,
+      'btcAddress': btcUrlBlog,
+    },
+    'ZeroMail': {
+      'description': strController.zeromailSiteDesStr.value,
+      'url': urlMail,
+      'btcAddress': btcUrlMail,
+    },
+    // 'ZeroTalk': {
+    //   'description': strController.zeroTalkSiteDesStr.value,
+    //   'url': urlTalk,
+    //   'btcAddress': btcUrlTalk,
+    // },
   };
 
   // 'ZeroName': '1Name2NXVi1RDPDgf5617UoW7xA6YrhM9F',

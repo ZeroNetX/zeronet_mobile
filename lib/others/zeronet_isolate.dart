@@ -175,6 +175,7 @@ void runZeroNetService({bool autoStart = false}) async {
   //TODO?: Check for Bugs Here.
   bool serviceRunning = false;
   if (PlatformExt.isMobile) {
+    service = ZeroNetService();
     serviceRunning = await FlutterBackgroundService().isServiceRunning();
   }
   printOut('serviceRunning : $serviceRunning');
@@ -193,6 +194,7 @@ void runZeroNetService({bool autoStart = false}) async {
         if (Platform.isAndroid) {
           uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
           service.sendData({'cmd': 'runZeroNet'});
+          runBgIsolate();
         } else {
           runBgIsolate();
         }

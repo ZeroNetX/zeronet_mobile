@@ -11,8 +11,8 @@ Future main() async {
       // const initialSize = Size(600, 450);
       // win.minSize = initialSize;
       // win.size = initialSize;
-      win.position = const Offset(250, 250);
-      win.title = "Windows Test";
+      // win.position = const Offset(250, 250);
+      win.title = "ZeroNetX";
       win.show();
     });
   }
@@ -31,19 +31,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: (PlatformExt.isDesktop)
-            ? WindowBorder(
-                color: Colors.white,
-                child: Column(
+            ? Obx(
+                () => Column(
                   children: [
                     WindowTitleBarBox(
                       child: Container(
+                        color: uiStore.currentTheme.value.titleBarColor,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: MoveWindow(
                                 child: Container(
-                                  color: Colors.white,
+                                  color:
+                                      uiStore.currentTheme.value.primaryColor,
                                 ),
                               ),
                             ),
@@ -51,14 +52,16 @@ class MyApp extends StatelessWidget {
                               children: [
                                 MinimizeWindowButton(
                                   colors: WindowButtonColors(
-                                    normal: Colors.white,
+                                    normal:
+                                        uiStore.currentTheme.value.cardBgColor,
                                     mouseOver: Colors.blueAccent,
                                     mouseDown: Colors.blue,
                                   ),
                                 ),
                                 MaximizeWindowButton(
                                   colors: WindowButtonColors(
-                                    normal: Colors.white,
+                                    normal:
+                                        uiStore.currentTheme.value.cardBgColor,
                                     mouseOver: Colors.greenAccent,
                                     mouseDown: Colors.green,
                                   ),
@@ -66,7 +69,8 @@ class MyApp extends StatelessWidget {
                                 CloseWindowButton(
                                   onPressed: () => appWindow.hide(),
                                   colors: WindowButtonColors(
-                                    normal: Colors.white,
+                                    normal:
+                                        uiStore.currentTheme.value.cardBgColor,
                                     mouseOver: Colors.redAccent,
                                     mouseDown: Colors.red,
                                   ),
