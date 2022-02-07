@@ -51,6 +51,10 @@ class MyApp extends StatelessWidget {
                             Row(
                               children: [
                                 MinimizeWindowButton(
+                                  onPressed: () {
+                                    appWindow.minimize();
+                                    uiStore.isWindowVisible.value = false;
+                                  },
                                   colors: WindowButtonColors(
                                     normal:
                                         uiStore.currentTheme.value.cardBgColor,
@@ -59,6 +63,10 @@ class MyApp extends StatelessWidget {
                                   ),
                                 ),
                                 MaximizeWindowButton(
+                                  onPressed: () {
+                                    appWindow.maximize();
+                                    uiStore.isWindowVisible.value = true;
+                                  },
                                   colors: WindowButtonColors(
                                     normal:
                                         uiStore.currentTheme.value.cardBgColor,
@@ -67,12 +75,15 @@ class MyApp extends StatelessWidget {
                                   ),
                                 ),
                                 CloseWindowButton(
-                                  onPressed: () => appWindow.hide(),
+                                  onPressed: () {
+                                    appWindow.hide();
+                                    uiStore.isWindowVisible.value = false;
+                                  },
                                   colors: WindowButtonColors(
                                     normal:
                                         uiStore.currentTheme.value.cardBgColor,
                                     mouseOver: Colors.redAccent,
-                                    mouseDown: Colors.red,
+                                    mouseDown: Color(0xFFF44336),
                                   ),
                                 ),
                               ],

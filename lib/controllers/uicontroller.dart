@@ -4,6 +4,7 @@ final uiStore = Get.put(UiController());
 
 class UiController extends GetxController {
   PersistentBottomSheetController currentBottomSheetController;
+  final isWindowVisible = false.obs;
 
   var appUpdate = AppUpdate.NOT_AVAILABLE.obs;
 

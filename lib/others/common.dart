@@ -48,7 +48,6 @@ String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
 SystemTray _systemTray;
-AppWindow _appWindow;
 
 ZeroNetService service;
 // FlutterBackgroundService service;
@@ -163,7 +162,6 @@ init() async {
 
   if (PlatformExt.isDesktop) {
     _systemTray = SystemTray();
-    _appWindow = AppWindow();
   }
 }
 
@@ -202,7 +200,7 @@ Future<void> initSystemTray() async {
     MenuSeparator(),
     MenuItem(
       label: 'Exit',
-      onClicked: _appWindow.close,
+      onClicked: appWindow.close,
     ),
   ];
 
@@ -217,7 +215,13 @@ Future<void> initSystemTray() async {
   _systemTray.registerSystemTrayEventHandler((eventName) {
     if (eventName == "leftMouseDown") {
     } else if (eventName == "leftMouseUp") {
-      _appWindow.show();
+      if (uiStore.isWindowVisible.value) {
+        uiStore.isWindowVisible.value = false;
+        appWindow.hide();
+      } else {
+        uiStore.isWindowVisible.value = true;
+        appWindow.show();
+      }
     } else if (eventName == "rightMouseDown") {
     } else if (eventName == "rightMouseUp") {
       _systemTray.popUpContextMenu();
@@ -272,14 +276,14 @@ Future<void> backUpUserJsonFile(
           .then(
         (_) {
           printToConsole(strController.usersFileCopied.value);
-          Get.showSnackbar(GetBar(
+          Get.showSnackbar(GetSnackBar(
             message: strController.usersFileCopied.value,
           ));
         },
       );
     } else {
       String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-      Get.showSnackbar(GetBar(
+      Get.showSnackbar(GetSnackBar(
         message: (result.contains('success'))
             ? result
             : strController.chkBckUpStr.value,
