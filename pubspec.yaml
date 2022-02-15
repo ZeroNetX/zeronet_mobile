@@ -54,6 +54,7 @@ dependencies:
   internet_file: ^1.0.0+1
   bitsdojo_window: ^0.1.1+1
   system_tray: ^0.0.9
+  msix: ^3.0.1
     # path: ../zeronet_ws
     # git:
     #   url : https://github.com/canewsin/zeronet_ws.git

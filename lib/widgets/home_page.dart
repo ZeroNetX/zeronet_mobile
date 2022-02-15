@@ -335,8 +335,7 @@ class PopularZeroNetSites extends StatelessWidget {
         bool isZite1Exists = isZiteExitsLocally(
           Utils.initialSites[item1]['btcAddress'],
         );
-        //TODO: Check if this breaks in mobile sorting
-        return !isZite1Exists ? 0 : 1;
+        return isZite1Exists ? 0 : 1;
       });
     }
     for (var key in siteKeys) {
