@@ -17,6 +17,7 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   ZeroNetAppBar(),
+                  if (PlatformExt.isDesktop) SizedBox(height: 8),
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,

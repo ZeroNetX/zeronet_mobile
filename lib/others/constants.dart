@@ -117,8 +117,8 @@ class Utils {
   static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
   static const String urlTalk = 'Talk.ZeroNetwork.bit';
   static const String btcUrlTalk = '1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT';
-  static const String urlBlog = 'Blog.ZeroNetwork.bit';
-  static const String btcUrlBlog = '1BLogC9LN4oPDcruNz3qo1ysa133E9AGg8';
+  static const String urlBlog = '1SCribeHs1nz8m3vXipP84oyXUy4nf2ZD';
+  static const String btcUrlBlog = '1SCribeHs1nz8m3vXipP84oyXUy4nf2ZD';
   static const String urlMail = 'Mail.ZeroNetwork.bit';
   static const String btcUrlMail = '1MaiL5gfBM1cyb4a8e3iiL8L5gXmoAJu27';
   static const String urlMe = 'Me.ZeroNetwork.bit';
@@ -137,6 +137,11 @@ class Utils {
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,
     },
+    'Scribe': {
+      'description': strController.zeroblogSiteDesStr.value,
+      'url': urlBlog,
+      'btcAddress': btcUrlBlog,
+    },
     'ZeroMe': {
       'description': strController.zeromeSiteDesStr.value,
       'url': urlMe,
@@ -147,21 +152,11 @@ class Utils {
       'url': urlSites,
       'btcAddress': btcUrlSites,
     },
-    'ZeroBlog': {
-      'description': strController.zeroblogSiteDesStr.value,
-      'url': urlBlog,
-      'btcAddress': btcUrlBlog,
-    },
     'ZeroMail': {
       'description': strController.zeromailSiteDesStr.value,
       'url': urlMail,
       'btcAddress': btcUrlMail,
     },
-    // 'ZeroTalk': {
-    //   'description': strController.zeroTalkSiteDesStr.value,
-    //   'url': urlTalk,
-    //   'btcAddress': btcUrlTalk,
-    // },
   };
 
   // 'ZeroName': '1Name2NXVi1RDPDgf5617UoW7xA6YrhM9F',

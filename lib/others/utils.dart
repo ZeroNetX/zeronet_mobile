@@ -118,33 +118,35 @@ bindUnZipIsolate() {
     bindUnZipIsolate();
     return;
   }
-  unZipIsolateBound = true;
-  _unZipPort.listen((data) {
-    String name = data[0];
-    int currentFile = data[1];
-    int totalFiles = data[2];
-    var percent = (currentFile / totalFiles) * 100;
-    if (percent.toInt() % 5 == 0) {
-      varStore.setLoadingStatus('${strController.installingStr.value} $name');
-      varStore.setLoadingPercent(percent.toInt());
-    }
-    if (percent == 100) {
-      percentUnZip = percentUnZip + 100;
-    }
-    var nooffiles = files(arch).length;
-    if (percentUnZip == nooffiles * 100) {
-      if (requiresPatching()) {
-        var patchFile = File(dataDir + '/$buildNumber.patched');
-        if (!patchFile.existsSync()) {
-          patchFile.createSync(recursive: true);
-        }
+  if (!unZipIsolateBound) {
+    unZipIsolateBound = true;
+    _unZipPort.listen((data) {
+      String name = data[0];
+      int currentFile = data[1];
+      int totalFiles = data[2];
+      var percent = (currentFile / totalFiles) * 100;
+      if (percent.toInt() % 5 == 0) {
+        varStore.setLoadingStatus('${strController.installingStr.value} $name');
+        varStore.setLoadingPercent(percent.toInt());
       }
-      printOut('Installation Completed', isNative: true);
-      makeExecHelper().then((value) => isExecPermitted = value);
-      uninstallModules();
-      check();
-    }
-  });
+      if (percent == 100) {
+        percentUnZip = percentUnZip + 100;
+      }
+      var nooffiles = files(arch).length;
+      if (percentUnZip == nooffiles * 100) {
+        if (requiresPatching()) {
+          var patchFile = File(dataDir + '/$buildNumber.patched');
+          if (!patchFile.existsSync()) {
+            patchFile.createSync(recursive: true);
+          }
+        }
+        printOut('Installation Completed', isNative: true);
+        makeExecHelper().then((value) => isExecPermitted = value);
+        uninstallModules();
+        check();
+      }
+    });
+  }
 }
 
 void _unbindUnZipIsolate() {
@@ -286,14 +288,15 @@ unZipinBgWin() async {
   File item = File(dataDir + sep + 'ZeroNet-win.zip');
   var name = item.path.split(sep).last;
   zeroNetState = state.INSTALLING;
-  await compute(
-    _unzipBytesAsyncWin,
-    UnzipParams(
-      name,
-      item.readAsBytesSync(),
-      dest: '',
-    ),
-  );
+  if (item.existsSync())
+    await compute(
+      _unzipBytesAsyncWin,
+      UnzipParams(
+        name,
+        item.readAsBytesSync(),
+        dest: '',
+      ),
+    );
   check();
 }
 
@@ -307,32 +310,38 @@ void _unzipBytesAsyncWin(UnzipParams params) async {
   }
   printOut("UnZippingFiles.......");
   var out = dataDir + '/' + params.dest;
-  Archive archive = ZipDecoder().decodeBytes(params.bytes);
-  int totalfiles = archive.length;
-  int i = 0;
-  for (ArchiveFile file in archive) {
-    String filename = file.name;
-    printOut('$out$filename');
-    i++;
-    final SendPort send = IsolateNameServer.lookupPortByName(isolateUnZipPort);
-    send.send([params.item, i, totalfiles]);
-    String outName = '$out' + filename;
-    if (file.isFile) {
-      List<int> data = file.content;
-      // if (!File(outName).existsSync()) {
-      File f = File(outName);
-      if (!f.existsSync())
-        f
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
-      // }
-    } else {
-      Directory(outName).exists().then((exists) {
-        if (!exists) Directory(outName)..create(recursive: true);
-      });
+  try {
+    Archive archive = ZipDecoder().decodeBytes(params.bytes);
+    int totalfiles = archive.length;
+    int i = 0;
+    for (ArchiveFile file in archive) {
+      String filename = file.name;
+      printOut('$out$filename');
+      i++;
+      final SendPort send =
+          IsolateNameServer.lookupPortByName(isolateUnZipPort);
+      send.send([params.item, i, totalfiles]);
+      String outName = '$out' + filename;
+      if (file.isFile) {
+        List<int> data = file.content;
+        // if (!File(outName).existsSync()) {
+        File f = File(outName);
+        if (!f.existsSync())
+          f
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(data);
+        // }
+      } else {
+        Directory(outName).exists().then((exists) {
+          if (!exists) Directory(outName)..create(recursive: true);
+        });
+      }
     }
+    File(installedMetaDir(metaDir.path, params.item))
+        .createSync(recursive: true);
+  } catch (e) {
+    printOut(e.toString());
   }
-  File(installedMetaDir(metaDir.path, params.item)).createSync(recursive: true);
 }
 
 void _unzipBytesAsync(UnzipParams params) async {

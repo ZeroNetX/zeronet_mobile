@@ -22,6 +22,7 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 30),
                   ),
                   ZeroNetStatusWidget(),
+                  if (PlatformExt.isDesktop) SizedBox(height: 8),
                   ZeroNetUserStatusWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
@@ -334,7 +335,8 @@ class PopularZeroNetSites extends StatelessWidget {
         bool isZite1Exists = isZiteExitsLocally(
           Utils.initialSites[item1]['btcAddress'],
         );
-        return isZite1Exists ? 0 : 1;
+        //TODO: Check if this breaks in mobile sorting
+        return !isZite1Exists ? 0 : 1;
       });
     }
     for (var key in siteKeys) {
@@ -371,6 +373,10 @@ class PopularZeroNetSites extends StatelessWidget {
             ),
           ],
         ),
+        if (PlatformExt.isDesktop)
+          SizedBox(
+            height: 10,
+          ),
         ListView(
           shrinkWrap: true,
           children: zeroSites,
