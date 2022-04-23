@@ -4,9 +4,9 @@ final varStore = Get.put(VarController());
 
 class VarController extends GetxController {
   var zeroNetWrapperKey = '';
-  var settings = <String, Setting>{}.obs;
-  var event = ObservableEvent.none.obs;
-  var zeroNetLog = 'ZeroNet Mobile'.obs;
+  RxMap<String?, Setting> settings = <String, Setting>{}.obs;
+  Rx<ObservableEvent> event = ObservableEvent.none.obs;
+  var zeroNetLog = 'ZeroNetX'.obs;
   RxString zeroNetStatus = strController.statusNotRunningStr;
   var zeroNetInstalled = false.obs;
   var zeroNetDownloaded = false.obs;

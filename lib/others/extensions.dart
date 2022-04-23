@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:zeronet/imports.dart';
 
 extension FileSystemExtension on FileSystemEntity {
@@ -14,11 +13,22 @@ extension CapExtension on String {
 }
 
 extension DynamicExt on dynamic {
-  int toInt() {
+  int? toInt() {
     if (this is num) {
       if (this is double) return this.toInt();
       if (this is int) return this;
     }
     return -1;
   }
+}
+
+extension PlatformExt on Platform {
+  static get isDesktop =>
+      (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  static get isMobile => (Platform.isAndroid || Platform.isIOS);
+
+  static get isSupportedDesktop => (Platform.isWindows);
+  static get isSupportedMobile => (Platform.isAndroid);
+
+  static get isSupported => (isSupportedDesktop || isSupportedMobile);
 }

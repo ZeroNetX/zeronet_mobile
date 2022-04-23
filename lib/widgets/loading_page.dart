@@ -13,7 +13,14 @@ class Loading extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset('assets/logo.png'),
+            Container(
+              constraints: PlatformExt.isMobile
+                  ? null
+                  : BoxConstraints(maxHeight: Get.height * 0.60),
+              child: Image.asset(
+                'assets/logo.png',
+              ),
+            ),
             Padding(
               padding: EdgeInsets.all(24.0),
             ),

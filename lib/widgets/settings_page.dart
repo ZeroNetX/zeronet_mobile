@@ -11,19 +11,20 @@ class SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(24)),
+            Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
             Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18.0),
               child: Column(
                 children: <Widget>[
                   ZeroNetAppBar(),
+                  if (PlatformExt.isDesktop) SizedBox(height: 8),
                   ListView.builder(
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: Utils.defSettings.keys.length,
                     itemBuilder: (ctx, i) {
-                      Setting current =
-                          Utils.defSettings[Utils.defSettings.keys.toList()[i]];
+                      Setting current = Utils
+                          .defSettings[Utils.defSettings.keys.toList()[i]]!;
                       if (current.name == profileSwitcher) {
                         bool isUsersFileExists = isZeroNetUsersFileExists();
                         if (!isUsersFileExists) return Container();
@@ -48,8 +49,8 @@ class SettingsPage extends StatelessWidget {
 
 class SettingsCard extends StatelessWidget {
   const SettingsCard({
-    Key key,
-    @required this.setting,
+    Key? key,
+    required this.setting,
   }) : super(key: key);
 
   final Setting setting;
@@ -87,7 +88,7 @@ class SettingsCard extends StatelessWidget {
                   Row(
                     children: <Widget>[
                       Text(
-                        setting.name,
+                        setting.name!,
                         maxLines: 1,
                         style: GoogleFonts.roboto(
                           fontSize: 16.0,
@@ -152,7 +153,7 @@ class SettingsCard extends StatelessWidget {
                           () {
                             bool enabled = (varStore.settings[setting.name]
                                     as ToggleSetting)
-                                .value;
+                                .value!;
                             return Switch(
                               value: enabled,
                               activeColor: Color(0xFF5380FF),
@@ -168,15 +169,16 @@ class SettingsCard extends StatelessWidget {
                 Obx(() {
                   var i = uiStore.reload.value;
                   var str = i.toString();
+                  printOut(str);
                   List<Widget> children = [];
                   var settingL = setting as MapSetting;
-                  settingL.options.forEach((element) {
+                  settingL.options!.forEach((element) {
                     children.add(
                       InkWell(
                         borderRadius: BorderRadius.circular(24.0),
                         splashColor: Color(0xFF5380FF),
                         onTap: () {
-                          settingL.options[settingL.options.indexOf(element)]
+                          settingL.options![settingL.options!.indexOf(element)]
                               .onClick(Get.context);
                         },
                         onLongPress: element == MapOptions.BACKUP_PROFILE
@@ -195,7 +197,7 @@ class SettingsCard extends StatelessWidget {
                                 uiStore.currentTheme.value.cardBgColor,
                             label: Text(
                               settingL
-                                  .options[settingL.options.indexOf(element)]
+                                  .options![settingL.options!.indexOf(element)]
                                   .description,
                               maxLines: 1,
                               style: GoogleFonts.roboto(
@@ -248,14 +250,14 @@ class SettingsCard extends StatelessWidget {
                       );
                     });
                   else if ((setting as MapSetting).name == languageSwitcher)
-                    loadTranslations().keys.forEach((language) {
+                    loadTranslations()!.keys.forEach((language) {
                       children.insert(
                         0,
                         InkWell(
                           borderRadius: BorderRadius.circular(24.0),
                           splashColor: Color(0xFF5380FF),
                           onTap: () {
-                            String code = loadTranslations()[language];
+                            String? code = loadTranslations()![language];
                             strController.loadTranslationsFromFile(
                               getZeroNetDataDir().path +
                                   '/' +
@@ -313,8 +315,10 @@ class SettingsCard extends StatelessWidget {
             if (file.existsSync()) {
               file.renameSync(getZeroNetDataDir().path + '/users.json');
               // _reload();
-              if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING)
-                ZeroNet.instance.shutDown();
+              if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
+                //TODO: Handle Shutdown
+                // ZeroNet.instance.shutDown();
+              }
               service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             }
@@ -344,7 +348,7 @@ class SettingDetailsSheet extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              setting.name,
+              setting.name!,
               maxLines: 1,
               style: GoogleFonts.roboto(
                 fontSize: 24.0,
@@ -356,7 +360,7 @@ class SettingDetailsSheet extends StatelessWidget {
         ),
         Padding(padding: EdgeInsets.all(6.0)),
         Text(
-          setting.description,
+          setting.description!,
           style: GoogleFonts.roboto(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,

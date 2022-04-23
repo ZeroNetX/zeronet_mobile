@@ -3,28 +3,28 @@ import 'dart:convert';
 import 'dart:io';
 
 class Site {
-  String address;
-  String addressHash;
-  String addressSha1;
-  String addressShort;
-  int added;
-  String ajaxKey;
-  String authKey;
-  int bytesRecv;
-  int bytesSent;
-  Cache cache;
-  int downloaded;
-  int modified;
-  int optionalDownloaded;
-  Map<String, dynamic> optionalHelp;
-  bool own;
-  int peers;
-  List<String> permissions;
-  bool serving;
-  int size;
-  int sizeFilesOptional;
-  int sizeOptional;
-  String wrapperKey;
+  String? address;
+  String? addressHash;
+  String? addressSha1;
+  String? addressShort;
+  int? added;
+  String? ajaxKey;
+  String? authKey;
+  int? bytesRecv;
+  int? bytesSent;
+  Cache? cache;
+  int? downloaded;
+  int? modified;
+  int? optionalDownloaded;
+  Map<String, dynamic>? optionalHelp;
+  bool? own;
+  int? peers;
+  List<String>? permissions;
+  bool? serving;
+  int? size;
+  int? sizeFilesOptional;
+  int? sizeOptional;
+  String? wrapperKey;
 
   Site({
     this.address,
@@ -89,7 +89,7 @@ class Site {
     data['bytes_recv'] = this.bytesRecv;
     data['bytes_sent'] = this.bytesSent;
     if (this.cache != null) {
-      data['cache'] = this.cache.toJson();
+      data['cache'] = this.cache!.toJson();
     }
     data['downloaded'] = this.downloaded;
     data['modified'] = this.modified;
@@ -110,9 +110,9 @@ class Site {
 }
 
 class Cache {
-  Map<String, dynamic> badFiles;
+  Map<String, dynamic>? badFiles;
   dynamic hashfield;
-  Map<String, dynamic> piecefields;
+  Map<String, dynamic>? piecefields;
 
   Cache({
     this.badFiles,

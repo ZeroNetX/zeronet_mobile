@@ -6,7 +6,7 @@ final flutterWebViewPlugin = FlutterWebviewPlugin();
 class ZeroBrowser extends StatelessWidget {
   Color browserBgColor = uiStore.currentTheme.value.browserBgColor;
   setTheme() {
-    Brightness brightness;
+    Brightness? brightness;
     switch (zeroBrowserTheme) {
       case 'dark':
         brightness = Brightness.light;
@@ -36,7 +36,9 @@ class ZeroBrowser extends StatelessWidget {
   Widget build(BuildContext context) {
     setTheme();
     bool fullScreenWebView =
-        (varStore.settings[enableFullScreenOnWebView] as ToggleSetting)?.value;
+        (varStore.settings[enableFullScreenOnWebView] as ToggleSetting?)
+                ?.value ??
+            false;
     if (fullScreenWebView)
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     // ignore: prefer_collection_literals
@@ -58,7 +60,7 @@ class ZeroBrowser extends StatelessWidget {
     });
     return WillPopScope(
       onWillPop: () {
-        if (launchUrl.isNotEmpty) {
+        if (launchUrl!.isNotEmpty) {
           return Future.value(true);
         } else {
           SystemChrome.setEnabledSystemUIMode(
