@@ -378,12 +378,20 @@ void shutDownZeronet() {
     runZeroNetWs();
     if (ZeroNet.isInitialised) {
       //TODO: Handle Shutdown
-      // ZeroNet.instance.shutDown();
+      ZeroNet.instance.serverShutdownFuture().then(
+            (value) => ZeroNet.instance.respond(
+              to: value.id,
+            ),
+          );
     } else {
       runZeroNetWs(address: Utils.urlHello);
       try {
         //TODO: Handle Shutdown
-        // ZeroNet.instance.shutDown();
+        ZeroNet.instance.serverShutdownFuture().then(
+              (value) => ZeroNet.instance.respond(
+                to: value.id,
+              ),
+            );
       } catch (e) {
         printOut(e);
       }

@@ -35,6 +35,7 @@ export 'package:share/share.dart';
 export 'package:system_tray/system_tray.dart';
 export 'package:url_launcher/url_launcher.dart';
 export 'package:zeronet_ws/zeronet_ws.dart';
+export 'package:zeronet_ws/extensions/futures.dart';
 
 export 'controllers/varcontroller.dart';
 export 'controllers/uicontroller.dart';
