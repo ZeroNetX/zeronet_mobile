@@ -139,12 +139,12 @@ class StrController extends GetxController {
   var openPluginManagerStr = 'Open Plugin Manager'.obs;
   var loadPluginStr = 'Load Plugin'.obs;
   var zerohelloSiteDesStr = 'Say Hello to ZeroNet, a Dashboard to manage '
-          'all your ZeroNet Z(S)ites, You can view feed of other zites like '
-          'posts, comments of other users from ZeroTalk as well for your posts '
-          'and Stats like Total Requests sent and received from other peers on ZeroNet. '
+          'all your ZeroNetX Z(S)ites, You can view feed of other zites like '
+          'posts, comments of other users from ThreadIt as well for your posts '
+          'and Stats like Total Requests sent and received from other peers on ZeroNetX. '
           'You can also pause, clone or favourite, delete Zites from single page.'
       .obs;
-  var zeronetMobileSiteDesStr = 'Forum to report ZeroNet Mobile app issues. '
+  var zeronetMobileSiteDesStr = 'Forum to report ZeroNetX app issues. '
           'Want a new feature in the app, Request a Feature. '
           'Facing any Bugs while using the app ? '
           'Just report problem here, we will take care of it. '
@@ -152,17 +152,17 @@ class StrController extends GetxController {
           'Just dive into to this Zite.'
       .obs;
   var zeroTalkSiteDesStr = 'Need a forum to discuss something, '
-          'we got covered you here. ZeroTalk fits your need, '
+          'we got covered you here. ThreadIt fits your need, '
           'just post something to get opinion from others on Network. '
           'Have some queries ? don\'t hesitate to ask here.'
           'Tired of Spam ? Who don\'t! You can mute individual users also.'
       .obs;
   var zeroblogSiteDesStr = 'Want to Know Where ZeroNet is Going ? '
-          'ZeroBlog gives you latest changes and improvements '
-          'made to ZeroNet, including Bug Fixes, '
-          'Speed Improvements of ZeroNet Core Software. '
+          'Scribe gives you latest changes and improvements '
+          'made to ZeroNetX, including Bug Fixes, '
+          'Speed Improvements of ZeroNetX Core Software. '
           'Also Provides varies links to ZeroNet Protocol and '
-          'how ZeroNet works underhood and much more things to know.'
+          'how ZeroNetX works underhood and much more things to know.'
       .obs;
   var zeromailSiteDesStr = 'So you need a mail service, use ZeroMail, '
           'fully end-to-end encrypted mail service on ZeroNet, '

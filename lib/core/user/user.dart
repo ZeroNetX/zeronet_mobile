@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 class User {
-  Map<String, Cert> certsMap;
-  String masterSeed;
-  Settings settings;
-  Map<String, UserSite> sites;
+  Map<String, Cert>? certsMap;
+  String? masterSeed;
+  Settings? settings;
+  Map<String, UserSite>? sites;
 
   User({this.certsMap, this.masterSeed, this.settings, this.sites});
 
@@ -12,7 +12,7 @@ class User {
     certsMap = {};
     if (json['certs'] != null) {
       for (var cert in (json['certs'] as Map).keys) {
-        certsMap[cert] = Cert.fromJson((json['certs'] as Map)[cert]);
+        certsMap![cert] = Cert.fromJson((json['certs'] as Map)[cert]);
       }
     }
     masterSeed = json['master_seed'];
@@ -22,7 +22,7 @@ class User {
     sites = {};
     if (json['sites'] != null) {
       for (var site in (json['sites'] as Map).keys) {
-        sites[site] = UserSite.fromJson(json['sites'][site]);
+        sites![site] = UserSite.fromJson(json['sites'][site]);
       }
     }
   }
@@ -34,7 +34,7 @@ class User {
     }
     data['master_seed'] = this.masterSeed;
     if (this.settings != null) {
-      data['settings'] = this.settings.toJson();
+      data['settings'] = this.settings!.toJson();
     }
     if (this.sites != null) {
       data['sites'] = json.encode(this.sites);
@@ -44,8 +44,8 @@ class User {
 }
 
 class Settings {
-  String theme;
-  bool useSystemTheme;
+  String? theme;
+  bool? useSystemTheme;
 
   Settings({this.theme, this.useSystemTheme});
 
@@ -63,11 +63,11 @@ class Settings {
 }
 
 class Cert {
-  String authAddress;
-  String authPrivatekey;
-  String authType;
-  String authUserName;
-  String certSign;
+  String? authAddress;
+  String? authPrivatekey;
+  String? authType;
+  String? authUserName;
+  String? certSign;
 
   Cert(
       {this.authAddress,
@@ -96,14 +96,14 @@ class Cert {
 }
 
 class UserSite {
-  String authAddress;
-  String authPrivatekey;
-  String encryptPrivatekey0;
-  String encryptPublickey0;
-  String cert;
-  Settings settings;
-  Map<String, dynamic> follow;
-  String privatekey;
+  String? authAddress;
+  String? authPrivatekey;
+  String? encryptPrivatekey0;
+  String? encryptPublickey0;
+  String? cert;
+  Settings? settings;
+  Map<String, dynamic>? follow;
+  String? privatekey;
 
   UserSite(
       {this.authAddress,
@@ -136,7 +136,7 @@ class UserSite {
     data['encrypt_publickey_0'] = this.encryptPublickey0;
     data['cert'] = this.cert;
     if (this.settings != null) {
-      data['settings'] = this.settings.toJson();
+      data['settings'] = this.settings!.toJson();
     }
     if (this.follow != null) {
       data['follow'] = json.encode(this.follow);
@@ -147,11 +147,11 @@ class UserSite {
 }
 
 class SiteSettings {
-  int dateFeedVisit;
-  Map<String, dynamic> favoriteSites;
-  Map<String, dynamic> siteblocksIgnore;
-  String sitesOrderby;
-  Map<String, dynamic> sitesSectionHide;
+  int? dateFeedVisit;
+  Map<String, dynamic>? favoriteSites;
+  Map<String, dynamic>? siteblocksIgnore;
+  String? sitesOrderby;
+  Map<String, dynamic>? sitesSectionHide;
 
   SiteSettings(
       {this.dateFeedVisit,

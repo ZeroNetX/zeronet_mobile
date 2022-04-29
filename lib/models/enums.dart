@@ -14,19 +14,14 @@ extension ZeroNetStatusExt on ZeroNetStatus {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
         return strController.statusNotRunningStr.value;
-        break;
       case ZeroNetStatus.INITIALISING:
         return strController.statusInitializingStr.value;
-        break;
       case ZeroNetStatus.RUNNING:
         return strController.statusRunningStr.value;
-        break;
       case ZeroNetStatus.RUNNING_WITH_TOR:
         return strController.statusRunningWithTorStr.value;
-        break;
       case ZeroNetStatus.ERROR:
         return strController.statusErrorStr.value;
-        break;
       default:
     }
   }
@@ -35,17 +30,13 @@ extension ZeroNetStatusExt on ZeroNetStatus {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
         return strController.startStr.value;
-        break;
       case ZeroNetStatus.INITIALISING:
         return strController.pleaseWaitStr.value;
-        break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         return strController.stopStr.value;
-        break;
       case ZeroNetStatus.ERROR:
         return strController.viewLogStr.value;
-        break;
       default:
     }
   }
@@ -55,24 +46,24 @@ extension ZeroNetStatusExt on ZeroNetStatus {
       case ZeroNetStatus.NOT_RUNNING:
         printOut('onAction()');
         printOut('ZeroNetStatus.NOT_RUNNING');
-        if (!patchChecked && checkPatchNeeded()) {
+        if (PlatformExt.isMobile && !patchChecked && checkPatchNeeded()) {
           var zeroNetRevision = getZeroNetRevision(zeroNetDir);
           downloadPatch('$zeroNetRevision').then((_) {
             checkPatchAndApply(
-              tempDir.path + '/patches/$zeroNetRevision',
+              tempDir!.path + '/patches/$zeroNetRevision',
               zeronetDir,
             );
           });
           patchChecked = true;
         }
         var autoStart =
-            (varStore.settings[autoStartZeroNet] as ToggleSetting).value;
+            (varStore.settings[autoStartZeroNet] as ToggleSetting).value!;
         runZeroNetService(autoStart: autoStart);
         break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         shutDownZeronet();
-        flutterWebViewPlugin.close();
+        // if (PlatformExt.isMobile()) flutterWebViewPlugin.close();
         // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
         break;
@@ -88,17 +79,13 @@ extension ZeroNetStatusExt on ZeroNetStatus {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
         return Color(0xFF52F7C5);
-        break;
       case ZeroNetStatus.INITIALISING:
         return Color(0xFF5A53FF);
-        break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         return Color(0xFFF6595F);
-        break;
       case ZeroNetStatus.ERROR:
         return Color(0xFF5A53FF);
-        break;
       default:
     }
   }
@@ -107,17 +94,13 @@ extension ZeroNetStatusExt on ZeroNetStatus {
     switch (this) {
       case ZeroNetStatus.NOT_RUNNING:
         return Color(0xFFF6595F);
-        break;
       case ZeroNetStatus.INITIALISING:
         return Color(0xFF5A53FF);
-        break;
       case ZeroNetStatus.RUNNING:
       case ZeroNetStatus.RUNNING_WITH_TOR:
         return Color(0xFF52F7C5);
-        break;
       case ZeroNetStatus.ERROR:
         return Color(0xFFF6595F);
-        break;
       default:
     }
   }
@@ -133,10 +116,8 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
     switch (this) {
       case ZeroNetUserStatus.NOT_REGISTERED:
         return strController.userNameNotCreatedStr.value;
-        break;
       case ZeroNetUserStatus.REGISTERED:
         return uiStore.zeroNetUserId.value;
-        break;
       default:
     }
   }
@@ -145,10 +126,8 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
     switch (this) {
       case ZeroNetUserStatus.NOT_REGISTERED:
         return strController.createStr.value;
-        break;
       case ZeroNetUserStatus.REGISTERED:
         return strController.switchStr.value;
-        break;
       default:
     }
   }
@@ -157,8 +136,12 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
     switch (this) {
       case ZeroNetUserStatus.NOT_REGISTERED:
         var url = zeroNetUrl;
-        browserUrl = url + Utils.urlZeroId;
-        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+        browserUrl = url + Utils.urlCryptoId;
+        if (PlatformExt.isMobile) {
+          uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+        } else {
+          launch(browserUrl);
+        }
         break;
       case ZeroNetUserStatus.REGISTERED:
         MapOptions.CREATE_PROFILE.onClick(Get.context);
@@ -173,7 +156,6 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
       case ZeroNetUserStatus.NOT_REGISTERED:
       case ZeroNetUserStatus.REGISTERED:
         return Color(0xFF52F7C5);
-        break;
       default:
     }
   }
@@ -183,7 +165,6 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
       case ZeroNetUserStatus.NOT_REGISTERED:
       case ZeroNetUserStatus.REGISTERED:
         return Color(0xFF5A53FF);
-        break;
       default:
     }
   }
@@ -202,16 +183,12 @@ extension AppUpdateExt on AppUpdate {
     switch (uiStore.appUpdate.value) {
       case AppUpdate.AVAILABLE:
         return strController.updateStr.value;
-        break;
       case AppUpdate.DOWNLOADING:
         return strController.downloadingStr.value;
-        break;
       case AppUpdate.DOWNLOADED:
         return strController.downloadedStr.value;
-        break;
       case AppUpdate.INSTALLING:
         return strController.installingStr.value;
-        break;
       default:
         return strController.notAvaliableStr.value;
     }
@@ -254,19 +231,14 @@ extension AppRouteExt on AppRoute {
     switch (this) {
       case AppRoute.AboutPage:
         return strController.aboutStr.value;
-        break;
       case AppRoute.Home:
-        return 'ZeroNet Mobile';
-        break;
+        return 'ZeroNetX';
       case AppRoute.Settings:
         return strController.settingsStr.value;
-        break;
       case AppRoute.ZeroBrowser:
         return 'Zero${strController.browserStr.value}';
-        break;
       case AppRoute.LogPage:
         return 'ZeroNet ${strController.logStr.value}';
-        break;
       default:
     }
   }
@@ -278,10 +250,8 @@ extension AppRouteExt on AppRoute {
       case AppRoute.ZeroBrowser:
       case AppRoute.LogPage:
         return OMIcons.home;
-        break;
       case AppRoute.Home:
         return OMIcons.settings;
-        break;
       default:
         return OMIcons.error;
     }
@@ -314,13 +284,10 @@ extension AppThemeExt on AppTheme {
     switch (this) {
       case AppTheme.Light:
         return Colors.white;
-        break;
       case AppTheme.Dark:
         return Colors.grey[900];
-        break;
       case AppTheme.Black:
         return Colors.black;
-        break;
       default:
     }
   }
@@ -329,11 +296,9 @@ extension AppThemeExt on AppTheme {
     switch (this) {
       case AppTheme.Light:
         return Colors.black;
-        break;
       case AppTheme.Dark:
       case AppTheme.Black:
         return Colors.white;
-        break;
       default:
     }
   }
@@ -342,13 +307,10 @@ extension AppThemeExt on AppTheme {
     switch (this) {
       case AppTheme.Light:
         return Colors.white;
-        break;
       case AppTheme.Dark:
         return Colors.white;
-        break;
       case AppTheme.Black:
         return Colors.white;
-        break;
       default:
     }
   }
@@ -357,13 +319,10 @@ extension AppThemeExt on AppTheme {
     switch (this) {
       case AppTheme.Light:
         return Colors.white;
-        break;
       case AppTheme.Dark:
         return Colors.grey[850];
-        break;
       case AppTheme.Black:
         return Colors.grey[900];
-        break;
       default:
     }
   }
@@ -375,7 +334,6 @@ extension AppThemeExt on AppTheme {
       case AppTheme.Dark:
       case AppTheme.Black:
         return Brightness.light;
-        break;
       default:
     }
   }
@@ -384,15 +342,15 @@ extension AppThemeExt on AppTheme {
     switch (this) {
       case AppTheme.Light:
         return Color(0xFFEDF2F5);
-        break;
       case AppTheme.Dark:
       case AppTheme.Black:
         return Color(0xFF22272d);
-        break;
       default:
     }
   }
 
   get browserIconColor =>
       zeroBrowserTheme == 'light' ? Color(0xFF22272d) : Color(0xFFEDF2F5);
+
+  get titleBarColor => this == AppTheme.Light ? Colors.white : Colors.grey[900];
 }

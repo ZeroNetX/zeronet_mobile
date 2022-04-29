@@ -10,7 +10,7 @@ debugTime(Function func) {
   printOut(DateTime.now().difference(start).inMilliseconds);
 }
 
-printOut(Object object, {int lineBreaks = 0, bool isNative = false}) {
+printOut(Object? object, {int lineBreaks = 0, bool isNative = false}) {
   if (kDebugMode ||
       appVersion.contains('beta') ||
       appVersion.contains('internal')) {
@@ -39,11 +39,11 @@ bool allFilesDownloaded() {
   bool isDownloaded = false;
   for (var item in files(arch)) {
     bool isLast = files(arch).length - 1 == files(arch).indexOf(item);
-    File file = File(downloadedMetaDir(tempDir.path, item));
+    File file = File(downloadedMetaDir(tempDir!.path, item));
     if (file.existsSync()) {
       if (isLast) isDownloaded = true;
     } else {
-      File f = File(tempDir.path + '/$item.zip');
+      File f = File(tempDir!.path + '/$item.zip');
       if (f.existsSync()) {
         if (!isHashMatched(f)) return false;
         file.createSync(recursive: true);
@@ -62,7 +62,8 @@ initDownloadParams() async {
 }
 
 handleDownloads(String id, DownloadTaskStatus status, int progress) {
-  final SendPort send = IsolateNameServer.lookupPortByName(isolateDownloadPort);
+  final SendPort send =
+      IsolateNameServer.lookupPortByName(isolateDownloadPort)!;
   send.send([id, status, progress]);
 }
 
@@ -77,20 +78,20 @@ bindDownloadIsolate() {
     return;
   }
   _downloadPort.listen((data) {
-    String id = data[0];
-    DownloadTaskStatus status = data[1];
-    int progress = data[2];
+    String? id = data[0];
+    DownloadTaskStatus? status = data[1];
+    int? progress = data[2];
     for (var item in downloadsMap.keys) {
       if (downloadsMap[item] == id) {
         downloadStatusMap[id] = progress;
         if (status == DownloadTaskStatus.complete)
-          File(downloadedMetaDir(tempDir.path, item))
+          File(downloadedMetaDir(tempDir!.path, item))
               .createSync(recursive: true);
       }
     }
     var progressA = 0;
     for (var key in downloadStatusMap.keys) {
-      progressA = (progressA + downloadStatusMap[key]);
+      progressA = progressA + downloadStatusMap[key] as int;
     }
     var nooffiles = files(arch).length;
     varStore.setLoadingPercent(progressA ~/ nooffiles);
@@ -118,33 +119,35 @@ bindUnZipIsolate() {
     bindUnZipIsolate();
     return;
   }
-  unZipIsolateBound = true;
-  _unZipPort.listen((data) {
-    String name = data[0];
-    int currentFile = data[1];
-    int totalFiles = data[2];
-    var percent = (currentFile / totalFiles) * 100;
-    if (percent.toInt() % 5 == 0) {
-      varStore.setLoadingStatus('${strController.installingStr.value} $name');
-      varStore.setLoadingPercent(percent.toInt());
-    }
-    if (percent == 100) {
-      percentUnZip = percentUnZip + 100;
-    }
-    var nooffiles = files(arch).length;
-    if (percentUnZip == nooffiles * 100) {
-      if (requiresPatching()) {
-        var patchFile = File(dataDir + '/$buildNumber.patched');
-        if (!patchFile.existsSync()) {
-          patchFile.createSync(recursive: true);
-        }
+  if (!unZipIsolateBound) {
+    unZipIsolateBound = true;
+    _unZipPort.listen((data) {
+      String? name = data[0];
+      int currentFile = data[1];
+      int totalFiles = data[2];
+      var percent = (currentFile / totalFiles) * 100;
+      if (percent.toInt() % 5 == 0) {
+        varStore.setLoadingStatus('${strController.installingStr.value} $name');
+        varStore.setLoadingPercent(percent.toInt());
       }
-      printOut('Installation Completed', isNative: true);
-      makeExecHelper().then((value) => isExecPermitted = value);
-      uninstallModules();
-      check();
-    }
-  });
+      if (percent == 100) {
+        percentUnZip = percentUnZip + 100;
+      }
+      var nooffiles = files(arch).length;
+      if (percentUnZip == nooffiles * 100) {
+        if (requiresPatching()) {
+          var patchFile = File(dataDir + '/$buildNumber.patched');
+          if (!patchFile.existsSync()) {
+            patchFile.createSync(recursive: true);
+          }
+        }
+        printOut('Installation Completed', isNative: true);
+        makeExecHelper().then((value) => isExecPermitted = value);
+        uninstallModules();
+        check();
+      }
+    });
+  }
 }
 
 void _unbindUnZipIsolate() {
@@ -158,11 +161,11 @@ downloadBins() async {
     int t = 0;
     for (var item in files(arch)) {
       t = t + 2;
-      var file = File(tempDir.path + '/$item.zip');
+      var file = File(tempDir!.path + '/$item.zip');
       if (!file.existsSync()) {
         sesionKey = randomAlpha(10);
         var tempFilePath = downloadingMetaDir(
-          tempDir.path,
+          tempDir!.path,
           item,
           sesionKey,
         );
@@ -170,7 +173,7 @@ downloadBins() async {
           Timer(Duration(seconds: t), () {
             FlutterDownloader.enqueue(
               url: downloadLink(item),
-              savedDir: tempDir.path,
+              savedDir: tempDir!.path,
               showNotification: false,
               openFileFromNotification: false,
             ).then((taskId) {
@@ -187,7 +190,7 @@ downloadBins() async {
         list.forEach((f) => md5List.add(f as String));
         for (var hash in md5List) {
           if (digest == hash) {
-            File f = File(downloadedMetaDir(tempDir.path, item));
+            File f = File(downloadedMetaDir(tempDir!.path, item));
             if (!f.existsSync()) f.createSync(recursive: true);
             printOut(item + ' downloaded');
             if (files(arch).length - 1 == files(arch).indexOf(item)) {
@@ -205,9 +208,9 @@ unzip() async {
   downloadStatus = 0;
   for (var item in files(arch)) {
     downloadStatus = downloadStatus + 100;
-    File f = File(tempDir.path + '/$item.zip');
-    File f2 = File(tempDir.path + '/$item.installing');
-    File f3 = File(tempDir.path + '/$item.installed');
+    File f = File(tempDir!.path + '/$item.zip');
+    File f2 = File(tempDir!.path + '/$item.installing');
+    File f3 = File(tempDir!.path + '/$item.installed');
     zeroNetState = state.INSTALLING;
     if (!(f2.existsSync() && f3.existsSync())) {
       if (f.path.contains('usr'))
@@ -233,8 +236,8 @@ unzip() async {
 unZipinBg() async {
   if (arch != null)
     for (var item in files(arch)) {
-      File f = File(tempDir.path + '/$item.zip');
-      File f2 = File(installingMetaDir(tempDir.path, item, sesionKey));
+      File f = File(tempDir!.path + '/$item.zip');
+      File f2 = File(installingMetaDir(tempDir!.path, item, sesionKey));
       zeroNetState = state.INSTALLING;
       if (!(f2.existsSync())) {
         f2.createSync(recursive: true);
@@ -281,6 +284,67 @@ unZipinBg() async {
   // check();
 }
 
+unZipinBgWin() async {
+  bindUnZipIsolate();
+  File item = File(dataDir + sep + 'ZeroNet-win.zip');
+  var name = item.path.split(sep).last;
+  zeroNetState = state.INSTALLING;
+  if (item.existsSync())
+    await compute(
+      _unzipBytesAsyncWin,
+      UnzipParams(
+        name,
+        item.readAsBytesSync(),
+        dest: '',
+      ),
+    );
+  check();
+}
+
+void _unzipBytesAsyncWin(UnzipParams params) async {
+  var installedMetaDir2 = installedMetaDir(metaDir.path, params.item);
+  var installMetaFile = File(installedMetaDir2);
+  if (installMetaFile.existsSync()) {
+    varStore.isZeroNetInstalled(true);
+    isZeroNetInstalledm = true;
+    return;
+  }
+  printOut("UnZippingFiles.......");
+  var out = dataDir + '/' + params.dest;
+  try {
+    Archive archive = ZipDecoder().decodeBytes(params.bytes);
+    int totalfiles = archive.length;
+    int i = 0;
+    for (ArchiveFile file in archive) {
+      String filename = file.name;
+      printOut('$out$filename');
+      i++;
+      final SendPort send =
+          IsolateNameServer.lookupPortByName(isolateUnZipPort)!;
+      send.send([params.item, i, totalfiles]);
+      String outName = '$out' + filename;
+      if (file.isFile) {
+        List<int>? data = file.content;
+        // if (!File(outName).existsSync()) {
+        File f = File(outName);
+        if (!f.existsSync())
+          f
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(data!);
+        // }
+      } else {
+        Directory(outName).exists().then((exists) {
+          if (!exists) Directory(outName)..create(recursive: true);
+        });
+      }
+    }
+    File(installedMetaDir(metaDir.path, params.item))
+        .createSync(recursive: true);
+  } catch (e) {
+    printOut(e.toString());
+  }
+}
+
 void _unzipBytesAsync(UnzipParams params) async {
   printOut("UnZippingFiles.......");
   var out = dataDir + '/' + params.dest;
@@ -291,17 +355,17 @@ void _unzipBytesAsync(UnzipParams params) async {
     String filename = file.name;
     printOut('$out$filename');
     i++;
-    final SendPort send = IsolateNameServer.lookupPortByName(isolateUnZipPort);
+    final SendPort send = IsolateNameServer.lookupPortByName(isolateUnZipPort)!;
     send.send([params.item, i, totalfiles]);
     String outName = '$out' + filename;
     if (file.isFile) {
-      List<int> data = file.content;
+      List<int>? data = file.content;
       // if (!File(outName).existsSync()) {
       File f = File(outName);
       if (!f.existsSync())
         f
           ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
+          ..writeAsBytesSync(data!);
       // }
     } else {
       Directory(outName).exists().then((exists) {
@@ -323,13 +387,13 @@ unzipBytes(String name, List<int> bytes, {String dest = ''}) async {
     printOut('$out$filename');
     String outName = '$out' + filename;
     if (file.isFile) {
-      List<int> data = file.content;
+      List<int>? data = file.content;
       // if (!File(outName).existsSync()) {
       File(outName).exists().then((onValue) {
         if (!onValue) {
           File(outName)
             ..createSync(recursive: true)
-            ..writeAsBytes(data).then((f) {
+            ..writeAsBytes(data!).then((f) {
               bool isBin = f.path.contains('bin');
               if (isBin)
                 makeExec(f.path);
@@ -344,7 +408,7 @@ unzipBytes(String name, List<int> bytes, {String dest = ''}) async {
       });
     }
   }
-  File(installedMetaDir(tempDir.path, name)).createSync(recursive: true);
+  File(installedMetaDir(tempDir!.path, name)).createSync(recursive: true);
 }
 
 Future<bool> makeExecHelper() async {
@@ -384,22 +448,27 @@ load() async {
 
 Future<bool> isZeroNetInstalled() async {
   bool isExists = false;
-  for (var item in files(arch)) {
-    File f = File(installedMetaDir(metaDir.path, item));
-    var exists = f.existsSync();
-    if (!exists) return Future.value(exists);
-    isExists = exists;
+  if (Platform.isWindows) {
+    isExists = File(dataDir + sep + 'meta' + sep + 'ZeroNet-win.zip.installed')
+        .existsSync();
+  } else {
+    for (var item in files(arch)) {
+      File f = File(installedMetaDir(metaDir.path, item));
+      var exists = f.existsSync();
+      if (!exists) return Future.value(exists);
+      isExists = exists;
+    }
   }
   return isExists;
 }
 
 Future<bool> isZeroNetDownloaded() async {
   bool isExists = false;
-  if (await isModuleInstallSupported()) {
-    if (await isRequiredModulesInstalled()) {
+  if (Platform.isAndroid && (await isModuleInstallSupported())!) {
+    if (await (isRequiredModulesInstalled() as FutureOr<bool>)) {
       for (var item in files(arch)) {
         var i = files(arch).indexOf(item);
-        bool f2 = File(tempDir.path + '/$item.zip').existsSync();
+        bool f2 = File(tempDir!.path + '/$item.zip').existsSync();
         if (i == files(arch).length - 1) {
           isExists = f2;
         } else if (!f2) {
@@ -408,19 +477,25 @@ Future<bool> isZeroNetDownloaded() async {
       }
     }
   } else {
-    for (var item in files(arch)) {
-      var i = binDirs.indexOf(item);
-      bool f = File(downloadedMetaDir(tempDir.path, item)).existsSync();
-      // bool f1 = File(tempDir.path + '/$item.downloading').existsSync();
-      bool f2 = File(tempDir.path + '/$item.zip').existsSync();
-      bool isAllDownloaded = allFilesDownloaded();
-      var exists = ((f && f2) || isAllDownloaded);
-      if (!exists) return Future.value(exists);
-      if (i == binDirs.length - 1) {
-        isExists = exists;
+    if (Platform.isAndroid) {
+      for (var item in files(arch)) {
+        var i = binDirs.indexOf(item);
+        bool f = File(downloadedMetaDir(tempDir!.path, item)).existsSync();
+        // bool f1 = File(tempDir.path + '/$item.downloading').existsSync();
+        bool f2 = File(tempDir!.path + '/$item.zip').existsSync();
+        bool isAllDownloaded = allFilesDownloaded();
+        var exists = ((f && f2) || isAllDownloaded);
+        if (!exists) return Future.value(exists);
+        if (i == binDirs.length - 1) {
+          isExists = exists;
+        }
       }
+      varStore.isZeroNetDownloaded(isExists);
+    } else {
+      var f = File(dataDir + sep + 'ZeroNet-win.zip');
+      isExists = f.existsSync();
+      varStore.isZeroNetDownloaded(isExists);
     }
-    varStore.isZeroNetDownloaded(isExists);
   }
   return isExists;
 }

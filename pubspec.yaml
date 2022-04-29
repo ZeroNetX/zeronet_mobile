@@ -3,7 +3,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -30,7 +30,7 @@ dependencies:
   in_app_update: ^2.0.0
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
-  outline_material_icons: ^0.1.1
+  outline_material_icons_tv: ^0.1.1-nullsafety
   equatable: ^2.0.2
   time_ago_provider: ^4.1.0
   package_info_plus: 
@@ -44,14 +44,20 @@ dependencies:
     # path: ../flutter_background_service
     git:
       url: https://github.com/ekasetiawans/flutter_background_service
-    #   ref: zeronet
-  flutter_webview_plugin: ^0.4.0
+      ref: 9ad6ba3acf9952c53aa482708a4d099f9e33d98f
+  flutter_webview_plugin: #^0.4.0
     # git: https://github.com/nuc134r/flutter_webview_plugin.git
-    # git:
-    #   url: https://github.com/canewsin/flutter_webview_plugin
+    git:
+      url: https://github.com/canewsin/flutter_webview_plugin
     #   ref: fullscreen-support
   # web_socket_channel: 1.1.0
-  zeronet_ws: ^0.0.3
+  zeronet_ws: #^0.0.3
+    path: C:\Users\PramUkesh\Documents\FlutterProj\zeronet_ws
+  internet_file: ^1.0.0+1
+  bitsdojo_window: ^0.1.1+1
+  system_tray: ^0.0.9
+  msix: ^3.0.1
+  flutter_inappwebview: ^5.4.1+1
     # path: ../zeronet_ws
     # git:
     #   url : https://github.com/canewsin/zeronet_ws.git
@@ -59,6 +65,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.1.7
   # build_runner: ^1.11.5
   # mobx_codegen: ^1.1.2
 

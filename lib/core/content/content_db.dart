@@ -17,7 +17,7 @@ class ContentDb {
 
 Map contentDb = {};
 
-getContentDb({String path}) {
+getContentDb({String? path}) {
   if (path == null) {
     path = "../content.db";
   }

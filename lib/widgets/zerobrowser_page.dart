@@ -1,12 +1,13 @@
 import '../imports.dart';
-
-final flutterWebViewPlugin = FlutterWebviewPlugin();
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 // ignore: must_be_immutable
 class ZeroBrowser extends StatelessWidget {
+  InAppWebViewController? controller;
+
   Color browserBgColor = uiStore.currentTheme.value.browserBgColor;
   setTheme() {
-    Brightness brightness;
+    Brightness? brightness;
     switch (zeroBrowserTheme) {
       case 'dark':
         brightness = Brightness.light;
@@ -36,7 +37,140 @@ class ZeroBrowser extends StatelessWidget {
   Widget build(BuildContext context) {
     setTheme();
     bool fullScreenWebView =
-        (varStore.settings[enableFullScreenOnWebView] as ToggleSetting)?.value;
+        (varStore.settings[enableFullScreenOnWebView] as ToggleSetting?)
+                ?.value ??
+            false;
+    if (fullScreenWebView)
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    // ignore: prefer_collection_literals
+    // final Set<JavascriptChannel> jsChannels = [
+    //   JavascriptChannel(
+    //     name: 'Print',
+    //     onMessageReceived: (JavascriptMessage message) {
+    //       printOut(message.message);
+    //     },
+    //   ),
+    // ].toSet();
+    // flutterWebViewPlugin.onUrlChanged.listen((newUrl) {
+    //   browserUrl = newUrl;
+    //   if (browserUrl.startsWith('https://blockchain.info/address/') ||
+    //       browserUrl.startsWith('https://www.blockchain.com/btc/address/')) {
+    //     uiStore.updateCurrentAppRoute(AppRoute.AboutPage);
+    //     fromBrowser = true;
+    //   }
+    // });
+    InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
+        crossPlatform: InAppWebViewOptions(
+          useShouldOverrideUrlLoading: true,
+          mediaPlaybackRequiresUserGesture: false,
+        ),
+        android: AndroidInAppWebViewOptions(
+          useHybridComposition: true,
+        ),
+        ios: IOSInAppWebViewOptions(
+          allowsInlineMediaPlayback: true,
+        ));
+    return WillPopScope(
+      onWillPop: () {
+        if (launchUrl!.isNotEmpty) {
+          return Future.value(true);
+        } else {
+          SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: [
+              SystemUiOverlay.top,
+              SystemUiOverlay.bottom,
+            ],
+          );
+          loadUsersFromFileSystem();
+          setZeroBrowserThemeValues();
+          setSystemUiTheme();
+          uiStore.updateCurrentAppRoute(AppRoute.Home);
+          return Future.value(false);
+        }
+      },
+      child: SafeArea(
+        child: Stack(
+          children: <Widget>[
+            Theme(
+              data: zeroBrowserTheme == 'dark'
+                  ? ThemeData.dark()
+                  : ThemeData.light(),
+              child: InAppWebView(
+                initialUrlRequest: URLRequest(url: Uri.parse(browserUrl)),
+                initialOptions: options,
+                // initialChild: Container(
+                //   color: zeroBrowserTheme == 'dark'
+                //       ? Colors.blueGrey[900]
+                //       : Colors.white,
+                //   child: Center(
+                //     child: Column(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: <Widget>[
+                //         Padding(
+                //           padding: const EdgeInsets.all(8.0),
+                //           child: CircularProgressIndicator(),
+                //         ),
+                //         Text(
+                //           '${strController.loadingStr.value}.....',
+                //           style: TextStyle(
+                //             color: zeroBrowserTheme == 'light'
+                //                 ? Colors.blueGrey[900]
+                //                 : Colors.white,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final flutterWebViewPlugin = FlutterWebviewPlugin();
+
+// ignore: must_be_immutable
+class ZeroBrowserLegacy extends StatelessWidget {
+  Color browserBgColor = uiStore.currentTheme.value.browserBgColor;
+  setTheme() {
+    Brightness? brightness;
+    switch (zeroBrowserTheme) {
+      case 'dark':
+        brightness = Brightness.light;
+        if (uiStore.currentTheme.value == AppTheme.Light)
+          browserBgColor = Color(0xFF22272d);
+        break;
+      case 'light':
+        brightness = Brightness.dark;
+        if (uiStore.currentTheme.value == AppTheme.Dark ||
+            uiStore.currentTheme.value == AppTheme.Black)
+          browserBgColor = Color(0xFFEDF2F5);
+        break;
+      default:
+    }
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarIconBrightness: brightness,
+        systemNavigationBarIconBrightness: brightness,
+        statusBarBrightness: brightness,
+        statusBarColor: browserBgColor,
+        systemNavigationBarColor: browserBgColor,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    setTheme();
+    bool fullScreenWebView =
+        (varStore.settings[enableFullScreenOnWebView] as ToggleSetting?)
+                ?.value ??
+            false;
     if (fullScreenWebView)
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     // ignore: prefer_collection_literals
@@ -58,7 +192,7 @@ class ZeroBrowser extends StatelessWidget {
     });
     return WillPopScope(
       onWillPop: () {
-        if (launchUrl.isNotEmpty) {
+        if (launchUrl!.isNotEmpty) {
           return Future.value(true);
         } else {
           SystemChrome.setEnabledSystemUIMode(

@@ -3,11 +3,12 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import '../imports.dart';
 import 'zeronet_isolate.dart';
 
-Directory appPrivDir;
-Directory tempDir;
-Directory metaDir = Directory(dataDir + '/meta');
-Directory trackersDir = Directory(dataDir + '/trackers');
-AndroidDeviceInfo deviceInfo;
+Directory? appPrivDir;
+Directory? tempDir;
+Directory metaDir = Directory(dataDir + sep + 'meta');
+Directory trackersDir = Directory(dataDir + sep + 'trackers');
+AndroidDeviceInfo? deviceInfo;
+String settingsFile = dataDir + sep + 'settings.json';
 bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
@@ -16,37 +17,40 @@ bool firstTime = false;
 bool kisProUser = false;
 bool patchChecked = false;
 bool fromBrowser = false;
-bool kIsPlayStoreInstall = false;
-bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall;
+bool? kIsPlayStoreInstall = false;
+bool kEnableInAppPurchases = !kDebugMode && kIsPlayStoreInstall!;
 bool manuallyStoppedZeroNet = false;
-bool zeroNetStartedFromBoot = true;
+bool? zeroNetStartedFromBoot = true;
 bool isExecPermitted = false;
-bool debugZeroNetCode = false;
-bool enableTorLogConsole = false;
-bool vibrateonZeroNetStart = false;
-bool enableZeroNetAddTrackers = false;
+bool? debugZeroNetCode = false;
+bool? enableTorLogConsole = false;
+bool? vibrateonZeroNetStart = false;
+bool? enableZeroNetAddTrackers = false;
 int downloadStatus = 0;
 Map downloadsMap = {};
 Map downloadStatusMap = {};
-PackageInfo packageInfo;
+late PackageInfo packageInfo;
 String appVersion = '';
-String buildNumber;
+late String buildNumber;
 var zeroNetState = state.NONE;
 Client client = Client();
-String arch;
+String? arch;
 String zeroNetUrl = '';
-String launchUrl = '';
-String zeroNetNativeDir = '';
+String? launchUrl = '';
+String? zeroNetNativeDir = '';
 String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
 String browserUrl = 'https://google.com';
-Map<String, Site> sitesAvailable = {};
+Map<String?, Site?> sitesAvailable = {};
 List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
-FlutterBackgroundService service;
+late SystemTray _systemTray;
+
+late ZeroNetService service;
+// FlutterBackgroundService service;
 
 String downloadLink(String item) =>
     releases + 'Android_Module_Binaries/$item.zip';
@@ -65,7 +69,7 @@ String installingMetaDir(String tempDir, String name, String key) =>
 String installedMetaDir(String dir, String name) =>
     Directory(dir + '/$name.installed').path;
 Duration secs(int sec) => Duration(seconds: sec);
-List<String> files(String arch) => [
+List<String> files(String? arch) => [
       'python38_$arch',
       if (arch != 'arm64') 'site_packages_common',
       'site_packages_$arch',
@@ -89,26 +93,51 @@ void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
 
 init() async {
   getArch();
-  await getPackageInfo();
-  kIsPlayStoreInstall = await isPlayStoreInstall();
-  zeroNetNativeDir = await getNativeDir();
-  tempDir = await getTemporaryDirectory();
-  appPrivDir = await getExternalStorageDirectory();
+  if (PlatformExt.isMobile) {
+    await getPackageInfo();
+    kIsPlayStoreInstall = await isPlayStoreInstall();
+    zeroNetNativeDir = await getNativeDir();
+    tempDir = await getTemporaryDirectory();
+    appPrivDir = await getExternalStorageDirectory();
+    Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+  } else if (PlatformExt.isDesktop) {
+    var appDir = File(Platform.resolvedExecutable).parent;
+    var directory = Directory(
+      appDir.path + sep + 'data' + sep + 'app' + sep + 'ZeroNet-win',
+    );
+
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    zeroNetNativeDir = directory.path;
+
+    tempDir = Directory(appDir.path + Platform.pathSeparator + 'tmp');
+    if (!tempDir!.existsSync()) {
+      tempDir!.createSync(recursive: true);
+    }
+    appPrivDir = Directory(appDir.path +
+        Platform.pathSeparator +
+        'data' +
+        Platform.pathSeparator +
+        'app');
+    if (!appPrivDir!.existsSync()) {
+      appPrivDir!.createSync(recursive: true);
+    }
+  }
   loadSettings();
   isZeroNetInstalledm = await isZeroNetInstalled();
   if (isZeroNetInstalledm) {
     varStore.isZeroNetInstalled(isZeroNetInstalledm);
-    checkForAppUpdates();
-    if (enableZeroNetAddTrackers) await downloadTrackerFiles();
+    if (PlatformExt.isMobile) checkForAppUpdates();
+    if (enableZeroNetAddTrackers!) await downloadTrackerFiles();
     ZeroNetStatus.NOT_RUNNING.onAction();
   }
-  if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
-  Purchases.setup("ShCpAJsKdJrAAQawcMQSswqTyPWFMwXb");
+  if (!tempDir!.existsSync()) tempDir!.createSync(recursive: true);
   var translations = loadTranslations();
   if (varStore.settings.keys.contains(languageSwitcher)) {
     var setting = varStore.settings[languageSwitcher] as MapSetting;
-    var language = setting.map['selected'];
-    var code = translations[language] ?? 'en';
+    var language = setting.map!['selected'];
+    var code = translations![language] ?? 'en';
     if (code != 'en')
       strController.loadTranslationsFromFile(
         getZeroNetDataDir().path +
@@ -121,20 +150,85 @@ init() async {
   loadUsersFromFileSystem();
   if (varStore.settings.keys.contains(themeSwitcher)) {
     var setting = varStore.settings[themeSwitcher] as MapSetting;
-    var theme = setting.map['selected'];
+    var theme = setting.map!['selected'];
     if (theme == 'Dark') {
       uiStore.setTheme(AppTheme.Dark);
     } else {
       uiStore.setTheme(AppTheme.Light);
     }
   }
-  kisProUser = await isProUser();
+  if (PlatformExt.isMobile) {
+    kisProUser = await isProUser();
+    launchUrl = await launchZiteUrl();
+  }
+
+  if (PlatformExt.isDesktop) {
+    _systemTray = SystemTray();
+  }
 }
 
 List<int> buildsRequirePatching = [60];
 
 bool requiresPatching() {
   return buildsRequirePatching.contains(int.parse(buildNumber));
+}
+
+Future<void> initSystemTray() async {
+  String path = Platform.isWindows ? 'assets/app_icon.ico' : 'assets/logo.png';
+  if (Platform.isMacOS) {
+    path = 'AppIcon';
+  }
+
+  List<MenuItem> popularSites = [];
+  Utils.initialSites.forEach((key, value) {
+    popularSites.add(
+      MenuItem(
+        label: key,
+        onClicked: () {
+          zeroNetUrl = 'http://127.0.0.1:43110/' + value['url']!;
+          launch(zeroNetUrl);
+        },
+      ),
+    );
+  });
+
+  final menu = [
+    SubMenu(
+      label: "Popular Sites",
+      children: [
+        ...popularSites,
+      ],
+    ),
+    MenuSeparator(),
+    MenuItem(
+      label: 'Exit',
+      onClicked: appWindow.close,
+    ),
+  ];
+
+  await _systemTray.initSystemTray(
+    title: "ZeroNetX",
+    iconPath: path,
+    toolTip: "ZeroNetX - ZeroNet Desktop Client",
+  );
+
+  await _systemTray.setContextMenu(menu);
+
+  _systemTray.registerSystemTrayEventHandler((eventName) {
+    if (eventName == "leftMouseDown") {
+    } else if (eventName == "leftMouseUp") {
+      if (uiStore.isWindowVisible.value) {
+        uiStore.isWindowVisible.value = false;
+        appWindow.hide();
+      } else {
+        uiStore.isWindowVisible.value = true;
+        appWindow.show();
+      }
+    } else if (eventName == "rightMouseDown") {
+    } else if (eventName == "rightMouseUp") {
+      _systemTray.popUpContextMenu();
+    }
+  });
 }
 
 Future<void> getPackageInfo() async {
@@ -151,22 +245,22 @@ void listMetaFiles() {
   }
 }
 
-Future<File> pickUserJsonFile() async {
-  FilePickerResult result = await pickFile(fileExts: ['json']);
+Future<File?> pickUserJsonFile() async {
+  FilePickerResult? result = await pickFile(fileExts: ['json']);
   if (result == null) return null;
-  File file = File(result.files.single.path);
+  File file = File(result.files.single.path!);
   return file;
 }
 
-Future<File> pickPluginZipFile() async {
-  FilePickerResult result = await pickFile(fileExts: ['zip']);
+Future<File?> pickPluginZipFile() async {
+  FilePickerResult? result = await pickFile(fileExts: ['zip']);
   if (result == null) return null;
-  File file = File(result.files.single.path);
+  File file = File(result.files.single.path!);
   return file;
 }
 
-Future<FilePickerResult> pickFile({List<String> fileExts}) async {
-  FilePickerResult result = await FilePicker.platform.pickFiles(
+Future<FilePickerResult?> pickFile({List<String>? fileExts}) async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.any,
     allowedExtensions: fileExts,
   );
@@ -175,7 +269,7 @@ Future<FilePickerResult> pickFile({List<String> fileExts}) async {
 }
 
 Future<void> backUpUserJsonFile(
-  BuildContext context, {
+  BuildContext? context, {
   bool copyToClipboard = false,
 }) async {
   if (getZeroNetUsersFilePath().isNotEmpty) {
@@ -184,21 +278,22 @@ Future<void> backUpUserJsonFile(
           .then(
         (_) {
           printToConsole(strController.usersFileCopied.value);
-          Get.showSnackbar(GetBar(
+          Get.showSnackbar(GetSnackBar(
             message: strController.usersFileCopied.value,
           ));
         },
       );
     } else {
-      String result = await saveUserJsonFile(getZeroNetUsersFilePath());
-      Get.showSnackbar(GetBar(
+      String result = await (saveUserJsonFile(getZeroNetUsersFilePath())
+          as FutureOr<String>);
+      Get.showSnackbar(GetSnackBar(
         message: (result.contains('success'))
             ? result
             : strController.chkBckUpStr.value,
       ));
     }
   } else
-    zeronetNotInit(context);
+    zeronetNotInit(context!);
 }
 
 void zeronetNotInit(BuildContext context) => showDialogC(
@@ -207,8 +302,8 @@ void zeronetNotInit(BuildContext context) => showDialogC(
       body: strController.zeroNetNotInitDesStr.value,
     );
 
-Map<String, dynamic> loadTranslations() {
-  Map<String, dynamic> langCodesMap = {};
+Map<String, dynamic>? loadTranslations() {
+  Map<String, dynamic>? langCodesMap = {};
   var translationsDir = Directory(
     getZeroNetDataDir().path + '/' + Utils.urlZeroNetMob + '/translations',
   );
@@ -222,7 +317,7 @@ Map<String, dynamic> loadTranslations() {
 }
 
 saveDataFile() {
-  Map<String, String> dataMap = {
+  Map<String, String?> dataMap = {
     'zeroNetNativeDir': zeroNetNativeDir,
   };
   File f = File(dataDir + '/data.json');
@@ -238,18 +333,18 @@ loadDataFile() {
 
 loadSettings() {
   File f = File(dataDir + '/settings.json');
-  List settings;
+  List? settings;
   if (f.existsSync()) {
     settings = json.decode(f.readAsStringSync());
-    if (settings.length < Utils.defSettings.keys.length) {
+    if (settings!.length < Utils.defSettings.keys.length) {
       List settingsKeys = [];
-      Map<String, Setting> m = {};
+      Map<String?, Setting?> m = {};
       for (var i = 0; i < settings.length; i++) {
         var k = (settings[i] as Map)['name'];
         settingsKeys.add(k);
         Map map = settings[i];
         if (map.containsKey('value')) {
-          m[k] = ToggleSetting().fromJson(map);
+          m[k] = ToggleSetting().fromJson(map as Map<String, dynamic>);
         }
       }
       for (var key in Utils.defSettings.keys) {
@@ -265,18 +360,23 @@ loadSettings() {
     saveSettings(Utils.defSettings);
     settings = json.decode(maptoStringList(Utils.defSettings));
   }
-  for (var i = 0; i < settings.length; i++) {
+  for (var i = 0; i < settings!.length; i++) {
     Map map = settings[i];
     if (map.containsKey('value')) {
-      varStore.updateSetting(ToggleSetting().fromJson(map));
+      varStore
+          .updateSetting(ToggleSetting().fromJson(map as Map<String, dynamic>));
     } else if (map.containsKey('map')) {
-      varStore.updateSetting(MapSetting().fromJson(map));
+      varStore
+          .updateSetting(MapSetting().fromJson(map as Map<String, dynamic>));
     }
   }
 }
 
 saveSettings(Map map) {
-  File f = File(dataDir + '/settings.json');
+  File f = File(settingsFile);
+  if (!f.existsSync()) {
+    f.createSync(recursive: true);
+  }
   f.writeAsStringSync(maptoStringList(map));
 }
 
@@ -297,9 +397,9 @@ String log = 'Click on Fab to Run ZeroNet\n';
 String logRunning = '${strController.statusRunningStr.value} ZeroNet\n';
 String uiServerLog = 'Ui.UiServer';
 String startZeroNetLog = '${strController.statusStartingStr.value} ZeroNet';
-Process zero;
+late Process zero;
 
-printToConsole(Object object) {
+printToConsole(Object? object) {
   if (object is String) {
     if (!object.contains(startZeroNetLog)) {
       printOut(object);
@@ -343,7 +443,7 @@ printToConsole(Object object) {
 }
 
 void showDialogC({
-  BuildContext context,
+  required BuildContext context,
   String title = '',
   String body = '',
 }) {
@@ -373,11 +473,11 @@ void showDialogC({
 }
 
 void showDialogW({
-  BuildContext context,
+  required BuildContext context,
   String title = '',
-  Widget body,
-  bool singleOption,
-  Widget actionOk,
+  Widget? body,
+  bool? singleOption,
+  Widget? actionOk,
 }) {
   showDialog(
       context: context,
@@ -394,7 +494,7 @@ void showDialogW({
             child: body,
           ),
           actions: <Widget>[
-            actionOk,
+            actionOk!,
             TextButton(
               child: Text(strController.closeStr.value),
               onPressed: () {
@@ -419,7 +519,8 @@ check() async {
           varStore.isZeroNetInstalled(onValue);
           if (!isZeroNetInstalledm) {
             if (!unZipIsolateBound) bindUnZipIsolate();
-            unZipinBg();
+            if (PlatformExt.isMobile) unZipinBg();
+            if (PlatformExt.isDesktop) unZipinBgWin();
           }
         });
       }
@@ -429,25 +530,27 @@ check() async {
         isZeroNetDownloadedm = await isZeroNetDownloaded();
         if (isZeroNetDownloadedm) {
           varStore.isZeroNetDownloaded(true);
+          if (PlatformExt.isDesktop) unZipinBgWin();
         } else {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
-            if (await isModuleInstallSupported() &&
+            if (PlatformExt.isMobile &&
+                (await isModuleInstallSupported())! &&
                 kEnableDynamicModules &&
-                await isPlayStoreInstall()) {
+                await (isPlayStoreInstall() as FutureOr<bool>)) {
               await initSplitInstall();
               printOut(
                 'PlayStore Module Install Supported',
                 lineBreaks: 3,
                 isNative: true,
               );
-              if (await isRequiredModulesInstalled()) {
+              if (await (isRequiredModulesInstalled() as FutureOr<bool>)) {
                 printOut(
                   'Required Modules are Installed',
                   lineBreaks: 3,
                   isNative: true,
                 );
-                if (await copyAssetsToCache()) {
+                if (await (copyAssetsToCache() as FutureOr<bool>)) {
                   printOut(
                     'Assets Copied to Cache',
                     lineBreaks: 3,
@@ -467,8 +570,12 @@ check() async {
                 handleModuleDownloadStatus();
               }
             } else {
-              await initDownloadParams();
-              downloadBins();
+              if (PlatformExt.isMobile) {
+                await initDownloadParams();
+                downloadBins();
+              } else {
+                downloadFiles();
+              }
             }
           }
         }
@@ -477,6 +584,28 @@ check() async {
       }
     }
   }
+}
+
+void downloadFiles() async {
+  //TODO: Handle Download for Other Platforms
+  //TODO: Add progress bar
+  var fileExists = await File(dataDir + sep + 'ZeroNet-win.zip').exists();
+  if (!fileExists) {
+    final storageIO = InternetFileStorageIO();
+    await InternetFile.get(
+      'https://github.com/ZeroNetX/ZeroNet/releases/latest/download/ZeroNet-win.zip',
+      storage: storageIO,
+      storageAdditional: {
+        'filename': 'ZeroNet-win.zip',
+        'location': dataDir,
+      },
+    );
+  }
+  isZeroNetDownloadedm = true;
+  varStore.isZeroNetDownloaded(true);
+  varStore.setLoadingStatus(installing);
+  varStore.setLoadingPercent(0);
+  check();
 }
 
 void installPluginDialog(File file, BuildContext context) {
