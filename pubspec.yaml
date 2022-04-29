@@ -44,7 +44,7 @@ dependencies:
     # path: ../flutter_background_service
     git:
       url: https://github.com/ekasetiawans/flutter_background_service
-    #   ref: zeronet
+      ref: 9ad6ba3acf9952c53aa482708a4d099f9e33d98f
   flutter_webview_plugin: #^0.4.0
     # git: https://github.com/nuc134r/flutter_webview_plugin.git
     git:
