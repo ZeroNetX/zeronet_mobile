@@ -135,8 +135,7 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
   void onAction() {
     switch (this) {
       case ZeroNetUserStatus.NOT_REGISTERED:
-        var url = zeroNetUrl;
-        browserUrl = url + Utils.urlCryptoId;
+        browserUrl = defZeroNetUrl + Utils.urlCryptoId;
         if (PlatformExt.isMobile) {
           uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
         } else {

@@ -185,7 +185,7 @@ Future<void> initSystemTray() async {
       MenuItem(
         label: key,
         onClicked: () {
-          zeroNetUrl = 'http://127.0.0.1:43110/' + value['url']!;
+          zeroNetUrl = defZeroNetUrl + value['url']!;
           launch(zeroNetUrl);
         },
       ),

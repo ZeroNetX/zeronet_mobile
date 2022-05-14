@@ -42,39 +42,23 @@ class ZeroBrowser extends StatelessWidget {
             false;
     if (fullScreenWebView)
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    // ignore: prefer_collection_literals
-    // final Set<JavascriptChannel> jsChannels = [
-    //   JavascriptChannel(
-    //     name: 'Print',
-    //     onMessageReceived: (JavascriptMessage message) {
-    //       printOut(message.message);
-    //     },
-    //   ),
-    // ].toSet();
-    // flutterWebViewPlugin.onUrlChanged.listen((newUrl) {
-    //   browserUrl = newUrl;
-    //   if (browserUrl.startsWith('https://blockchain.info/address/') ||
-    //       browserUrl.startsWith('https://www.blockchain.com/btc/address/')) {
-    //     uiStore.updateCurrentAppRoute(AppRoute.AboutPage);
-    //     fromBrowser = true;
-    //   }
-    // });
     InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
-        crossPlatform: InAppWebViewOptions(
-          useShouldOverrideUrlLoading: true,
-          mediaPlaybackRequiresUserGesture: false,
-        ),
-        android: AndroidInAppWebViewOptions(
-          useHybridComposition: true,
-        ),
-        ios: IOSInAppWebViewOptions(
-          allowsInlineMediaPlayback: true,
-        ));
+      crossPlatform: InAppWebViewOptions(
+        useShouldOverrideUrlLoading: true,
+        mediaPlaybackRequiresUserGesture: false,
+      ),
+      android: AndroidInAppWebViewOptions(
+        useHybridComposition: true,
+      ),
+      ios: IOSInAppWebViewOptions(
+        allowsInlineMediaPlayback: true,
+      ),
+    );
     return WillPopScope(
-      onWillPop: () {
-        if (launchUrl!.isNotEmpty) {
-          return Future.value(true);
-        } else {
+      onWillPop: () async {
+        if (launchUrl!.isNotEmpty)
+          return true;
+        else {
           SystemChrome.setEnabledSystemUIMode(
             SystemUiMode.manual,
             overlays: [
@@ -86,7 +70,7 @@ class ZeroBrowser extends StatelessWidget {
           setZeroBrowserThemeValues();
           setSystemUiTheme();
           uiStore.updateCurrentAppRoute(AppRoute.Home);
-          return Future.value(false);
+          return false;
         }
       },
       child: SafeArea(
@@ -96,33 +80,81 @@ class ZeroBrowser extends StatelessWidget {
               data: zeroBrowserTheme == 'dark'
                   ? ThemeData.dark()
                   : ThemeData.light(),
-              child: InAppWebView(
-                initialUrlRequest: URLRequest(url: Uri.parse(browserUrl)),
-                initialOptions: options,
-                // initialChild: Container(
-                //   color: zeroBrowserTheme == 'dark'
-                //       ? Colors.blueGrey[900]
-                //       : Colors.white,
-                //   child: Center(
-                //     child: Column(
-                //       mainAxisAlignment: MainAxisAlignment.center,
-                //       children: <Widget>[
-                //         Padding(
-                //           padding: const EdgeInsets.all(8.0),
-                //           child: CircularProgressIndicator(),
-                //         ),
-                //         Text(
-                //           '${strController.loadingStr.value}.....',
-                //           style: TextStyle(
-                //             color: zeroBrowserTheme == 'light'
-                //                 ? Colors.blueGrey[900]
-                //                 : Colors.white,
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+              child: Scaffold(
+                body: InAppWebView(
+                  initialUrlRequest: URLRequest(url: Uri.parse(browserUrl)),
+                  initialOptions: options,
+                  onWebViewCreated: (webViewController) {
+                    controller = webViewController;
+                  },
+                  onLoadStart: (controller, urlW) {
+                    var url = urlW.toString();
+                    browserUrl = url;
+                    if (url.startsWith('bitcoin:')) {
+                      uiStore.updateCurrentAppRoute(AppRoute.AboutPage);
+                      fromBrowser = true;
+                    }
+                  },
+                  // initialData: InAppWebViewInitialData(data: ""),
+                ),
+                bottomNavigationBar: BottomAppBar(
+                  color: browserBgColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      IconButton(
+                        icon: const Icon(Icons.home),
+                        color: uiStore.currentTheme.value.browserIconColor,
+                        onPressed: () {
+                          SystemChrome.setEnabledSystemUIMode(
+                            SystemUiMode.manual,
+                            overlays: [
+                              SystemUiOverlay.top,
+                              SystemUiOverlay.bottom,
+                            ],
+                          );
+                          SystemChrome.setSystemUIOverlayStyle(
+                            SystemUiOverlayStyle(
+                              statusBarColor: Colors.transparent,
+                              systemNavigationBarColor: Colors.white,
+                              statusBarIconBrightness: Brightness.dark,
+                              systemNavigationBarIconBrightness:
+                                  Brightness.dark,
+                            ),
+                          );
+                          uiStore.updateCurrentAppRoute(AppRoute.Home);
+                        },
+                      ),
+                      Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.share),
+                        color: uiStore.currentTheme.value.browserIconColor,
+                        onPressed: () => Share.share(browserUrl),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios),
+                        color: uiStore.currentTheme.value.browserIconColor,
+                        onPressed: () {
+                          controller?.goBack();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_forward_ios),
+                        color: uiStore.currentTheme.value.browserIconColor,
+                        onPressed: () {
+                          controller?.goForward();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.autorenew),
+                        color: uiStore.currentTheme.value.browserIconColor,
+                        onPressed: () {
+                          controller?.reload();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

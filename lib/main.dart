@@ -130,8 +130,7 @@ class MyApp extends StatelessWidget {
           }
           if (launchUrl!.isNotEmpty) {
             browserUrl =
-                (zeroNetUrl.isEmpty ? "http://127.0.0.1:43110/" : zeroNetUrl) +
-                    launchUrl!;
+                (zeroNetUrl.isEmpty ? defZeroNetUrl : zeroNetUrl) + launchUrl!;
             if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
               uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
             } else
