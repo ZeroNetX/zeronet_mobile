@@ -128,9 +128,9 @@ class MyApp extends StatelessWidget {
               !manuallyStoppedZeroNet) {
             checkInitStatus();
           }
-          if (launchUrl!.isNotEmpty) {
-            browserUrl =
-                (zeroNetUrl.isEmpty ? defZeroNetUrl : zeroNetUrl) + launchUrl!;
+          if (launchUrlString!.isNotEmpty) {
+            browserUrl = (zeroNetUrl.isEmpty ? defZeroNetUrl : zeroNetUrl) +
+                launchUrlString!;
             if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
               uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
             } else

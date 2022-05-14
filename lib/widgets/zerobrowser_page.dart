@@ -56,7 +56,7 @@ class ZeroBrowser extends StatelessWidget {
     );
     return WillPopScope(
       onWillPop: () async {
-        if (launchUrl!.isNotEmpty)
+        if (launchUrlString!.isNotEmpty)
           return true;
         else {
           SystemChrome.setEnabledSystemUIMode(
@@ -224,7 +224,7 @@ class ZeroBrowserLegacy extends StatelessWidget {
     });
     return WillPopScope(
       onWillPop: () {
-        if (launchUrl!.isNotEmpty) {
+        if (launchUrlString!.isNotEmpty) {
           return Future.value(true);
         } else {
           SystemChrome.setEnabledSystemUIMode(

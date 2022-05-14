@@ -139,7 +139,7 @@ extension ZeroNetUserStatusExt on ZeroNetUserStatus {
         if (PlatformExt.isMobile) {
           uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
         } else {
-          launch(browserUrl);
+          launchUrl(Uri.parse(browserUrl));
         }
         break;
       case ZeroNetUserStatus.REGISTERED:

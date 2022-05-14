@@ -515,7 +515,7 @@ class SiteDetailCard extends StatelessWidget {
                                 AppRoute.ZeroBrowser,
                               );
                             } else
-                              launch(browserUrl);
+                              launchUrl(Uri.parse(browserUrl));
                           },
                   ),
                 ],

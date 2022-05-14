@@ -12,7 +12,7 @@ String settingsFile = dataDir + sep + 'settings.json';
 bool isZeroNetInstalledm = false;
 bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
-bool canLaunchUrl = false;
+bool kCanLaunchUrl = false;
 bool firstTime = false;
 bool kisProUser = false;
 bool patchChecked = false;
@@ -36,7 +36,7 @@ var zeroNetState = state.NONE;
 Client client = Client();
 String? arch;
 String zeroNetUrl = '';
-String? launchUrl = '';
+String? launchUrlString = '';
 String? zeroNetNativeDir = '';
 String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
@@ -159,7 +159,7 @@ init() async {
   }
   if (PlatformExt.isMobile) {
     kisProUser = await isProUser();
-    launchUrl = await launchZiteUrl();
+    launchUrlString = await launchZiteUrl();
   }
 
   if (PlatformExt.isDesktop) {
@@ -186,7 +186,7 @@ Future<void> initSystemTray() async {
         label: key,
         onClicked: () {
           zeroNetUrl = defZeroNetUrl + value['url']!;
-          launch(zeroNetUrl);
+          launchUrl(Uri.parse(zeroNetUrl));
         },
       ),
     );
@@ -646,8 +646,8 @@ void installPluginDialog(File file, BuildContext context) {
 
 testUrl() {
   if (zeroNetUrl.isNotEmpty) {
-    canLaunch(zeroNetUrl).then((onValue) {
-      canLaunchUrl = onValue;
+    canLaunchUrl(Uri.parse(zeroNetUrl)).then((onValue) {
+      kCanLaunchUrl = onValue;
     });
   }
 }

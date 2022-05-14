@@ -27,7 +27,7 @@ Future checkInitStatus() async {
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
-    if (launchUrl!.isNotEmpty ||
+    if (launchUrlString!.isNotEmpty ||
         ((varStore.settings[autoStartZeroNet] as ToggleSetting).value! &&
                 !firstTime) &&
             !manuallyStoppedZeroNet) {

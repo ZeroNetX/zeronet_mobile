@@ -71,7 +71,7 @@ class AboutPage extends StatelessWidget {
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  launch('https://zeronet.dev/');
+                                  launchUrl(Uri.parse('https://zeronet.dev/'));
                                 },
                             ),
                           ],
@@ -291,7 +291,7 @@ class DeveloperWidget extends StatelessWidget {
                                   children.add(InkWell(
                                     onTap: () {
                                       var i = assets.indexOf(item);
-                                      launch(links[i]!);
+                                      launchUrl(Uri.parse(links[i]!));
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
