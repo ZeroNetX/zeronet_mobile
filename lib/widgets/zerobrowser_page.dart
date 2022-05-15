@@ -49,6 +49,12 @@ class ZeroBrowser extends StatelessWidget {
       ),
       android: AndroidInAppWebViewOptions(
         useHybridComposition: true,
+        blockNetworkLoads:
+            (varStore.settings[enableInternetAccess] as ToggleSetting?)
+                        ?.value ??
+                    false
+                ? false
+                : true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,

@@ -228,6 +228,9 @@ class StrController extends GetxController {
   var enableTorLogStr = 'Enable Tor Log'.obs;
   var enableTorLogDesStr =
       'This will Enable Tor Log in ZeroNet Console helpful for debugging.'.obs;
+  var enableInternetAccessStr = 'Internet Access in Browser'.obs;
+  var enableInternetAccessDesStr =
+      'This will Enable Internet Access in ZeroNetX Browser.'.obs;
   var createUserIdFirstStr =
       'Please create User Id or Import your ZeroNet users.json File, to continue your donation. '
               'You can create your User ID at App Home Page. '
@@ -407,6 +410,10 @@ class StrController extends GetxController {
       autoStartZeroNetonBootDesStr.value = str;
   void updateenableTorLogStr(String str) => enableTorLogStr.value = str;
   void updateenableTorLogDesStr(String str) => enableTorLogDesStr.value = str;
+  void updateenableInternetAccessStr(String str) =>
+      enableInternetAccessStr.value = str;
+  void updateenableInternetAccessDesStr(String str) =>
+      enableInternetAccessDesStr.value = str;
 
   void loadTranslationsFromFile(String path) {
     File translationsFile = File(path);
@@ -548,5 +555,7 @@ class StrController extends GetxController {
     updateautoStartZeroNetonBootDesStr(map['autoStartZeroNetonBootDesStr']);
     updateenableTorLogStr(map['enableTorLogStr']);
     updateenableTorLogDesStr(map['enableTorLogDesStr']);
+    updateenableInternetAccessStr(map['enableInternetAccessStr']);
+    updateenableInternetAccessDesStr(map['enableInternetAccessDesStr']);
   }
 }

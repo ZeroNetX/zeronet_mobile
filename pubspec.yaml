@@ -27,7 +27,7 @@ dependencies:
   get: ^4.3.0
   google_fonts: ^2.1.0
   in_app_review: ^2.0.2
-  in_app_update: ^2.0.0
+  in_app_update: ^3.0.0
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons_tv: ^0.1.1-nullsafety

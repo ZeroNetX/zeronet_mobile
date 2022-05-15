@@ -110,6 +110,7 @@ const String publicDataFolder = 'Public DataFolder';
 const String autoStartZeroNet = 'AutoStart ZeroNet';
 const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
 const String enableTorLog = 'Enable Tor Log';
+const String enableInternetAccess = 'Internet Access in Browser';
 
 class Utils {
   static const String urlHello = '1HELLoE3sFD9569CLCbHEAVqvqV7U2Ri9d';
@@ -263,6 +264,11 @@ class Utils {
     enableTorLog: ToggleSetting(
       name: strController.enableTorLogStr.value,
       description: strController.enableTorLogDesStr.value,
+      value: false,
+    ),
+    enableInternetAccess: ToggleSetting(
+      name: strController.enableInternetAccessStr.value,
+      description: strController.enableInternetAccessDesStr.value,
       value: false,
     ),
   };
