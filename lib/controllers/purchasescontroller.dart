@@ -4,9 +4,11 @@ import '../imports.dart';
 final purchasesStore = Get.put(PurchaseController());
 
 class PurchaseController extends GetxController {
-  var oneTimePurchases = <purchases_flutter.Package>[].obs;
+  RxList<purchases_flutter.Package> oneTimePurchases =
+      <purchases_flutter.Package>[].obs;
 
-  var subscriptions = <purchases_flutter.Package>[].obs;
+  RxList<purchases_flutter.Package> subscriptions =
+      <purchases_flutter.Package>[].obs;
 
   void addOneTimePuchases(List<purchases_flutter.Package> details) {
     details.forEach((item) {
@@ -28,7 +30,7 @@ class PurchaseController extends GetxController {
     });
   }
 
-  var purchases = <String>[].obs;
+  RxList<String> purchases = <String>[].obs;
 
   void addPurchases(String purchaseIds) {
     if (!purchases.contains(purchaseIds)) {
@@ -36,7 +38,7 @@ class PurchaseController extends GetxController {
     }
   }
 
-  var consumedPurchases = <String>[].obs;
+  RxList<String> consumedPurchases = <String>[].obs;
 
   void addConsumedPurchases(String purchaseIds) {
     if (!consumedPurchases.contains(purchaseIds)) {

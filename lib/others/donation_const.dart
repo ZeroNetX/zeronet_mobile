@@ -2,11 +2,11 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../imports.dart';
 
-var enableExternalDonations = false;
-var btcAddress = '1ZeroNetyV5mKY9JF1gsm82TuBXHpfdLX';
-var ethAddress = '0xa7064577f79ece591143F5CccBA2afAE057903C6';
-var upiAddress = 'pramukesh@upi';
-var liberaPayAddress = 'https://liberapay.com/canews.in/donate';
+bool? enableExternalDonations = false;
+String? btcAddress = '1ZeroNetyV5mKY9JF1gsm82TuBXHpfdLX';
+String? ethAddress = '0xa7064577f79ece591143F5CccBA2afAE057903C6';
+String? upiAddress = 'pramukesh@upi';
+String? liberaPayAddress = 'https://liberapay.com/canews.in/donate';
 
 void getDonationSettings() {
   var dir = Utils.urlZeroNetMob.zeroNetDataPath;
@@ -25,7 +25,7 @@ void getDonationSettings() {
   }
 }
 
-Map<String, String> donationsAddressMap = {
+Map<String, String?> donationsAddressMap = {
   "BTC(Preferred)": btcAddress,
   "ETH": ethAddress,
   "UPI(Indian Users)": upiAddress,
@@ -47,12 +47,12 @@ const Set<String> kGooglePlayPurchaseSubscriptionIds = {
 Future getInAppPurchases() async {
   Offerings offerings = await Purchases.getOfferings();
   if (offerings.current != null) {
-    var onetimePurchases = (offerings.current.availablePackages.where(
+    var onetimePurchases = (offerings.current!.availablePackages.where(
       (element) => element.identifier.contains('zeronet_one'),
     )).toList();
     purchasesStore.addOneTimePuchases(onetimePurchases);
 
-    var subscriptions = (offerings.current.availablePackages.where(
+    var subscriptions = (offerings.current!.availablePackages.where(
       (element) => element.identifier.contains('zeronet_sub'),
     )).toList();
     purchasesStore.addSubscriptions(subscriptions);

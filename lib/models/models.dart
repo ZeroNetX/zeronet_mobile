@@ -1,9 +1,9 @@
 import '../imports.dart';
 
 abstract class Setting {
-  String name;
-  String description;
-  bool hidden = false;
+  String? name;
+  String? description;
+  bool? hidden = false;
   Setting({
     this.name,
     this.description,
@@ -18,9 +18,9 @@ abstract class Setting {
 }
 
 class ToggleSetting extends Setting {
-  String name;
-  String description;
-  bool value;
+  String? name;
+  String? description;
+  bool? value;
 
   ToggleSetting({
     this.name,
@@ -57,16 +57,16 @@ class ToggleSetting extends Setting {
     var map = varStore.settings;
     var key = this.name;
     (map[this.name] as ToggleSetting)..value = value;
-    Map<String, Setting> m = {};
+    Map<String?, Setting?> m = {};
     map.keys.forEach((k) {
       m[k] = map[k];
     });
     if (key == batteryOptimisation && value) {
-      final isOptimised = await isBatteryOptimised();
+      final isOptimised = await (isBatteryOptimised() as FutureOr<bool>);
       (m[key] as ToggleSetting)
         ..value = (!isOptimised) ? await askBatteryOptimisation() : true;
     } else if (key == publicDataFolder) {
-      String str = 'data_dir = ${value ? appPrivDir.path : zeroNetDir}/data';
+      String str = 'data_dir = ${value ? appPrivDir!.path : zeroNetDir}/data';
       writeZeroNetConf(str);
     } else if (key == enableZeroNetFilters) {
       if (value) {
@@ -83,10 +83,10 @@ class ToggleSetting extends Setting {
 }
 
 class MapSetting extends Setting {
-  String name;
-  String description;
-  Map map;
-  List<MapOptions> options;
+  String? name;
+  String? description;
+  Map? map;
+  List<MapOptions>? options;
 
   MapSetting({
     this.name,
@@ -143,14 +143,14 @@ enum state {
 
 // ignore: must_be_immutable
 class SiteInfo extends Equatable {
-  String address;
-  int peers;
-  int size;
-  int files;
-  DateTime siteAdded;
-  DateTime siteModified;
-  bool serving;
-  DateTime siteCodeUpdated;
+  String? address;
+  int? peers;
+  int? size;
+  int? files;
+  DateTime? siteAdded;
+  DateTime? siteModified;
+  bool? serving;
+  DateTime? siteCodeUpdated;
   SiteInfo({
     this.address = '',
     this.peers = 0,
@@ -163,7 +163,7 @@ class SiteInfo extends Equatable {
   });
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         address,
         peers,
         serving,
@@ -209,25 +209,25 @@ class SiteInfo extends Equatable {
       serving: site.serving,
       size: site.size,
       siteAdded: site.added != null
-          ? DateTime.fromMillisecondsSinceEpoch(site.added * 1000)
+          ? DateTime.fromMillisecondsSinceEpoch(site.added! * 1000)
           : null,
       siteModified: site.downloaded != null
-          ? DateTime.fromMillisecondsSinceEpoch(site.downloaded * 1000)
+          ? DateTime.fromMillisecondsSinceEpoch(site.downloaded! * 1000)
           : null,
       siteCodeUpdated: site.modified != null
-          ? DateTime.fromMillisecondsSinceEpoch(site.modified * 1000)
+          ? DateTime.fromMillisecondsSinceEpoch(site.modified! * 1000)
           : null,
     );
   }
 }
 
 class AppDeveloper extends Equatable {
-  final String name;
-  final String profileIconLink;
-  final String developerType;
-  final String githubLink;
-  final String facebookLink;
-  final String twitterLink;
+  final String? name;
+  final String? profileIconLink;
+  final String? developerType;
+  final String? githubLink;
+  final String? facebookLink;
+  final String? twitterLink;
   const AppDeveloper({
     this.name,
     this.profileIconLink,
@@ -238,7 +238,7 @@ class AppDeveloper extends Equatable {
   });
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         name,
         profileIconLink,
         developerType,

@@ -2,7 +2,7 @@ import '../imports.dart';
 
 class ZeroNetAppBar extends StatelessWidget {
   const ZeroNetAppBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -52,7 +52,7 @@ class ZeroNetAppBar extends StatelessWidget {
 
 class PluginManager extends StatefulWidget {
   const PluginManager({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -218,9 +218,9 @@ class ClickableTextWidget extends StatelessWidget {
     this.onClick,
   });
 
-  final String text;
-  final TextStyle textStyle;
-  final VoidCallback onClick;
+  final String? text;
+  final TextStyle? textStyle;
+  final VoidCallback? onClick;
 
   @override
   Widget build(BuildContext context) {

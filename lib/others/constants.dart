@@ -1,14 +1,28 @@
 import '../imports.dart';
 
-const String pkgName = 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}';
-const String dataDir = "/data/data/$pkgName/files";
-const String zeroNetDir = dataDir + '/ZeroNet-py3';
-const String bin = '$dataDir/usr/bin';
-const String python = '$bin/python';
-const String libDir = '$dataDir/usr/lib';
-const String libDir64 = '$dataDir/usr/lib64';
-const String zeronetDir = '$dataDir/ZeroNet-py3';
-const String zeronet = '$zeronetDir/zeronet.py';
+// export 'constants/platform_constants.dart';
+
+/// [Platform] specific implementation of PathSeparator.
+final sep = Platform.pathSeparator;
+final exeDir = Directory(Platform.resolvedExecutable).parent.path;
+final String pkgName = Directory(
+  Platform.isAndroid
+      ? 'in.canews.zeronetmobile${kDebugMode ? '.debug' : ''}'
+      : exeDir + sep + 'data' + sep + 'app',
+).path;
+final String dataDir = Directory(
+  Platform.isAndroid
+      ? "${sep}data${sep}data${sep}$pkgName${sep}files"
+      : pkgName,
+).path;
+final String zeroNetDir =
+    dataDir + sep + (Platform.isWindows ? 'ZeroNet-win' : 'ZeroNet-py3');
+final String bin = '$dataDir${sep}usr${sep}bin';
+final String python = '$bin${sep}python';
+final String libDir = '$dataDir${sep}usr${sep}lib';
+final String libDir64 = '$dataDir${sep}usr${sep}lib64';
+final String zeronetDir = zeroNetDir;
+final String zeronet = '$zeronetDir${sep}zeronet.py';
 const String defZeroNetUrl = 'http://127.0.0.1:43110/';
 const String downloading = 'Downloading Files';
 const String installing = 'Installing ZeroNet Files';
@@ -96,57 +110,54 @@ const String publicDataFolder = 'Public DataFolder';
 const String autoStartZeroNet = 'AutoStart ZeroNet';
 const String autoStartZeroNetonBoot = 'AutoStart ZeroNet on Boot';
 const String enableTorLog = 'Enable Tor Log';
+const String enableInternetAccess = 'Internet Access in Browser';
 
 class Utils {
   static const String urlHello = '1HELLoE3sFD9569CLCbHEAVqvqV7U2Ri9d';
   static const String urlZeroId = '1iD5ZQJMNXu43w1qLB8sfdHVKppVMduGz';
+  static const String urlCryptoId = '1oWoUktrXo1p6vkviJUyNXkGHyWznTtRH';
   static const String urlZeroNetMob = '15UYrA7aXr2Nto1Gg4yWXpY3EAJwafMTNk';
   static const String urlTalk = 'Talk.ZeroNetwork.bit';
   static const String btcUrlTalk = '1TaLkFrMwvbNsooF4ioKAY9EuxTBTjipT';
-  static const String urlBlog = 'Blog.ZeroNetwork.bit';
-  static const String btcUrlBlog = '1BLogC9LN4oPDcruNz3qo1ysa133E9AGg8';
-  static const String urlMail = 'Mail.ZeroNetwork.bit';
-  static const String btcUrlMail = '1MaiL5gfBM1cyb4a8e3iiL8L5gXmoAJu27';
+  static const String urlBlog = '1SCribeHs1nz8m3vXipP84oyXUy4nf2ZD';
+  static const String btcUrlBlog = '1SCribeHs1nz8m3vXipP84oyXUy4nf2ZD';
+  static const String urlMail = 'Mail.ZeroNetX.bit';
+  static const String btcUrlMail = '1MaiLX6j5MSddyu8oh5CxxGrhMcSmRo6N8';
   static const String urlMe = 'Me.ZeroNetwork.bit';
   static const String btcUrlMe = '1MeFqFfFFGQfa1J3gJyYYUvb5Lksczq7nH';
-  static const String urlSites = 'Sites.ZeroNetwork.bit';
-  static const String btcUrlSites = '1SiTEs2D3rCBxeMoLHXei2UYqFcxctdwB';
+  static const String urlSites = 'Sites.ZeroNetX.bit';
+  static const String btcUrlSites = '1SitesVCdgNfHojzf2aGKQrD4dteAZR1k';
 
   static var initialSites = {
-    'ZeroHello': {
+    'Dashboard': {
       'description': strController.zerohelloSiteDesStr.value,
       'url': urlHello,
       'btcAddress': urlHello,
     },
-    'ZeroNetMobile': {
+    'ThreadIt': {
       'description': strController.zeronetMobileSiteDesStr.value,
       'url': urlZeroNetMob,
       'btcAddress': urlZeroNetMob,
     },
-    'ZeroTalk': {
-      'description': strController.zeroTalkSiteDesStr.value,
-      'url': urlTalk,
-      'btcAddress': btcUrlTalk,
-    },
-    'ZeroBlog': {
+    'Scribe': {
       'description': strController.zeroblogSiteDesStr.value,
       'url': urlBlog,
       'btcAddress': btcUrlBlog,
-    },
-    'ZeroMail': {
-      'description': strController.zeromailSiteDesStr.value,
-      'url': urlMail,
-      'btcAddress': btcUrlMail,
     },
     'ZeroMe': {
       'description': strController.zeromeSiteDesStr.value,
       'url': urlMe,
       'btcAddress': btcUrlMe,
     },
-    'ZeroSites': {
+    'ZeroSitesX': {
       'description': strController.zeroSitesSiteDesStr.value,
       'url': urlSites,
       'btcAddress': btcUrlSites,
+    },
+    'ZeroMailX': {
+      'description': strController.zeromailSiteDesStr.value,
+      'url': urlMail,
+      'btcAddress': btcUrlMail,
     },
   };
 
@@ -255,6 +266,11 @@ class Utils {
       description: strController.enableTorLogDesStr.value,
       value: false,
     ),
+    enableInternetAccess: ToggleSetting(
+      name: strController.enableInternetAccessStr.value,
+      description: strController.enableInternetAccessDesStr.value,
+      value: false,
+    ),
   };
 }
 
@@ -276,38 +292,30 @@ extension MapOptionExt on MapOptions {
     switch (this) {
       case MapOptions.CREATE_PROFILE:
         return strController.createNewProfileStr.value;
-        break;
       case MapOptions.IMPORT_PROFILE:
         return strController.importProfileStr.value;
-        break;
       case MapOptions.BACKUP_PROFILE:
         return strController.backupProfileStr.value;
-        break;
       case MapOptions.OPEN_PLUGIN_MANAGER:
         return strController.openPluginManagerStr.value;
-        break;
       case MapOptions.LOAD_PLUGIN:
         return strController.loadPluginStr.value;
-        break;
       case MapOptions.THEME_LIGHT:
         return 'Light';
-        break;
       case MapOptions.THEME_DARK:
         return 'Dark';
-        break;
       case MapOptions.THEME_BLACK:
         return 'Black';
-        break;
     }
   }
 
-  void onClick(BuildContext context) async {
+  void onClick(BuildContext? context) async {
     switch (this) {
       case MapOptions.CREATE_PROFILE:
         {
           if (isZeroNetUserDataExists()) {
             showDialogW(
-              context: context,
+              context: context!,
               title: strController.existingProfileTitleStr.value,
               body: ProfileSwitcherUserNameEditText(),
               actionOk: Row(
@@ -322,7 +330,8 @@ extension MapOptionExt on MapOptions {
                         if (f.existsSync()) {
                           if (file.existsSync()) file.deleteSync();
                           Navigator.pop(context);
-                          ZeroNet.instance.shutDown();
+                          //TODO: Handle Shutdown
+                          // ZeroNet.instance.shutDown();
                           service.sendData({'cmd': 'runZeroNet'});
                         }
                         username = '';
@@ -344,7 +353,7 @@ extension MapOptionExt on MapOptions {
               ),
             );
           } else
-            zeronetNotInit(context);
+            zeronetNotInit(context!);
         }
         break;
       case MapOptions.IMPORT_PROFILE:
@@ -355,7 +364,7 @@ extension MapOptionExt on MapOptions {
                 ? getZeroNetUsersFilePath() == file.path
                 : false;
             showDialogW(
-              context: context,
+              context: context!,
               title: strController.restoreProfileTitleStr.value,
               body: Text(
                 '${strController.restoreProfileDesStr.value}'
@@ -376,7 +385,8 @@ extension MapOptionExt on MapOptions {
                               f.writeAsStringSync(file.readAsStringSync());
                               // _reload();
                               try {
-                                ZeroNet.instance.shutDown();
+                                //TODO: Handle Shutdown
+                                // ZeroNet.instance.shutDown();
                               } catch (e) {
                                 printOut(e);
                               }
@@ -405,7 +415,7 @@ extension MapOptionExt on MapOptions {
         {
           if (kisProUser)
             showDialogW(
-              context: context,
+              context: context!,
               title: strController.zninstallAPluginTitleStr.value,
               body: Text(
                 strController.zninstallAPluginDesStr.value,
@@ -428,12 +438,13 @@ extension MapOptionExt on MapOptions {
         break;
       case MapOptions.OPEN_PLUGIN_MANAGER:
         showDialogW(
-          context: context,
+          context: context!,
           title: pluginManager,
           body: PluginManager(),
           actionOk: TextButton(
             onPressed: () {
-              ZeroNet.instance.shutDown();
+              //TODO: Handle Shutdown
+              // ZeroNet.instance.shutDown();
               service.sendData({'cmd': 'runZeroNet'});
               Navigator.pop(context);
             },
@@ -444,14 +455,14 @@ extension MapOptionExt on MapOptions {
       case MapOptions.THEME_LIGHT:
         uiStore.setTheme(AppTheme.Light);
         var setting = (varStore.settings[themeSwitcher] as MapSetting)
-          ..map['selected'] = 'Light';
+          ..map!['selected'] = 'Light';
         varStore.updateSetting(setting);
         saveSettings(varStore.settings);
         break;
       case MapOptions.THEME_DARK:
         uiStore.setTheme(AppTheme.Dark);
         var setting = (varStore.settings[themeSwitcher] as MapSetting)
-          ..map['selected'] = 'Dark';
+          ..map!['selected'] = 'Dark';
         varStore.updateSetting(setting);
         saveSettings(varStore.settings);
         break;

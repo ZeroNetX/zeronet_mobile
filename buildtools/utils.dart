@@ -126,7 +126,7 @@ recursiveHelper(Directory dir) {
         if (file.path.endsWith('\\$item')) {
           file.deleteSync(recursive: true);
         } else {
-          recursiveHelper(file);
+          recursiveHelper(file as Directory);
         }
       }
     }

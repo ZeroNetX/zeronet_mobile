@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(24)),
+            Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
             Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18.0),
               child: Column(
@@ -22,6 +22,7 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 30),
                   ),
                   ZeroNetStatusWidget(),
+                  if (PlatformExt.isDesktop) SizedBox(height: 8),
                   ZeroNetUserStatusWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
@@ -31,11 +32,11 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 5),
                   ),
                   InAppUpdateWidget(),
-                  if (kIsPlayStoreInstall)
+                  if (kIsPlayStoreInstall!)
                     Padding(
                       padding: EdgeInsets.only(bottom: 15),
                     ),
-                  if (kIsPlayStoreInstall) RatingButtonWidget(),
+                  if (kIsPlayStoreInstall!) RatingButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -133,7 +134,7 @@ class RatingButtonWidget extends StatelessWidget {
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
         //TODO: remove this once we support non playstore reviews.
-        if (await inAppReview.isAvailable() && kIsPlayStoreInstall) {
+        if (await inAppReview.isAvailable() && kIsPlayStoreInstall!) {
           inAppReview.requestReview();
         } else {
           //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
@@ -322,7 +323,7 @@ class ZeroNetUserStatusWidget extends StatelessWidget {
 
 class PopularZeroNetSites extends StatelessWidget {
   const PopularZeroNetSites({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -332,7 +333,7 @@ class PopularZeroNetSites extends StatelessWidget {
     if (isLocalZitesExists()) {
       siteKeys.sort((item1, item2) {
         bool isZite1Exists = isZiteExitsLocally(
-          Utils.initialSites[item1]['btcAddress'],
+          Utils.initialSites[item1]!['btcAddress'],
         );
         return isZite1Exists ? 0 : 1;
       });
@@ -371,6 +372,10 @@ class PopularZeroNetSites extends StatelessWidget {
             ),
           ],
         ),
+        if (PlatformExt.isDesktop)
+          SizedBox(
+            height: 10,
+          ),
         ListView(
           shrinkWrap: true,
           children: zeroSites,
@@ -384,8 +389,8 @@ class PopularZeroNetSites extends StatelessWidget {
 
 class SiteDetailCard extends StatelessWidget {
   const SiteDetailCard({
-    Key key,
-    @required this.name,
+    Key? key,
+    required this.name,
   }) : super(key: key);
 
   final String name;
@@ -393,7 +398,7 @@ class SiteDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isZiteExists = isZiteExitsLocally(
-      Utils.initialSites[name]['btcAddress'],
+      Utils.initialSites[name]!['btcAddress'],
     );
     return Card(
       shadowColor: Color(0x52000000),
@@ -487,7 +492,7 @@ class SiteDetailCard extends StatelessWidget {
                             ZeroNetStatus.NOT_RUNNING
                         ? () {
                             Get.showSnackbar(
-                              GetBar(
+                              GetSnackBar(
                                 message:
                                     strController.startZeroNetFirstStr.value,
                               ),
@@ -503,8 +508,14 @@ class SiteDetailCard extends StatelessWidget {
                                 url = defZeroNetUrl;
                               }
                             }
-                            browserUrl = url + Utils.initialSites[name]['url'];
-                            uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
+                            browserUrl =
+                                url + Utils.initialSites[name]!['url']!;
+                            if (PlatformExt.isMobile) {
+                              uiStore.updateCurrentAppRoute(
+                                AppRoute.ZeroBrowser,
+                              );
+                            } else
+                              launchUrl(Uri.parse(browserUrl));
                           },
                   ),
                 ],
@@ -522,20 +533,20 @@ class SiteDetailsSheet extends StatelessWidget {
   final String name;
   @override
   Widget build(BuildContext context) {
-    List<String> sites = sitesAvailable.keys
+    List<String?> sites = sitesAvailable.keys
         .toList()
-        .where((element) => element == Utils.initialSites[name]['btcAddress'])
+        .where((element) => element == Utils.initialSites[name]!['btcAddress'])
         .toList();
-    Site currentSite = Site();
+    Site? currentSite = Site();
     if (sites.length > 0) {
-      currentSite = sitesAvailable[sites[0]]
-        ..address = Utils.initialSites[name]['btcAddress'];
+      currentSite = sitesAvailable[sites[0]]!
+        ..address = Utils.initialSites[name]!['btcAddress'];
       uiStore.updateCurrentSiteInfo(
         SiteInfo().fromSite(currentSite),
       );
     }
     bool isZiteExists = isZiteExitsLocally(
-      Utils.initialSites[name]['btcAddress'],
+      Utils.initialSites[name]!['btcAddress'],
     );
     return Stack(
       children: [
@@ -565,7 +576,7 @@ class SiteDetailsSheet extends StatelessWidget {
                         color: Color(0xFF5A53FF),
                       ),
                       onPressed: () => Share.share(
-                        Utils.initialSites[name]['url'],
+                        Utils.initialSites[name]!['url']!,
                       ),
                     ),
                     Obx(() {
@@ -588,8 +599,8 @@ class SiteDetailsSheet extends StatelessWidget {
                               }
                             : () {
                                 browserUrl = zeroNetUrl +
-                                    Utils.initialSites[name]['url'];
-                                uiStore.currentBottomSheetController?.close();
+                                    Utils.initialSites[name]!['url']!;
+                                uiStore.currentBottomSheetController.close();
                                 uiStore.updateCurrentAppRoute(
                                   AppRoute.ZeroBrowser,
                                 );
@@ -613,7 +624,7 @@ class SiteDetailsSheet extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(6.0)),
             Text(
-              Utils.initialSites[name]['description'],
+              Utils.initialSites[name]!['description']!,
               style: GoogleFonts.roboto(
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,
@@ -638,18 +649,18 @@ class SiteDetailsSheet extends StatelessWidget {
                   ),
                   onPressed: () async {
                     File logoFile = File(getZeroNetDataDir().path +
-                        "/${Utils.initialSites[name]['btcAddress']}/img/logo.png");
+                        "/${Utils.initialSites[name]!['btcAddress']}/img/logo.png");
                     String logoPath = '';
                     if (logoFile.existsSync()) {
                       logoPath = logoFile.path;
                     } else {
                       //TODO: Default logo quality is very low, use inbuilt logo for this.
                     }
-                    var added = await addToHomeScreen(
+                    var added = await (addToHomeScreen(
                       name,
-                      Utils.initialSites[name]['url'],
+                      Utils.initialSites[name]!['url'],
                       logoPath,
-                    );
+                    ) as FutureOr<bool>);
                     if (added) {
                       snackMessage =
                           '$name ${strController.shrtAddedToHomeScreenStr.value}';
@@ -678,7 +689,7 @@ class SiteDetailsSheet extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      uiStore.currentBottomSheetController?.close();
+                      uiStore.currentBottomSheetController.close();
                       uiStore.updateCurrentAppRoute(AppRoute.LogPage);
                     },
                     child: Text(
@@ -692,7 +703,7 @@ class SiteDetailsSheet extends StatelessWidget {
                     ),
                   ),
                 if (!unImplementedFeatures.contains(Feature.SITE_PAUSE_RESUME))
-                  if (isZiteExists && currentSite != null)
+                  if (isZiteExists)
                     ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor:
@@ -705,16 +716,16 @@ class SiteDetailsSheet extends StatelessWidget {
                       ),
                       onPressed: () {
                         //TODO: Implement this function;
-                        currentSite = (currentSite.serving)
-                            ? currentSite.pause()
-                            : currentSite.resume();
-                        sitesAvailable[currentSite.address] = currentSite;
+                        currentSite = currentSite!.serving!
+                            ? currentSite!.pause()
+                            : currentSite!.resume();
+                        sitesAvailable[currentSite!.address] = currentSite;
                         SiteManager().saveSettingstoFile(
                             File(getZeroNetDataDir().path + '/sites.json'),
                             sitesAvailable);
                       },
                       child: Text(
-                        currentSite.serving
+                        currentSite!.serving!
                             ? strController.pauseStr.value
                             : strController.resumeStr.value,
                         maxLines: 1,
@@ -810,7 +821,7 @@ class SiteInfoWidget extends StatelessWidget {
       );
       if (siteInfo.props[i] != null) {
         String details = (siteInfo.props[i] is DateTime)
-            ? timeAgo.format(siteInfo.props[i])
+            ? timeAgo.format(siteInfo.props[i] as DateTime)
             : siteInfo.props[i].toString();
         if (item == 'size') {
           details = ((siteInfo.props[i] as int) ~/ 1000).toString() +
@@ -821,7 +832,7 @@ class SiteInfoWidget extends StatelessWidget {
               // ' Files)'
               ;
         } else if (siteInfo.props[i] is DateTime) {
-          DateTime t = siteInfo.props[i];
+          DateTime t = siteInfo.props[i] as DateTime;
           details = details + ' (${t.day}/${t.month}/${t.year})';
         }
         infoWgts.add(

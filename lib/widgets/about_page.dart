@@ -15,7 +15,7 @@ class AboutPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Padding(padding: EdgeInsets.all(24)),
+              Padding(padding: EdgeInsets.all(PlatformExt.isMobile ? 24 : 8)),
               Padding(
                 padding: const EdgeInsets.only(left: 18.0, right: 18.0),
                 child: Column(
@@ -71,7 +71,7 @@ class AboutPage extends StatelessWidget {
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  launch('https://zeronet.dev/');
+                                  launchUrl(Uri.parse('https://zeronet.dev/'));
                                 },
                             ),
                           ],
@@ -145,7 +145,7 @@ class DonationWidget extends StatelessWidget {
             for (var crypto in donationsAddressMap.keys) {
               var enabled = true;
               if (crypto == 'Liberapay') {
-                if (!enableExternalDonations) enabled = false;
+                if (!enableExternalDonations!) enabled = false;
               }
               if (enabled)
                 children.add(
@@ -169,8 +169,8 @@ class DonationWidget extends StatelessWidget {
                           decoration: TextDecoration.underline,
                         ),
                         onClick: () {
-                          FlutterClipboard.copy(donationsAddressMap[crypto]);
-                          Get.showSnackbar(GetBar(
+                          FlutterClipboard.copy(donationsAddressMap[crypto]!);
+                          Get.showSnackbar(GetSnackBar(
                             message: '$crypto '
                                 '${strController.donAddrCopiedStr.value}',
                           ));
@@ -257,7 +257,7 @@ class DeveloperWidget extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 30.0,
                             backgroundImage:
-                                ExactAssetImage(developer.profileIconLink),
+                                ExactAssetImage(developer.profileIconLink!),
                           ),
                         ),
                         Padding(
@@ -265,7 +265,8 @@ class DeveloperWidget extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                developer.name + '(${developer.developerType})',
+                                developer.name! +
+                                    '(${developer.developerType})',
                                 style: GoogleFonts.roboto(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.w500,
@@ -281,7 +282,7 @@ class DeveloperWidget extends StatelessWidget {
                                   '$iconsPath/twitter${uiStore.currentTheme.value == AppTheme.Light ? '_dark' : ''}.png',
                                   '$iconsPath/facebook${uiStore.currentTheme.value == AppTheme.Light ? '_dark' : ''}.png',
                                 ];
-                                List<String> links = [
+                                List<String?> links = [
                                   developer.githubLink,
                                   developer.twitterLink,
                                   developer.facebookLink,
@@ -290,7 +291,7 @@ class DeveloperWidget extends StatelessWidget {
                                   children.add(InkWell(
                                     onTap: () {
                                       var i = assets.indexOf(item);
-                                      launch(links[i]);
+                                      launchUrl(Uri.parse(links[i]!));
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
@@ -359,7 +360,7 @@ class GooglePlayInAppPurchases extends StatelessWidget {
               strController.monthlySubStr.value: purchasesStore.subscriptions,
             };
             for (var item in googlePurchasesTypes.keys) {
-              List<Package> purchases = googlePurchasesTypes[item];
+              List<Package> purchases = googlePurchasesTypes[item]!;
               purchases
                 ..sort((item1, item2) {
                   int item1I1 = item1.identifier.lastIndexOf('_') + 1;

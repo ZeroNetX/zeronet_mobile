@@ -27,8 +27,8 @@ Future checkInitStatus() async {
     service.sendData({'notification': 'ZeroNetStatus.RUNNING'});
     testUrl();
   } catch (e) {
-    if (launchUrl.isNotEmpty ||
-        ((varStore.settings[autoStartZeroNet] as ToggleSetting).value &&
+    if (launchUrlString!.isNotEmpty ||
+        ((varStore.settings[autoStartZeroNet] as ToggleSetting).value! &&
                 !firstTime) &&
             !manuallyStoppedZeroNet) {
       //TODO: Remember this!
@@ -45,7 +45,7 @@ Future checkInitStatus() async {
 
 checkForAppUpdates() async {
   DateTime time = DateTime.now();
-  var updateTimeEpoch = int.parse(await getAppLastUpdateTime());
+  var updateTimeEpoch = int.parse((await getAppLastUpdateTime())!);
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
   int updateDays;
   if (appVersion.contains('internal')) {
@@ -54,7 +54,7 @@ checkForAppUpdates() async {
     updateDays = time.difference(updateTime).inDays;
   }
   if (updateDays > 3 && !kDebugMode) {
-    if (kIsPlayStoreInstall) {
+    if (kIsPlayStoreInstall!) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailability == UpdateAvailability.updateAvailable &&
           info.flexibleUpdateAllowed)
@@ -83,7 +83,7 @@ loadUsersFromFileSystem() {
 
 setZeroBrowserThemeValues() {
   if (usersAvailable.length > 0)
-    zeroBrowserTheme = usersAvailable.first.settings.theme ?? 'light';
+    zeroBrowserTheme = usersAvailable.first.settings!.theme ?? 'light';
 }
 
 writeZeroNetConf(String str) {
@@ -122,10 +122,11 @@ String getZeroNetUsersFilePath() {
 }
 
 Directory getZeroNetDataDir() => Directory(
-      ((varStore.settings[publicDataFolder] as ToggleSetting).value
-              ? appPrivDir.path
+      ((varStore.settings[publicDataFolder] as ToggleSetting).value!
+              ? appPrivDir!.path
               : zeroNetDir) +
-          '/data',
+          sep +
+          'data',
     );
 
 List<String> getZeroNameProfiles() {
@@ -148,6 +149,7 @@ String getZeroIdUserName() {
   File file = File(zeroNetUsersFilePath);
   if (!file.existsSync()) return '';
   Map map = json.decode(file.readAsStringSync());
+  if (map.keys.isEmpty) return '';
   var key = map.keys.first;
   Map certMap = map[key]['certs'];
   var certs = [];
@@ -165,7 +167,7 @@ String getZeroIdUserName() {
   return '';
 }
 
-bool isZiteExitsLocally(String address) {
+bool isZiteExitsLocally(String? address) {
   String path = getZeroNetDataDir().path + '/$address';
   return Directory(path).existsSync();
 }
@@ -281,14 +283,14 @@ bool checkPatchNeeded() {
 }
 
 Future<void> downloadPatch(String version) async {
-  File patchFile = File(tempDir.path + '/$version.zip');
+  File patchFile = File(tempDir!.path + '/$version.zip');
   if (!patchFile.existsSync()) {
-    await downloadFile(zpatches, '$version.zip', tempDir.path);
+    await downloadFile(zpatches, '$version.zip', tempDir!.path);
   }
-  Directory dir = Directory(tempDir.path + '/patches/$version');
+  Directory dir = Directory(tempDir!.path + '/patches/$version');
   if (!dir.existsSync()) {
     unzipBytes(version, patchFile.readAsBytesSync(),
-        dest: '${tempDir.path}/patches/$version/');
+        dest: '${tempDir!.path}/patches/$version/');
   }
 }
 
