@@ -88,7 +88,7 @@ class MainActivity : FlutterActivity() {
                 }
                 "nativeDir" -> result.success(applicationInfo.nativeLibraryDir)
                 "nativePrint" -> {
-                    Log.e("Flutter>nativePrint()",call.arguments())
+                    Log.e("Flutter>nativePrint()","TODO!: call.arguments()!")
                 }
                 "openJsonFile" -> openJsonFile(result)
                 "openZipFile" -> openZipFile(result)

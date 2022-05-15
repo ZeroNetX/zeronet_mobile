@@ -30,7 +30,9 @@ dependencies:
   in_app_update: ^3.0.0
     # git:
     #   url: https://github.com/canewsin/flutter_in_app_update.git
-  outline_material_icons_tv: ^0.1.1-nullsafety
+  outline_material_icons: #^0.1.1-nullsafety
+    git:
+      url: https://github.com/ZeroNetX/outline_material_icons.git
   equatable: ^2.0.2
   time_ago_provider: ^4.1.0
   package_info_plus: 

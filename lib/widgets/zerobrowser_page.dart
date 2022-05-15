@@ -49,12 +49,12 @@ class ZeroBrowser extends StatelessWidget {
       ),
       android: AndroidInAppWebViewOptions(
         useHybridComposition: true,
-        blockNetworkLoads:
-            (varStore.settings[enableInternetAccess] as ToggleSetting?)
-                        ?.value ??
-                    false
-                ? false
-                : true,
+        // blockNetworkLoads:
+        //     (varStore.settings[enableInternetAccess] as ToggleSetting?)
+        //                 ?.value ??
+        //             false
+        //         ? false
+        //         : true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
@@ -92,6 +92,17 @@ class ZeroBrowser extends StatelessWidget {
                   initialOptions: options,
                   onWebViewCreated: (webViewController) {
                     controller = webViewController;
+                  },
+                  shouldOverrideUrlLoading: (ctrl, action) async {
+                    var uri = action.request.url!;
+                    if (!(uri.toString()).startsWith(defZeroNetUrl) &&
+                        !((varStore.settings[enableInternetAccess]
+                                    as ToggleSetting?)
+                                ?.value ??
+                            false)) {
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                    return NavigationActionPolicy.ALLOW;
                   },
                   onLoadStart: (controller, urlW) {
                     var url = urlW.toString();
