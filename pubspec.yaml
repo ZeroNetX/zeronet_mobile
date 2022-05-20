@@ -40,6 +40,7 @@ dependencies:
   path_provider: ^2.0.2
   purchases_flutter: ^3.5.0
   random_string: 2.3.1
+  restart_app: ^1.1.0
   share: ^2.0.4
   url_launcher: ^6.0.9
   flutter_background_service: #^0.1.5

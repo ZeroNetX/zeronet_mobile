@@ -31,6 +31,7 @@ export 'package:outline_material_icons/outline_material_icons.dart';
 export 'package:package_info_plus/package_info_plus.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:random_string/random_string.dart';
+export 'package:restart_app/restart_app.dart';
 export 'package:share/share.dart';
 export 'package:system_tray/system_tray.dart';
 export 'package:url_launcher/url_launcher.dart';

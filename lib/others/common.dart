@@ -14,6 +14,7 @@ bool isZeroNetDownloadedm = false;
 bool isDownloadExec = false;
 bool kCanLaunchUrl = false;
 bool firstTime = false;
+bool restartNeeded = true;
 bool kisProUser = false;
 bool patchChecked = false;
 bool fromBrowser = false;
@@ -335,6 +336,7 @@ loadSettings() {
   File f = File(dataDir + '/settings.json');
   List? settings;
   if (f.existsSync()) {
+    restartNeeded = false;
     settings = json.decode(f.readAsStringSync());
     if (settings!.length < Utils.defSettings.keys.length) {
       List settingsKeys = [];

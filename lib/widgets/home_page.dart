@@ -4,6 +4,9 @@ import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    if (restartNeeded) {
+      Restart.restartApp();
+    }
     return Container(
       height: MediaQuery.of(context).size.height,
       color: uiStore.currentTheme.value.primaryColor,
