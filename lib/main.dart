@@ -170,6 +170,7 @@ class MyApp extends StatelessWidget {
                 case AppRoute.ShortcutLoadingPage:
                   return ShortcutLoadingPage();
                 case AppRoute.ZeroBrowser:
+                  setZeroBrowserThemeValues();
                   return ZeroBrowser();
                 case AppRoute.LogPage:
                   return WillPopScope(
