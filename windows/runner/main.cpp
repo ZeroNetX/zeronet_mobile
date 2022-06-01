@@ -29,7 +29,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(205, 10);
-  Win32Window::Size size(405, 720);
+  Win32Window::Size size(550, 750);
   if (!window.CreateAndShow(L"ZeroNetX", origin, size)) {
     return EXIT_FAILURE;
   }
