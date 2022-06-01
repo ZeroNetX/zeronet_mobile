@@ -30,73 +30,82 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: (PlatformExt.isDesktop)
-            ? Obx(
-                () => Column(
-                  children: [
-                    WindowTitleBarBox(
-                      child: Container(
-                        color: uiStore.currentTheme.value.titleBarColor,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: MoveWindow(
-                                child: Container(
-                                  color:
-                                      uiStore.currentTheme.value.primaryColor,
-                                ),
-                              ),
-                            ),
-                            Row(
+        body: Obx(
+          () {
+            var child = (PlatformExt.isDesktop)
+                ? Obx(
+                    () => Column(
+                      children: [
+                        WindowTitleBarBox(
+                          child: Container(
+                            color: uiStore.currentTheme.value.titleBarColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                MinimizeWindowButton(
-                                  onPressed: () {
-                                    appWindow.minimize();
-                                    uiStore.isWindowVisible.value = false;
-                                  },
-                                  colors: WindowButtonColors(
-                                    normal:
-                                        uiStore.currentTheme.value.cardBgColor,
-                                    mouseOver: Colors.blueAccent,
-                                    mouseDown: Colors.blue,
+                                Expanded(
+                                  child: MoveWindow(
+                                    child: Container(
+                                      color: uiStore
+                                          .currentTheme.value.primaryColor,
+                                    ),
                                   ),
                                 ),
-                                MaximizeWindowButton(
-                                  onPressed: () {
-                                    appWindow.maximize();
-                                    uiStore.isWindowVisible.value = true;
-                                  },
-                                  colors: WindowButtonColors(
-                                    normal:
-                                        uiStore.currentTheme.value.cardBgColor,
-                                    mouseOver: Colors.greenAccent,
-                                    mouseDown: Colors.green,
-                                  ),
-                                ),
-                                CloseWindowButton(
-                                  onPressed: () {
-                                    appWindow.hide();
-                                    uiStore.isWindowVisible.value = false;
-                                  },
-                                  colors: WindowButtonColors(
-                                    normal:
-                                        uiStore.currentTheme.value.cardBgColor,
-                                    mouseOver: Colors.redAccent,
-                                    mouseDown: Color(0xFFF44336),
-                                  ),
-                                ),
+                                Row(
+                                  children: [
+                                    MinimizeWindowButton(
+                                      onPressed: () {
+                                        appWindow.minimize();
+                                        uiStore.isWindowVisible.value = false;
+                                      },
+                                      colors: WindowButtonColors(
+                                        normal: uiStore
+                                            .currentTheme.value.cardBgColor,
+                                        mouseOver: Colors.blueAccent,
+                                        mouseDown: Colors.blue,
+                                      ),
+                                    ),
+                                    MaximizeWindowButton(
+                                      onPressed: () {
+                                        appWindow.maximize();
+                                        uiStore.isWindowVisible.value = true;
+                                      },
+                                      colors: WindowButtonColors(
+                                        normal: uiStore
+                                            .currentTheme.value.cardBgColor,
+                                        mouseOver: Colors.greenAccent,
+                                        mouseDown: Colors.green,
+                                      ),
+                                    ),
+                                    CloseWindowButton(
+                                      onPressed: () {
+                                        appWindow.hide();
+                                        uiStore.isWindowVisible.value = false;
+                                      },
+                                      colors: WindowButtonColors(
+                                        normal: uiStore
+                                            .currentTheme.value.cardBgColor,
+                                        mouseOver: Colors.redAccent,
+                                        mouseDown: Color(0xFFF44336),
+                                      ),
+                                    ),
+                                  ],
+                                )
                               ],
-                            )
-                          ],
+                            ),
+                          ),
                         ),
-                      ),
+                        Expanded(child: appContent()),
+                      ],
                     ),
-                    Expanded(child: appContent()),
-                  ],
-                ),
-              )
-            : appContent(),
+                  )
+                : appContent();
+            if (uiStore.currentTheme.value == AppTheme.Light) {
+              return Theme(data: ThemeData.light(), child: child);
+            } else {
+              return Theme(data: ThemeData.dark(), child: child);
+            }
+          },
+        ),
       ),
     );
   }
@@ -145,6 +154,7 @@ class MyApp extends StatelessWidget {
                     onWillPop: () {
                       if (fromBrowser) {
                         fromBrowser = false;
+                        //TODO! Replace with Updated WebView
                         flutterWebViewPlugin.canGoBack().then(
                               (value) =>
                                   value ? flutterWebViewPlugin.goBack() : null,
