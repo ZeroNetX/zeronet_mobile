@@ -314,6 +314,18 @@ extension AppThemeExt on AppTheme {
     }
   }
 
+  get premiumOptionColor {
+    switch (this) {
+      case AppTheme.Light:
+        return Color.fromARGB(248, 238, 211, 58);
+      case AppTheme.Dark:
+        return Color.fromARGB(248, 130, 115, 30);
+      case AppTheme.Black:
+        return Color.fromARGB(248, 130, 115, 30);
+      default:
+    }
+  }
+
   get cardBgColor {
     switch (this) {
       case AppTheme.Light:

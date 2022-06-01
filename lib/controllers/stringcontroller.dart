@@ -236,6 +236,10 @@ class StrController extends GetxController {
               'You can create your User ID at App Home Page. '
               'This will helps to restore your purchase in future.'
           .obs;
+  var proFeatureTitleStr = "Donor only Feature".obs;
+  var proFeatureDesStr =
+      "This Feature is available to Donors, You can activate this with a small donation, visit About Page to Donate."
+          .obs;
 
   void updatestatusStr(String str) => statusStr.value = str;
   void updateUserStatusStr(String str) => userStatusStr.value = str;
@@ -414,6 +418,8 @@ class StrController extends GetxController {
       enableInternetAccessStr.value = str;
   void updateenableInternetAccessDesStr(String str) =>
       enableInternetAccessDesStr.value = str;
+  void updateproFeatureTitleStr(String str) => proFeatureTitleStr.value = str;
+  void updateproFeatureDesStr(String str) => proFeatureDesStr.value = str;
 
   void loadTranslationsFromFile(String path) {
     File translationsFile = File(path);
@@ -557,5 +563,7 @@ class StrController extends GetxController {
     updateenableTorLogDesStr(map['enableTorLogDesStr']);
     updateenableInternetAccessStr(map['enableInternetAccessStr']);
     updateenableInternetAccessDesStr(map['enableInternetAccessDesStr']);
+    updateproFeatureTitleStr(map['proFeatureTitleStr']);
+    updateproFeatureDesStr(map['proFeatureDesStr']);
   }
 }

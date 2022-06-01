@@ -161,9 +161,8 @@ init() async {
   if (PlatformExt.isMobile) {
     kisProUser = await isProUser();
     launchUrlString = await launchZiteUrl();
-  }
-
-  if (PlatformExt.isDesktop) {
+  } else if (PlatformExt.isDesktop) {
+    kisProUser = true;
     _systemTray = SystemTray();
   }
 }
@@ -496,7 +495,7 @@ void showDialogW({
             child: body,
           ),
           actions: <Widget>[
-            actionOk!,
+            actionOk ?? Container(),
             TextButton(
               child: Text(strController.closeStr.value),
               onPressed: () {

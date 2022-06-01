@@ -193,8 +193,9 @@ class SettingsCard extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 3.0, right: 3.0),
                           child: Chip(
                             elevation: 2.0,
-                            backgroundColor:
-                                uiStore.currentTheme.value.cardBgColor,
+                            backgroundColor: proFeatures.contains(element)
+                                ? uiStore.currentTheme.value.premiumOptionColor
+                                : uiStore.currentTheme.value.cardBgColor,
                             label: Text(
                               settingL
                                   .options![settingL.options!.indexOf(element)]

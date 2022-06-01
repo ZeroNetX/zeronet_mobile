@@ -187,7 +187,7 @@ class Utils {
       options: [
         MapOptions.THEME_LIGHT,
         MapOptions.THEME_DARK,
-        // MapOptions.THEME_BLACK,
+        MapOptions.THEME_BLACK,
       ],
     ),
     profileSwitcher: MapSetting(
@@ -434,6 +434,8 @@ extension MapOptionExt on MapOptions {
                 child: Text(strController.installStr.value),
               ),
             );
+          else
+            showDonationRequiredDialog(context!);
         }
         break;
       case MapOptions.OPEN_PLUGIN_MANAGER:
@@ -467,12 +469,34 @@ extension MapOptionExt on MapOptions {
         saveSettings(varStore.settings);
         break;
       case MapOptions.THEME_BLACK:
-        if (kisProUser) uiStore.setTheme(AppTheme.Black);
+        if (kisProUser) {
+          uiStore.setTheme(AppTheme.Black);
+          var setting = (varStore.settings[themeSwitcher] as MapSetting)
+            ..map!['selected'] = 'Black';
+          varStore.updateSetting(setting);
+          saveSettings(varStore.settings);
+        } else
+          showDonationRequiredDialog(context!);
         break;
       default:
     }
   }
 }
+
+void showDonationRequiredDialog(BuildContext context) => showDialogW(
+      context: context,
+      title: strController.proFeatureTitleStr.value,
+      body: Text(
+        strController.proFeatureDesStr.value,
+        style: TextStyle(
+          color: uiStore.currentTheme.value.primaryTextColor,
+        ),
+      ),
+      actionOk: TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text(strController.closeStr.value),
+      ),
+    );
 
 enum Feature {
   SITE_PAUSE_RESUME,
