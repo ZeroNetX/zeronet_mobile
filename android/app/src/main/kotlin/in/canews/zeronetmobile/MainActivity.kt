@@ -139,7 +139,7 @@ class MainActivity : FlutterActivity() {
                     0,
                     Intent(context, MainActivity::class.java)
                             .putExtra("SHORTCUT_ADDED",true),
-                    PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, shortcutCallbackIntent.intentSender)
             mResult.success(true)
         } else {

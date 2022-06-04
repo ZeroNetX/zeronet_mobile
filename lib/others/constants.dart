@@ -492,10 +492,10 @@ void showDonationRequiredDialog(BuildContext context) => showDialogW(
           color: uiStore.currentTheme.value.primaryTextColor,
         ),
       ),
-      actionOk: TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: Text(strController.closeStr.value),
-      ),
+      // actionOk: TextButton(
+      //   onPressed: () => Navigator.pop(context),
+      //   child: Text(strController.closeStr.value),
+      // ),
     );
 
 enum Feature {
