@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import '../imports.dart';
 
 void runTorEngine() {
@@ -206,6 +208,7 @@ void runZeroNetService({bool autoStart = false}) async {
 
 void runBgIsolate() {
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
   service = ZeroNetService();
   service.onDataReceived.listen(onBgServiceDataReceivedForIsolate);
   service.sendData({'status': 'Started Background Service Successfully'});
@@ -347,16 +350,16 @@ void runZeroNetWs({String? address}) {
         zeroNetUrl + Utils.urlHello,
         override: true,
       )
-          .then((value) {
-        // ZeroNet.wrapperKey = value;
-        varStore.zeroNetWrapperKey = value;
-        browserUrl = zeroNetUrl;
-        ZeroNet.instance.connect(
-          // zeroNetIPwithPort(defZeroNetUrl),
-          address ?? Utils.urlHello,
-          override: true,
-        );
-      });
+          .then(
+        (value) {
+          if (uiStore.zeroNetStatus.value != ZeroNetStatus.RUNNING) {
+            uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING_WITH_TOR);
+          }
+          varStore.zeroNetWrapperKey = value;
+          browserUrl = zeroNetUrl;
+          ZeroNet.instance.connect(address ?? Utils.urlHello, override: true);
+        },
+      );
     } catch (e) {
       // printToConsole(e);
     }
