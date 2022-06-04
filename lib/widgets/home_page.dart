@@ -4,7 +4,7 @@ import 'package:time_ago_provider/time_ago_provider.dart' as timeAgo;
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    if (restartNeeded) {
+    if (restartNeeded && PlatformExt.isMobile) {
       Restart.restartApp();
     }
     return Container(
