@@ -12,7 +12,7 @@ dependencies:
   archive: ^3.1.6
   crypto: ^3.0.1
   clipboard: ^0.1.3
-  device_info: ^2.0.2
+  device_info_plus: ^3.2.3
   diff_match_patch: ^0.4.1
   file_picker: ^4.6.1
   flutter_absolute_path: 

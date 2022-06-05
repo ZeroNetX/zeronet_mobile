@@ -4,7 +4,11 @@ const MethodChannel _channel = const MethodChannel('in.canews.zeronetmobile');
 const EventChannel _events_channel =
     const EventChannel('in.canews.zeronetmobile/installModules');
 
-Future<bool?> addToHomeScreen(String title, String? url, String logoPath) async =>
+Future<bool?> addToHomeScreen(
+  String title,
+  String? url,
+  String logoPath,
+) async =>
     await _channel.invokeMethod('addToHomeScreen', {
       'title': title,
       'url': url,
@@ -73,14 +77,17 @@ String? filePath = '';
 Future<File?> getUserJsonFile() async {
   String? uri;
   try {
-    if (deviceInfo!.version.sdkInt > 28) {
+    if (deviceInfo!.version.sdkInt! > 28) {
       uri = await _channel.invokeMethod('openJsonFile');
       filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
     } else {
       uri = (await pickUserJsonFile())!.path;
       filePath = uri;
     }
-    String path = await (_channel.invokeMethod('readJsonFromUri', uri) as FutureOr<String>);
+    String path = await (_channel.invokeMethod(
+      'readJsonFromUri',
+      uri,
+    ) as FutureOr<String>);
     return File(path);
   } catch (e) {
     if (e is PlatformException && e.code == '526') {
@@ -92,7 +99,7 @@ Future<File?> getUserJsonFile() async {
 
 Future<File?> getPluginZipFile() async {
   String? uri;
-  if (deviceInfo!.version.sdkInt > 28) {
+  if (deviceInfo!.version.sdkInt! > 28) {
     try {
       uri = await _channel.invokeMethod('openZipFile');
       filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
@@ -107,7 +114,10 @@ Future<File?> getPluginZipFile() async {
     uri = (await pickPluginZipFile())!.path;
     filePath = uri;
   }
-  String path = await (_channel.invokeMethod('readZipFromUri', uri) as FutureOr<String>);
+  String path = await (_channel.invokeMethod(
+    'readZipFromUri',
+    uri,
+  ) as FutureOr<String>);
   return File(path);
 }
 
@@ -116,7 +126,7 @@ getArch() async {
     return 'x86_64';
   }
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
-  String archL = deviceInfo!.supportedAbis[0];
+  String archL = deviceInfo!.supportedAbis[0] ?? '';
   if (archL.contains('arm64'))
     arch = 'arm64';
   else if (archL.contains('armeabi'))

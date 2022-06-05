@@ -12,7 +12,7 @@ export 'package:flutter/services.dart';
 export 'package:bitsdojo_window/bitsdojo_window.dart';
 export 'package:clipboard/clipboard.dart';
 export 'package:crypto/crypto.dart';
-export 'package:device_info/device_info.dart';
+export 'package:device_info_plus/device_info_plus.dart';
 export 'package:diff_match_patch/diff_match_patch.dart';
 export 'package:equatable/equatable.dart';
 export 'package:file_picker/file_picker.dart';
