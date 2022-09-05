@@ -465,7 +465,7 @@ Future<bool> isZeroNetInstalled() async {
 Future<bool> isZeroNetDownloaded() async {
   bool isExists = false;
   if (Platform.isAndroid && (await isModuleInstallSupported())!) {
-    if (await (isRequiredModulesInstalled() as FutureOr<bool>)) {
+    if (await isRequiredModulesInstalled() ?? false) {
       for (var item in files(arch)) {
         var i = files(arch).indexOf(item);
         bool f2 = File(tempDir!.path + '/$item.zip').existsSync();
