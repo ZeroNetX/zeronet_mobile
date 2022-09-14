@@ -182,9 +182,9 @@ Future<void> initSystemTray() async {
   List<MenuItem> popularSites = [];
   Utils.initialSites.forEach((key, value) {
     popularSites.add(
-      MenuItem(
+      MenuItemLabel(
         label: key,
-        onClicked: () {
+        onClicked: (MenuItem item) {
           zeroNetUrl = defZeroNetUrl + value['url']!;
           launchUrl(Uri.parse(zeroNetUrl));
         },
@@ -192,7 +192,7 @@ Future<void> initSystemTray() async {
     );
   });
 
-  final menu = [
+  final menuList = [
     SubMenu(
       label: "Popular Sites",
       children: [
@@ -200,9 +200,9 @@ Future<void> initSystemTray() async {
       ],
     ),
     MenuSeparator(),
-    MenuItem(
+    MenuItemLabel(
       label: 'Exit',
-      onClicked: appWindow.close,
+      onClicked: (_) => appWindow.close,
     ),
   ];
 
@@ -211,7 +211,8 @@ Future<void> initSystemTray() async {
     iconPath: path,
     toolTip: "ZeroNetX - ZeroNet Desktop Client",
   );
-
+  final menu = Menu();
+  menu.buildFrom(menuList);
   await _systemTray.setContextMenu(menu);
 
   _systemTray.registerSystemTrayEventHandler((eventName) {
