@@ -77,6 +77,8 @@ lib/generated_plugin_registrant.dart
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/macos/Flutter/GeneratedPluginRegistrant.*
+**/flutter_export_environment.sh
+**/Flutter-Generated.xcconfig
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
