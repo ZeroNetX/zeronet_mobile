@@ -62,9 +62,10 @@ class ToggleSetting extends Setting {
       m[k] = map[k];
     });
     if (key == batteryOptimisation && value) {
-      final isOptimised = await (isBatteryOptimised() as FutureOr<bool>);
+      final isOptimised = await isBatteryOptimised() ?? false;
       (m[key] as ToggleSetting)
-        ..value = (!isOptimised) ? await askBatteryOptimisation() : true;
+        ..value =
+            (!isOptimised) ? await askBatteryOptimisation() ?? false : true;
     } else if (key == publicDataFolder) {
       String str = 'data_dir = ${value ? appPrivDir!.path : zeroNetDir}/data';
       writeZeroNetConf(str);

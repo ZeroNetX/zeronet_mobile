@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show DartPluginRegistrant;
 
 import '../imports.dart';
 

@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show IsolateNameServer;
 
 import 'package:archive/archive.dart';
 
@@ -61,7 +61,7 @@ initDownloadParams() async {
   FlutterDownloader.registerCallback(handleDownloads);
 }
 
-handleDownloads(String id, DownloadTaskStatus status, int progress) {
+handleDownloads(String id, DownloadTaskStatus status, dynamic progress) {
   final SendPort send =
       IsolateNameServer.lookupPortByName(isolateDownloadPort)!;
   send.send([id, status, progress]);
@@ -464,7 +464,7 @@ Future<bool> isZeroNetInstalled() async {
 
 Future<bool> isZeroNetDownloaded() async {
   bool isExists = false;
-  if (Platform.isAndroid && (await isModuleInstallSupported())!) {
+  if (Platform.isAndroid && (await isModuleInstallSupported() ?? false)) {
     if (await isRequiredModulesInstalled() ?? false) {
       for (var item in files(arch)) {
         var i = files(arch).indexOf(item);

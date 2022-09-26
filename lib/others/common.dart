@@ -285,10 +285,9 @@ Future<void> backUpUserJsonFile(
         },
       );
     } else {
-      String result = await (saveUserJsonFile(getZeroNetUsersFilePath())
-          as FutureOr<String>);
+      String? result = await saveUserJsonFile(getZeroNetUsersFilePath());
       Get.showSnackbar(GetSnackBar(
-        message: (result.contains('success'))
+        message: (result?.contains('success') ?? false)
             ? result
             : strController.chkBckUpStr.value,
       ));
@@ -537,22 +536,23 @@ check() async {
           varStore.setLoadingStatus(downloading);
           if (!isDownloadExec) {
             if (PlatformExt.isMobile &&
-                (await isModuleInstallSupported())! &&
+                (await isModuleInstallSupported() ?? false) &&
                 kEnableDynamicModules &&
-                await (isPlayStoreInstall() as FutureOr<bool>)) {
+                (kIsPlayStoreInstall ?? false)) {
+              //TODO! This may fail check for errors
               await initSplitInstall();
               printOut(
                 'PlayStore Module Install Supported',
                 lineBreaks: 3,
                 isNative: true,
               );
-              if (await (isRequiredModulesInstalled() as FutureOr<bool>)) {
+              if (await isRequiredModulesInstalled() ?? false) {
                 printOut(
                   'Required Modules are Installed',
                   lineBreaks: 3,
                   isNative: true,
                 );
-                if (await (copyAssetsToCache() as FutureOr<bool>)) {
+                if (await copyAssetsToCache() ?? false) {
                   printOut(
                     'Assets Copied to Cache',
                     lineBreaks: 3,

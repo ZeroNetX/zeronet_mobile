@@ -35,11 +35,11 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 5),
                   ),
                   InAppUpdateWidget(),
-                  if (kIsPlayStoreInstall!)
+                  if (kIsPlayStoreInstall ?? false)
                     Padding(
                       padding: EdgeInsets.only(bottom: 15),
                     ),
-                  if (kIsPlayStoreInstall!) RatingButtonWidget(),
+                  if (kIsPlayStoreInstall ?? false) RatingButtonWidget(),
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                   ),
@@ -137,7 +137,7 @@ class RatingButtonWidget extends StatelessWidget {
       onPressed: () async {
         final InAppReview inAppReview = InAppReview.instance;
         //TODO: remove this once we support non playstore reviews.
-        if (await inAppReview.isAvailable() && kIsPlayStoreInstall!) {
+        if (await inAppReview.isAvailable() && (kIsPlayStoreInstall ?? false)) {
           inAppReview.requestReview();
         } else {
           //TODO: Handle this case. eg: Non-PlayStore Install, Already Reviewed Users etc.
@@ -659,11 +659,12 @@ class SiteDetailsSheet extends StatelessWidget {
                     } else {
                       //TODO: Default logo quality is very low, use inbuilt logo for this.
                     }
-                    var added = await (addToHomeScreen(
-                      name,
-                      Utils.initialSites[name]!['url'],
-                      logoPath,
-                    ) as FutureOr<bool>);
+                    var added = await addToHomeScreen(
+                          name,
+                          Utils.initialSites[name]!['url'],
+                          logoPath,
+                        ) ??
+                        false;
                     if (added) {
                       snackMessage =
                           '$name ${strController.shrtAddedToHomeScreenStr.value}';

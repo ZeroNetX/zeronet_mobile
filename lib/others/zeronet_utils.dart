@@ -45,7 +45,10 @@ Future checkInitStatus() async {
 
 checkForAppUpdates() async {
   DateTime time = DateTime.now();
-  var updateTimeEpoch = int.parse((await getAppLastUpdateTime())!);
+  final lastUpdateTime = await getAppLastUpdateTime();
+  var updateTimeEpoch = lastUpdateTime != null
+      ? int.parse(lastUpdateTime)
+      : time.millisecondsSinceEpoch;
   var updateTime = DateTime.fromMillisecondsSinceEpoch(updateTimeEpoch);
   int updateDays;
   if (appVersion.contains('internal')) {
@@ -54,7 +57,7 @@ checkForAppUpdates() async {
     updateDays = time.difference(updateTime).inDays;
   }
   if (updateDays > 3 && !kDebugMode) {
-    if (kIsPlayStoreInstall!) {
+    if (kIsPlayStoreInstall ?? false) {
       AppUpdateInfo info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailability == UpdateAvailability.updateAvailable &&
           info.flexibleUpdateAllowed)
