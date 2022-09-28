@@ -71,6 +71,7 @@ class InAppUpdateWidget extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontSize: 20.0,
                 fontWeight: FontWeight.w500,
+                color: uiStore.currentTheme.value.primaryTextColor,
               ),
             ),
             ElevatedButton(
