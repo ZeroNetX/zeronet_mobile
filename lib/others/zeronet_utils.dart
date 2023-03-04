@@ -14,9 +14,9 @@ Future checkInitStatus() async {
       address = Utils.urlZeroNetMob;
     }
     url = defZeroNetUrl + address;
-    String key = await ZeroNet.instance.getWrapperKey(url);
+    final key = await ZeroNet.instance.getWrapperKey(url);
     zeroNetUrl = defZeroNetUrl;
-    varStore.zeroNetWrapperKey = key;
+    varStore.zeroNetWrapperKey = key!;
     // zeroNetIPwithPort(defZeroNetUrl),
     ZeroNet.instance.connect(address).catchError(
       (onError) {

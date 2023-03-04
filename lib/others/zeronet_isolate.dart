@@ -1,5 +1,7 @@
 import 'dart:ui' show DartPluginRegistrant;
 
+import 'package:zeronet_ws/models/models.dart';
+
 import '../imports.dart';
 
 void runTorEngine() {
@@ -355,7 +357,7 @@ void runZeroNetWs({String? address}) {
           if (uiStore.zeroNetStatus.value != ZeroNetStatus.RUNNING) {
             uiStore.setZeroNetStatus(ZeroNetStatus.RUNNING_WITH_TOR);
           }
-          varStore.zeroNetWrapperKey = value;
+          varStore.zeroNetWrapperKey = value!;
           browserUrl = zeroNetUrl;
           ZeroNet.instance.connect(address ?? Utils.urlHello, override: true);
         },
@@ -382,19 +384,21 @@ void shutDownZeronet() {
     if (ZeroNet.isInitialised) {
       //TODO: Handle Shutdown
       ZeroNet.instance.serverShutdownFuture().then(
-            (value) => ZeroNet.instance.respond(
-              to: value.id,
-            ),
-          );
+        (res) {
+          if (res.isPrompt)
+            ZeroNet.instance.respond(to: (res.prompt!.value as Confirm).id);
+        },
+      );
     } else {
       runZeroNetWs(address: Utils.urlHello);
       try {
         //TODO: Handle Shutdown
         ZeroNet.instance.serverShutdownFuture().then(
-              (value) => ZeroNet.instance.respond(
-                to: value.id,
-              ),
-            );
+          (res) {
+            if (res.isPrompt)
+              ZeroNet.instance.respond(to: (res.prompt!.value as Confirm).id);
+          },
+        );
       } catch (e) {
         printOut(e);
       }

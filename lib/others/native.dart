@@ -77,7 +77,7 @@ String? filePath = '';
 Future<File?> getUserJsonFile() async {
   String? uri;
   try {
-    if (deviceInfo!.version.sdkInt! > 28) {
+    if (deviceInfo!.version.sdkInt > 28) {
       uri = await _channel.invokeMethod('openJsonFile');
       filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
     } else {
@@ -99,7 +99,7 @@ Future<File?> getUserJsonFile() async {
 
 Future<File?> getPluginZipFile() async {
   String? uri;
-  if (deviceInfo!.version.sdkInt! > 28) {
+  if (deviceInfo!.version.sdkInt > 28) {
     try {
       uri = await _channel.invokeMethod('openZipFile');
       filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
@@ -126,7 +126,7 @@ getArch() async {
     return 'x86_64';
   }
   if (deviceInfo == null) deviceInfo = await DeviceInfoPlugin().androidInfo;
-  String archL = deviceInfo!.supportedAbis[0] ?? '';
+  String archL = deviceInfo!.supportedAbis[0];
   if (archL.contains('arm64'))
     arch = 'arm64';
   else if (archL.contains('armeabi'))
