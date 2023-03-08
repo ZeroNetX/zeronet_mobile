@@ -16,3 +16,6 @@
 [submodule "android/x86_python"]
 	path = android/x86_python
 	url = https://github.com/canewsin/x86_python.git
+[submodule "lib/dashboard"]
+	path = lib/dashboard
+	url = https://github.com/ZeroNetX/Dashboard-Engine.git

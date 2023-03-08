@@ -1,9 +1,14 @@
+import 'package:zeronet_ws/zeronet_ws.dart';
+
+import '../dashboard/common/others.dart';
+import '../dashboard/controllers/common.dart';
+import '../dashboard/models/models.dart';
 import '../imports.dart';
 
 Future checkInitStatus() async {
-  loadSitesFromFileSystem();
-  loadUsersFromFileSystem();
-  setZeroBrowserThemeValues();
+  // loadSitesFromFileSystem();
+  // loadUsersFromFileSystem();
+  // setZeroBrowserThemeValues();
   try {
     var url = '';
     var address = '';
@@ -28,7 +33,8 @@ Future checkInitStatus() async {
     testUrl();
   } catch (e) {
     if (launchUrlString!.isNotEmpty ||
-        ((varStore.settings[autoStartZeroNet] as ToggleSetting).value! &&
+        ((siteUiController.settings[autoStartZeroNet] as ToggleSetting)
+                    .value! &&
                 !firstTime) &&
             !manuallyStoppedZeroNet) {
       //TODO: Remember this!
@@ -43,7 +49,7 @@ Future checkInitStatus() async {
   }
 }
 
-checkForAppUpdates() async {
+void checkForAppUpdates() async {
   DateTime time = DateTime.now();
   final lastUpdateTime = await getAppLastUpdateTime();
   var updateTimeEpoch = lastUpdateTime != null
@@ -64,29 +70,6 @@ checkForAppUpdates() async {
         uiStore.updateInAppUpdateAvailable(AppUpdate.AVAILABLE);
     }
   }
-}
-
-loadSitesFromFileSystem() {
-  File sitesFile = File(getZeroNetDataDir().path + '/sites.json');
-  if (sitesFile.existsSync())
-    sitesAvailable = SiteManager().loadSitesFromFile(sitesFile);
-}
-
-loadUsersFromFileSystem() {
-  File usersFile = File(getZeroNetDataDir().path + '/users.json');
-  if (usersFile.existsSync()) {
-    usersAvailable = UserManager().loadUsersFromFile(usersFile);
-    var zeronetUser = getZeroIdUserName();
-    if (zeronetUser.isNotEmpty) {
-      uiStore.setZeroNetUserStatus(ZeroNetUserStatus.REGISTERED);
-      uiStore.setZeroNetUserId(zeronetUser);
-    }
-  }
-}
-
-setZeroBrowserThemeValues() {
-  if (usersAvailable.length > 0)
-    zeroBrowserTheme = usersAvailable.first.settings!.theme ?? 'light';
 }
 
 writeZeroNetConf(String str) {
@@ -125,7 +108,7 @@ String getZeroNetUsersFilePath() {
 }
 
 Directory getZeroNetDataDir() => Directory(
-      ((varStore.settings[publicDataFolder] as ToggleSetting).value!
+      ((siteUiController.settings[publicDataFolder] as ToggleSetting).value!
               ? appPrivDir!.path
               : zeroNetDir) +
           sep +

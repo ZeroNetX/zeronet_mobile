@@ -1,7 +1,7 @@
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:zeronet/dashboard/imports.dart';
 
 import '../imports.dart';
-import 'zeronet_isolate.dart';
 
 Directory? appPrivDir;
 Directory? tempDir;
@@ -43,8 +43,6 @@ String zeroNetIPwithPort(String url) =>
     url.replaceAll('http:', '').replaceAll('/', '').replaceAll('s', '');
 String sesionKey = '';
 String browserUrl = 'https://google.com';
-Map<String?, Site?> sitesAvailable = {};
-List<User> usersAvailable = [];
 String zeroBrowserTheme = 'light';
 String snackMessage = '';
 
@@ -85,10 +83,12 @@ List<String> trackerFileNames = [
 void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: uiStore.currentTheme.value.iconBrightness,
-        systemNavigationBarColor: uiStore.currentTheme.value.primaryColor,
+        statusBarIconBrightness:
+            siteUiController.currentTheme.value.iconBrightness,
+        systemNavigationBarColor:
+            siteUiController.currentTheme.value.primaryColor,
         systemNavigationBarIconBrightness:
-            uiStore.currentTheme.value.iconBrightness,
+            siteUiController.currentTheme.value.iconBrightness,
       ),
     );
 
@@ -135,8 +135,8 @@ init() async {
   }
   if (!tempDir!.existsSync()) tempDir!.createSync(recursive: true);
   var translations = loadTranslations();
-  if (varStore.settings.keys.contains(languageSwitcher)) {
-    var setting = varStore.settings[languageSwitcher] as MapSetting;
+  if (siteUiController.settings.keys.contains(languageSwitcher)) {
+    var setting = siteUiController.settings[languageSwitcher] as MapSetting;
     var language = setting.map!['selected'];
     var code = translations![language] ?? 'en';
     if (code != 'en')
@@ -148,14 +148,14 @@ init() async {
             'strings-$code.json',
       );
   }
-  loadUsersFromFileSystem();
-  if (varStore.settings.keys.contains(themeSwitcher)) {
-    var setting = varStore.settings[themeSwitcher] as MapSetting;
+  // loadUsersFromFileSystem();
+  if (siteUiController.settings.keys.contains(themeSwitcher)) {
+    var setting = siteUiController.settings[themeSwitcher] as MapSetting;
     var theme = setting.map!['selected'];
     if (theme == 'Dark') {
-      uiStore.setTheme(AppTheme.Dark);
+      siteUiController.setTheme(AppTheme.Dark);
     } else {
-      uiStore.setTheme(AppTheme.Light);
+      siteUiController.setTheme(AppTheme.Light);
     }
   }
   if (PlatformExt.isMobile) {
@@ -316,7 +316,7 @@ Map<String, dynamic>? loadTranslations() {
   return langCodesMap;
 }
 
-saveDataFile() {
+void saveDataFile() {
   Map<String, String?> dataMap = {
     'zeroNetNativeDir': zeroNetNativeDir,
   };
@@ -324,14 +324,14 @@ saveDataFile() {
   f.writeAsStringSync(json.encode(dataMap));
 }
 
-loadDataFile() {
+void loadDataFile() {
   File f = File(dataDir + '/data.json');
   Map m = json.decode(f.readAsStringSync());
   printOut(m);
   zeroNetNativeDir = m['zeroNetNativeDir'];
 }
 
-loadSettings() {
+void loadSettings() {
   File f = File(dataDir + '/settings.json');
   List? settings;
   if (f.existsSync()) {
@@ -364,16 +364,16 @@ loadSettings() {
   for (var i = 0; i < settings!.length; i++) {
     Map map = settings[i];
     if (map.containsKey('value')) {
-      varStore
+      siteUiController
           .updateSetting(ToggleSetting().fromJson(map as Map<String, dynamic>));
     } else if (map.containsKey('map')) {
-      varStore
+      siteUiController
           .updateSetting(MapSetting().fromJson(map as Map<String, dynamic>));
     }
   }
 }
 
-saveSettings(Map map) {
+void saveSettings(Map map) {
   File f = File(settingsFile);
   if (!f.existsSync()) {
     f.createSync(recursive: true);
@@ -455,7 +455,7 @@ void showDialogC({
           title: Text(
             title,
             style: TextStyle(
-              color: uiStore.currentTheme.value.primaryTextColor,
+              color: siteUiController.currentTheme.value.primaryTextColor,
             ),
           ),
           content: SingleChildScrollView(
@@ -484,11 +484,11 @@ void showDialogW({
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: uiStore.currentTheme.value.cardBgColor,
+          backgroundColor: siteUiController.currentTheme.value.cardBgColor,
           title: Text(
             title,
             style: TextStyle(
-              color: uiStore.currentTheme.value.primaryTextColor,
+              color: siteUiController.currentTheme.value.primaryTextColor,
             ),
           ),
           content: SingleChildScrollView(
@@ -507,7 +507,7 @@ void showDialogW({
       });
 }
 
-check() async {
+void check() async {
   if (!isZeroNetInstalledm) {
     if (isZeroNetDownloadedm) {
       if (isZeroNetInstalledm) {

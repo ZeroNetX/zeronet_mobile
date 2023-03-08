@@ -1,9 +1,14 @@
-import 'imports.dart';
+import 'package:zeronet/dashboard/app.dart';
+import 'dashboard/imports.dart';
+
+import 'others/common.dart' as common;
+
+import 'imports.dart' hide init;
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init();
+  await common.init();
   runApp(MyApp());
   if (PlatformExt.isDesktop) {
     doWhenWindowReady(() {
@@ -38,14 +43,15 @@ class MyApp extends StatelessWidget {
                       children: [
                         WindowTitleBarBox(
                           child: Container(
-                            color: uiStore.currentTheme.value.titleBarColor,
+                            color: siteUiController
+                                .currentTheme.value.titleBarColor,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: MoveWindow(
                                     child: Container(
-                                      color: uiStore
+                                      color: siteUiController
                                           .currentTheme.value.primaryColor,
                                     ),
                                   ),
@@ -58,7 +64,7 @@ class MyApp extends StatelessWidget {
                                         uiStore.isWindowVisible.value = false;
                                       },
                                       colors: WindowButtonColors(
-                                        normal: uiStore
+                                        normal: siteUiController
                                             .currentTheme.value.cardBgColor,
                                         mouseOver: Colors.blueAccent,
                                         mouseDown: Colors.blue,
@@ -70,7 +76,7 @@ class MyApp extends StatelessWidget {
                                         uiStore.isWindowVisible.value = true;
                                       },
                                       colors: WindowButtonColors(
-                                        normal: uiStore
+                                        normal: siteUiController
                                             .currentTheme.value.cardBgColor,
                                         mouseOver: Colors.greenAccent,
                                         mouseDown: Colors.green,
@@ -82,7 +88,7 @@ class MyApp extends StatelessWidget {
                                         uiStore.isWindowVisible.value = false;
                                       },
                                       colors: WindowButtonColors(
-                                        normal: uiStore
+                                        normal: siteUiController
                                             .currentTheme.value.cardBgColor,
                                         mouseOver: Colors.redAccent,
                                         mouseDown: Color(0xFFF44336),
@@ -99,7 +105,7 @@ class MyApp extends StatelessWidget {
                     ),
                   )
                 : appContent();
-            if (uiStore.currentTheme.value == AppTheme.Light) {
+            if (siteUiController.currentTheme.value == AppTheme.Light) {
               return Theme(data: ThemeData.light(), child: child);
             } else {
               return Theme(data: ThemeData.dark(), child: child);
@@ -115,86 +121,7 @@ class MyApp extends StatelessWidget {
       () {
         setSystemUiTheme();
         if (varStore.zeroNetInstalled.value) {
-          if (firstTime) {
-            SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.manual,
-              overlays: [
-                SystemUiOverlay.top,
-                SystemUiOverlay.bottom,
-              ],
-            );
-            activateFilters();
-            uiStore.updateCurrentAppRoute(AppRoute.Settings);
-            if (!isExecPermitted)
-              makeExecHelper().then(
-                (value) => isExecPermitted = value,
-              );
-            if (zeroNetNativeDir!.isNotEmpty) saveDataFile();
-            // createTorDataDir();
-            firstTime = false;
-          }
-          if (uiStore.zeroNetStatus.value == ZeroNetStatus.NOT_RUNNING &&
-              !manuallyStoppedZeroNet) {
-            checkInitStatus();
-          }
-          if (launchUrlString!.isNotEmpty) {
-            browserUrl = (zeroNetUrl.isEmpty ? defZeroNetUrl : zeroNetUrl) +
-                launchUrlString!;
-            if (uiStore.zeroNetStatus.value == ZeroNetStatus.RUNNING) {
-              uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-            } else
-              uiStore.updateCurrentAppRoute(AppRoute.ShortcutLoadingPage);
-          }
-          return Obx(
-            () {
-              setSystemUiTheme();
-              switch (uiStore.currentAppRoute.value) {
-                case AppRoute.AboutPage:
-                  return WillPopScope(
-                    onWillPop: () {
-                      if (fromBrowser) {
-                        fromBrowser = false;
-                        //TODO! Replace with Updated WebView
-                        flutterWebViewPlugin.canGoBack().then(
-                              (value) =>
-                                  value ? flutterWebViewPlugin.goBack() : null,
-                            );
-                        uiStore.updateCurrentAppRoute(AppRoute.ZeroBrowser);
-                      } else
-                        uiStore.updateCurrentAppRoute(AppRoute.Home);
-                      return Future.value(false);
-                    },
-                    child: AboutPage(),
-                  );
-                case AppRoute.Home:
-                  if (PlatformExt.isMobile) getInAppPurchases();
-                  return HomePage();
-                case AppRoute.Settings:
-                  return WillPopScope(
-                    onWillPop: () {
-                      uiStore.updateCurrentAppRoute(AppRoute.Home);
-                      return Future.value(false);
-                    },
-                    child: SettingsPage(),
-                  );
-                case AppRoute.ShortcutLoadingPage:
-                  return ShortcutLoadingPage();
-                case AppRoute.ZeroBrowser:
-                  setZeroBrowserThemeValues();
-                  return ZeroBrowser();
-                case AppRoute.LogPage:
-                  return WillPopScope(
-                    onWillPop: () {
-                      uiStore.updateCurrentAppRoute(AppRoute.Home);
-                      return Future.value(false);
-                    },
-                    child: ZeroNetLogPage(),
-                  );
-                default:
-                  return Container();
-              }
-            },
-          );
+          return DashboardApp();
         } else
           return Loading();
       },

@@ -58,7 +58,7 @@ dependencies:
     # path: C:\Users\PramUkesh\Documents\FlutterProj\zeronet_ws
     git:
       url: https://github.com/canewsin/zeronet_ws
-      ref: ac9f95e777673fe9ec5b818a0edbed5f195e110a
+      ref: 768bcbd4a8ab8c7a668ecd6f8677dbeb77851e83
   internet_file: ^1.0.0+1
   bitsdojo_window: ^0.1.5
   system_tray: #^0.0.9

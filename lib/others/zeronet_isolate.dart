@@ -1,7 +1,11 @@
 import 'dart:ui' show DartPluginRegistrant;
 
+import 'package:zeronet/dashboard/controllers/common.dart';
 import 'package:zeronet_ws/models/models.dart';
+import 'package:zeronet_ws/zeronet_ws.dart';
 
+import '../dashboard/common/others.dart';
+import '../dashboard/models/models.dart';
 import '../imports.dart';
 
 void runTorEngine() {
@@ -175,9 +179,12 @@ void runZeroNetService({bool autoStart = false}) async {
   printOut('runZeroNetService()');
   bool? autoStartService = autoStart
       ? true
-      : (varStore.settings[autoStartZeroNetonBoot] as ToggleSetting).value;
+      : (siteUiController.settings[autoStartZeroNetonBoot] as ToggleSetting)
+          .value;
   bool filtersEnabled =
-      (varStore.settings[enableZeroNetFilters] as ToggleSetting).value ?? true;
+      (siteUiController.settings[enableZeroNetFilters] as ToggleSetting)
+              .value ??
+          true;
   if (filtersEnabled) await activateFilters();
   printToConsole(startZeroNetLog);
   //TODO?: Check for Bugs Here.
@@ -222,14 +229,15 @@ void runBgIsolate() {
           loadSettings();
           loadDataFile();
           debugZeroNetCode =
-              (varStore.settings[debugZeroNet] as ToggleSetting).value;
+              (siteUiController.settings[debugZeroNet] as ToggleSetting).value;
           enableTorLogConsole =
-              (varStore.settings[enableTorLog] as ToggleSetting).value;
-          enableZeroNetAddTrackers =
-              (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
-                  .value;
-          vibrateonZeroNetStart =
-              (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
+              (siteUiController.settings[enableTorLog] as ToggleSetting).value;
+          enableZeroNetAddTrackers = (siteUiController
+                  .settings[enableAdditionalTrackers] as ToggleSetting)
+              .value;
+          vibrateonZeroNetStart = (siteUiController
+                  .settings[vibrateOnZeroNetStart] as ToggleSetting)
+              .value;
           printOut('runBgIsolate() > runZeroNet()');
           runZeroNet();
           setZeroNetRunningNotification();
@@ -240,13 +248,15 @@ void runBgIsolate() {
       loadSettings();
       loadDataFile();
       debugZeroNetCode =
-          (varStore.settings[debugZeroNet] as ToggleSetting).value;
+          (siteUiController.settings[debugZeroNet] as ToggleSetting).value;
       enableTorLogConsole =
-          (varStore.settings[enableTorLog] as ToggleSetting).value;
+          (siteUiController.settings[enableTorLog] as ToggleSetting).value;
       enableZeroNetAddTrackers =
-          (varStore.settings[enableAdditionalTrackers] as ToggleSetting).value;
+          (siteUiController.settings[enableAdditionalTrackers] as ToggleSetting)
+              .value;
       vibrateonZeroNetStart =
-          (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value;
+          (siteUiController.settings[vibrateOnZeroNetStart] as ToggleSetting)
+              .value;
       printOut('runBgIsolate() > runZeroNet()');
       runZeroNet();
       setZeroNetRunningNotification();
@@ -307,19 +317,21 @@ void onBgServiceDataReceived(Map<String, dynamic>? data) {
         'zeroNetNativeDir': zeroNetNativeDir,
         'zeroNetStartedFromBoot': false,
         'debugZeroNetCode':
-            (varStore.settings[debugZeroNet] as ToggleSetting).value,
+            (siteUiController.settings[debugZeroNet] as ToggleSetting).value,
         'enableTorLog':
-            (varStore.settings[enableTorLog] as ToggleSetting).value,
+            (siteUiController.settings[enableTorLog] as ToggleSetting).value,
         'vibrateOnZeroNetStart':
-            (varStore.settings[vibrateOnZeroNetStart] as ToggleSetting).value,
-        'enableAdditionalTrackers':
-            (varStore.settings[enableAdditionalTrackers] as ToggleSetting)
+            (siteUiController.settings[vibrateOnZeroNetStart] as ToggleSetting)
                 .value,
+        'enableAdditionalTrackers': (siteUiController
+                .settings[enableAdditionalTrackers] as ToggleSetting)
+            .value,
       }
     });
     if (zeroNetNativeDir!.isEmpty || zeroNetNativeDir == null) {
       printToConsole('zeroNetNativeDir is Empty');
-    } else if ((varStore.settings[autoStartZeroNet] as ToggleSetting).value ==
+    } else if ((siteUiController.settings[autoStartZeroNet] as ToggleSetting)
+            .value ==
         true) {
       service.sendData({'cmd': 'runZeroNet'});
     }

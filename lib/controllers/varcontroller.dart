@@ -4,7 +4,6 @@ final varStore = Get.put(VarController());
 
 class VarController extends GetxController {
   var zeroNetWrapperKey = '';
-  RxMap<String?, Setting> settings = <String, Setting>{}.obs;
   Rx<ObservableEvent> event = ObservableEvent.none.obs;
   var zeroNetLog = 'ZeroNetX'.obs;
   RxString zeroNetStatus = strController.statusNotRunningStr;
@@ -12,10 +11,6 @@ class VarController extends GetxController {
   var zeroNetDownloaded = false.obs;
   RxString loadingStatus = strController.loadingStr;
   var loadingPercent = 0.obs;
-
-  void updateSetting(Setting setting) {
-    settings[setting.name] = setting;
-  }
 
   void setObservableEvent(ObservableEvent eve) {
     event.value = eve;
@@ -46,4 +41,10 @@ class VarController extends GetxController {
   }
 }
 
-enum ObservableEvent { none, downloding, downloaded, installing, installed }
+enum ObservableEvent {
+  none,
+  downloding,
+  downloaded,
+  installing,
+  installed,
+}
