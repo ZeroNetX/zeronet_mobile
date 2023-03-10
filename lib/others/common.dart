@@ -1,6 +1,6 @@
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:zeronet/dashboard/imports.dart';
 
+import '../dashboard/imports.dart' hide strController;
 import '../imports.dart';
 
 Directory? appPrivDir;
@@ -80,18 +80,6 @@ List<String> trackerFileNames = [
   'stable',
 ];
 
-void setSystemUiTheme() => SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            siteUiController.currentTheme.value.iconBrightness,
-        systemNavigationBarColor:
-            siteUiController.currentTheme.value.primaryColor,
-        systemNavigationBarIconBrightness:
-            siteUiController.currentTheme.value.iconBrightness,
-      ),
-    );
-
 init() async {
   getArch();
   if (PlatformExt.isMobile) {
@@ -134,30 +122,6 @@ init() async {
     ZeroNetStatus.NOT_RUNNING.onAction();
   }
   if (!tempDir!.existsSync()) tempDir!.createSync(recursive: true);
-  var translations = loadTranslations();
-  if (siteUiController.settings.keys.contains(languageSwitcher)) {
-    var setting = siteUiController.settings[languageSwitcher] as MapSetting;
-    var language = setting.map!['selected'];
-    var code = translations![language] ?? 'en';
-    if (code != 'en')
-      strController.loadTranslationsFromFile(
-        getZeroNetDataDir().path +
-            '/' +
-            Utils.urlZeroNetMob +
-            '/translations/' +
-            'strings-$code.json',
-      );
-  }
-  // loadUsersFromFileSystem();
-  if (siteUiController.settings.keys.contains(themeSwitcher)) {
-    var setting = siteUiController.settings[themeSwitcher] as MapSetting;
-    var theme = setting.map!['selected'];
-    if (theme == 'Dark') {
-      siteUiController.setTheme(AppTheme.Dark);
-    } else {
-      siteUiController.setTheme(AppTheme.Light);
-    }
-  }
   if (PlatformExt.isMobile) {
     kisProUser = await isProUser();
     launchUrlString = await launchZiteUrl();
@@ -268,39 +232,6 @@ Future<FilePickerResult?> pickFile({List<String>? fileExts}) async {
 
   return result;
 }
-
-Future<void> backUpUserJsonFile(
-  BuildContext? context, {
-  bool copyToClipboard = false,
-}) async {
-  if (getZeroNetUsersFilePath().isNotEmpty) {
-    if (copyToClipboard) {
-      FlutterClipboard.copy(File(getZeroNetUsersFilePath()).readAsStringSync())
-          .then(
-        (_) {
-          printToConsole(strController.usersFileCopied.value);
-          Get.showSnackbar(GetSnackBar(
-            message: strController.usersFileCopied.value,
-          ));
-        },
-      );
-    } else {
-      String? result = await saveUserJsonFile(getZeroNetUsersFilePath());
-      Get.showSnackbar(GetSnackBar(
-        message: (result?.contains('success') ?? false)
-            ? result
-            : strController.chkBckUpStr.value,
-      ));
-    }
-  } else
-    zeronetNotInit(context!);
-}
-
-void zeronetNotInit(BuildContext context) => showDialogC(
-      context: context,
-      title: strController.zeroNetNotInitTitleStr.value,
-      body: strController.zeroNetNotInitDesStr.value,
-    );
 
 Map<String, dynamic>? loadTranslations() {
   Map<String, dynamic>? langCodesMap = {};
@@ -443,70 +374,6 @@ printToConsole(Object? object) {
   varStore.setZeroNetLog(log);
 }
 
-void showDialogC({
-  required BuildContext context,
-  String title = '',
-  String body = '',
-}) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            title,
-            style: TextStyle(
-              color: siteUiController.currentTheme.value.primaryTextColor,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: Text(body),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(strController.closeStr.value),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      });
-}
-
-void showDialogW({
-  required BuildContext context,
-  String title = '',
-  Widget? body,
-  bool? singleOption,
-  Widget? actionOk,
-}) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: siteUiController.currentTheme.value.cardBgColor,
-          title: Text(
-            title,
-            style: TextStyle(
-              color: siteUiController.currentTheme.value.primaryTextColor,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: body,
-          ),
-          actions: <Widget>[
-            actionOk ?? Container(),
-            TextButton(
-              child: Text(strController.closeStr.value),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      });
-}
-
 void check() async {
   if (!isZeroNetInstalledm) {
     if (isZeroNetDownloadedm) {
@@ -608,48 +475,4 @@ void downloadFiles() async {
   varStore.setLoadingStatus(installing);
   varStore.setLoadingPercent(0);
   check();
-}
-
-void installPluginDialog(File file, BuildContext context) {
-  //TODO: Add Unzip listener for Plugin Install
-  // _unZipPort.close();
-  // bindUnZipIsolate();
-  // _unZipPort.listen((data) {
-  //   String name = data[0];
-  //   int currentFile = data[1];
-  //   int totalFiles = data[2];
-  //   var percent = (currentFile / totalFiles) * 100;
-  //   if (percent == 100) {
-  //     if (name == 'plugin') {
-  //       Navigator.pop(context);
-  //     }
-  //   }
-  // });
-  installPlugin(file);
-  showDialogW(
-    context: context,
-    title: strController.znPluginInstallingTitleStr.value,
-    body: Column(
-      children: <Widget>[
-        Text(
-          strController.znPluginInstallingDesStr.value,
-        ),
-        Padding(padding: EdgeInsets.all(12.0)),
-        LinearProgressIndicator()
-      ],
-    ),
-    singleOption: true,
-  );
-  Timer(Duration(seconds: 5), () {
-    Navigator.pop(context);
-    restartZeroNet();
-  });
-}
-
-testUrl() {
-  if (zeroNetUrl.isNotEmpty) {
-    canLaunchUrl(Uri.parse(zeroNetUrl)).then((onValue) {
-      kCanLaunchUrl = onValue;
-    });
-  }
 }

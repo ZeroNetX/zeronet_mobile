@@ -1,12 +1,11 @@
 import 'dart:ui' show DartPluginRegistrant;
 
-import 'package:zeronet/dashboard/controllers/common.dart';
 import 'package:zeronet_ws/models/models.dart';
-import 'package:zeronet_ws/zeronet_ws.dart';
 
 import '../dashboard/common/others.dart';
+import '../dashboard/controllers/controllers.dart';
 import '../dashboard/models/models.dart';
-import '../imports.dart';
+import '../imports.dart' hide strController;
 
 void runTorEngine() {
   service = ZeroNetService();

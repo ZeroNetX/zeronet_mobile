@@ -26,9 +26,11 @@ export 'package:package_info_plus/package_info_plus.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:random_string/random_string.dart';
 export 'package:system_tray/system_tray.dart';
+export 'package:zeronet_ws/zeronet_ws.dart';
 
 export 'controllers/varcontroller.dart';
 export 'controllers/uicontroller.dart';
+export 'controllers/strings.dart';
 export 'models/enums.dart';
 export 'models/models.dart';
 export 'others/common.dart';
@@ -40,7 +42,3 @@ export 'others/zeronet_utils.dart';
 export 'others/zeronet_service.dart';
 export 'others/zeronet_isolate.dart';
 export 'widgets/loading_page.dart';
-export 'dashboard/pages/loading.dart';
-
-export 'dashboard/pages/browser.dart';
-export 'dashboard/controllers/controllers.dart';

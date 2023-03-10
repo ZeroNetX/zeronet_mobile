@@ -1,4 +1,7 @@
-import '../dashboard/imports.dart';
+import '../dashboard/common/others.dart';
+import '../dashboard/controllers/controllers.dart' as dashboard;
+import '../dashboard/models/enums.dart';
+import '../dashboard/models/models.dart';
 import '../imports.dart';
 
 enum ZeroNetStatus {
@@ -56,9 +59,9 @@ extension ZeroNetStatusExt on ZeroNetStatus {
           });
           patchChecked = true;
         }
-        var autoStart =
-            (siteUiController.settings[autoStartZeroNet] as ToggleSetting)
-                .value!;
+        var autoStart = (dashboard.siteUiController.settings[autoStartZeroNet]
+                as ToggleSetting)
+            .value!;
         runZeroNetService(autoStart: autoStart);
         break;
       case ZeroNetStatus.RUNNING:
@@ -69,7 +72,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
         manuallyStoppedZeroNet = true;
         break;
       case ZeroNetStatus.ERROR:
-        siteUiController.updateCurrentAppRoute(AppRoute.LogPage);
+        dashboard.siteUiController.updateCurrentAppRoute(AppRoute.LogPage);
         break;
       default:
         return null;

@@ -1,7 +1,5 @@
-import 'package:zeronet_ws/zeronet_ws.dart';
-
 import '../dashboard/common/others.dart';
-import '../dashboard/controllers/common.dart';
+import '../dashboard/controllers/controllers.dart';
 import '../dashboard/models/models.dart';
 import '../imports.dart';
 
