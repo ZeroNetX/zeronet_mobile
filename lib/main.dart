@@ -4,6 +4,7 @@ import 'dashboard/imports.dart';
 import 'others/common.dart' as common;
 
 import 'imports.dart' hide init;
+import 'others/common.dart';
 
 //TODO:Remainder: Removed Half baked x86 bins, add them when we support x86 platform
 Future main() async {
@@ -121,6 +122,7 @@ class MyApp extends StatelessWidget {
       () {
         setSystemUiTheme();
         if (varStore.zeroNetInstalled.value) {
+          init();
           return DashboardApp();
         } else
           return Loading();

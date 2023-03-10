@@ -104,11 +104,13 @@ init() async {
     if (!tempDir!.existsSync()) {
       tempDir!.createSync(recursive: true);
     }
-    appPrivDir = Directory(appDir.path +
-        Platform.pathSeparator +
-        'data' +
-        Platform.pathSeparator +
-        'app');
+    appPrivDir = Directory(
+      appDir.path +
+          Platform.pathSeparator +
+          'data' +
+          Platform.pathSeparator +
+          'app',
+    );
     if (!appPrivDir!.existsSync()) {
       appPrivDir!.createSync(recursive: true);
     }
