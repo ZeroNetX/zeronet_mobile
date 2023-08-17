@@ -79,7 +79,8 @@ Future<File?> getUserJsonFile() async {
   try {
     if (deviceInfo!.version.sdkInt > 28) {
       uri = await _channel.invokeMethod('openJsonFile');
-      filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
+      //!TODO Fix This await FlutterAbsolutePath.getAbsolutePath(uri!);
+      filePath = uri;
     } else {
       uri = (await pickUserJsonFile())!.path;
       filePath = uri;
@@ -102,7 +103,8 @@ Future<File?> getPluginZipFile() async {
   if (deviceInfo!.version.sdkInt > 28) {
     try {
       uri = await _channel.invokeMethod('openZipFile');
-      filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
+      //TODO! Fix this filePath = await FlutterAbsolutePath.getAbsolutePath(uri!);
+      filePath = uri;
     } catch (e) {
       if (e is PlatformException) {
         if (e.code == '527') {

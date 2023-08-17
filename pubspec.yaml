@@ -3,55 +3,56 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   auto_size_text: ^3.0.0
-  archive: ^3.1.6
-  crypto: ^3.0.1
+  archive: 3.3.7
+  crypto: 3.0.3
   clipboard: ^0.1.3 #TODO! Replace this with `super_clipboard`
   device_info_plus: ^8.1.0
   diff_match_patch: ^0.4.1
   file_picker: ^5.2.5
-  flutter_absolute_path: 
-    # path: ../flutter_absolute_path
-    git:
-      url: https://github.com/canewsin/flutter_absolute_path.git
-      # ref: android-v2
-  flutter_downloader: ^1.8.0+1
+  # flutter_absolute_path: 
+  #   # path: ../flutter_absolute_path
+  #   git:
+  #     url: https://github.com/canewsin/flutter_absolute_path.git
+  #     # ref: android-v2
+  flutter_downloader: 1.11.1
   # flutter_mobx: ^1.1.0+2
   http: ^0.13.4
   # mobx: ^1.2.1+4
   get: ^4.6.5
-  google_fonts: ^3.0.1
-  in_app_review: ^2.0.2
-  in_app_update: ^3.0.0
+  google_fonts: ^4.0.4
+  in_app_review: 2.0.4
+  in_app_update: 3.0.0
     # git:
-    #   url: https://github.com/canewsin/flutter_in_app_update.git
+    #   url: 4.1.4://github.com/canewsin/flutter_in_app_update.git
   outline_material_icons: #^0.1.1-nullsafety
     git:
       url: https://github.com/ZeroNetX/outline_material_icons.git
-  equatable: ^2.0.2
-  time_ago_provider: ^4.1.0
+  equatable: 2.0.5
+  time_ago_provider: 4.2.0
   package_info_plus: 3.0.3
   package_info_plus_web: 2.0.0
   path_provider: ^2.0.2
-  purchases_flutter: ^3.5.0
+  purchases_flutter: 5.6.0
   random_string: 2.3.1
-  restart_app: ^1.1.0
+  restart_app: 1.2.1
   share: ^2.0.4
-  url_launcher: ^6.0.9
-  flutter_background_service: #^0.1.5
+  url_launcher: 6.1.12
+  flutter_background_service: 5.0.1
     # path: ../flutter_background_service
-    git:
-      url: https://github.com/ekasetiawans/flutter_background_service
-      ref: 9ad6ba3acf9952c53aa482708a4d099f9e33d98f
-  flutter_webview_plugin: #^0.4.0
-    # git: https://github.com/nuc134r/flutter_webview_plugin.git
-    git:
-      url: https://github.com/canewsin/flutter_webview_plugin
+    # git:
+    #   url: https://github.com/ekasetiawans/flutter_background_service
+    #   ref: 9ad6ba3acf9952c53aa482708a4d099f9e33d98f
+  flutter_background_service_android: ^6.0.1
+  # flutter_webview_plugin: #^0.4.0
+  #   # git: https://github.com/nuc134r/flutter_webview_plugin.git
+  #   git:
+  #     url: https://github.com/canewsin/flutter_webview_plugin
     #   ref: fullscreen-support
   # web_socket_channel: 1.1.0
   zeronet_ws: #^0.0.3
@@ -59,13 +60,13 @@ dependencies:
     git:
       url: https://github.com/canewsin/zeronet_ws
       ref: 768bcbd4a8ab8c7a668ecd6f8677dbeb77851e83
-  internet_file: ^1.0.0+1
+  internet_file: 1.2.0
   bitsdojo_window: ^0.1.5
   system_tray: #^0.0.9
     git:
         url: https://github.com/antler119/system_tray.git
-  msix: ^3.0.1
-  flutter_inappwebview: ^5.4.1+1
+  msix: 3.16.1
+  flutter_inappwebview: 5.7.2+3
     # path: ../zeronet_ws
     # git:
     #   url : https://github.com/canewsin/zeronet_ws.git

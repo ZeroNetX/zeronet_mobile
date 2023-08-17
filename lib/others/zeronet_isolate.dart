@@ -7,8 +7,8 @@ import '../dashboard/controllers/controllers.dart';
 import '../dashboard/models/models.dart';
 import '../imports.dart' hide strController;
 
-void runTorEngine() {
-  service = ZeroNetService();
+void runTorEngine(ServiceInstance instance) {
+  service = ZeroNetService(true, serviceInstance: instance);
   final tor = zeroNetNativeDir! + '/libtor.so';
   if (File(tor).existsSync()) {
     service.sendData({'console': 'Running Tor Engine..'});
@@ -36,7 +36,7 @@ void runTorEngine() {
   }
 }
 
-void runZeroNet() {
+void runZeroNet(ServiceInstance instance) {
   printOut('runZeroNet()');
   printOut('zeroNetStatus : ${uiStore.zeroNetStatus.value}');
   // if (zeroNetNativeDir.isEmpty) {
@@ -50,14 +50,14 @@ void runZeroNet() {
       uiStore.zeroNetStatus.value == ZeroNetStatus.ERROR) {
     uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
     service.sendData({'ZeroNetStatus': 'INITIALISING'});
-    runTorEngine();
+    runTorEngine(instance);
     log = '';
     service.sendData({'console': logRunning});
     service.sendData({'console': startZeroNetLog + '\n'});
     if (Platform.isAndroid) {
       var python = zeroNetNativeDir! + '/libpython3.8.so';
       var openssl = zeroNetNativeDir! + '/libopenssl.so';
-      var trackerFile = trackersDir.path + '/${trackerFileNames[0]}';
+      // var trackerFile = trackersDir.path + '/${trackerFileNames[0]}';
       printOut('python file : $python');
       printOut('openssl file : $openssl');
       if (File(python).existsSync()) {
@@ -68,8 +68,8 @@ void runZeroNet() {
           zeroNetDir,
           "--openssl_bin_file",
           openssl,
-          if (enableZeroNetAddTrackers!) '--trackers_file',
-          if (enableZeroNetAddTrackers!) trackerFile,
+          // if (enableZeroNetAddTrackers!) '--trackers_file',
+          // if (enableZeroNetAddTrackers!) trackerFile,
           "--updatesite",
           "1Update8crprmciJHwp2WXqkx2c4iYp18"
         ], environment: {
@@ -189,7 +189,7 @@ void runZeroNetService({bool autoStart = false}) async {
   //TODO?: Check for Bugs Here.
   bool serviceRunning = false;
   if (PlatformExt.isMobile || !serviceRunning) {
-    service = ZeroNetService();
+    service = ZeroNetService(false);
     serviceRunning = await service.isServiceRunning;
     uiStore.setZeroNetStatus(ZeroNetStatus.NOT_RUNNING);
   }
@@ -199,26 +199,30 @@ void runZeroNetService({bool autoStart = false}) async {
     (value) {
       printOut('FlutterBackgroundService.initialize() : $value');
       if (value) {
-        service = ZeroNetService();
+        service = ZeroNetService(false);
         service.onDataReceived.listen(onBgServiceDataReceived);
         if (zeroNetNativeDir!.isNotEmpty) saveDataFile();
         if (Platform.isAndroid) {
           uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
           service.sendData({'cmd': 'runZeroNet'});
-          runBgIsolate();
+          service.start();
         } else {
-          runBgIsolate();
+          service.start();
         }
+        service.start();
       }
     },
   );
 }
 
-void runBgIsolate() {
+@pragma('vm:entry-point')
+void runBgIsolate(ServiceInstance serviceInstance) {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
-  service = ZeroNetService();
-  service.onDataReceived.listen(onBgServiceDataReceivedForIsolate);
+  service = ZeroNetService(true, serviceInstance: serviceInstance);
+  service.onDataReceived.listen((data) {
+    onBgServiceDataReceivedForIsolate(serviceInstance, data);
+  });
   service.sendData({'status': 'Started Background Service Successfully'});
   Timer(Duration(milliseconds: 0), () {
     if (PlatformExt.isMobile) {
@@ -231,14 +235,11 @@ void runBgIsolate() {
               (siteUiController.settings[debugZeroNet] as ToggleSetting).value;
           enableTorLogConsole =
               (siteUiController.settings[enableTorLog] as ToggleSetting).value;
-          enableZeroNetAddTrackers = (siteUiController
-                  .settings[enableAdditionalTrackers] as ToggleSetting)
-              .value;
           vibrateonZeroNetStart = (siteUiController
                   .settings[vibrateOnZeroNetStart] as ToggleSetting)
               .value;
           printOut('runBgIsolate() > runZeroNet()');
-          runZeroNet();
+          runZeroNet(serviceInstance);
           setZeroNetRunningNotification();
         }
       }
@@ -250,25 +251,25 @@ void runBgIsolate() {
           (siteUiController.settings[debugZeroNet] as ToggleSetting).value;
       enableTorLogConsole =
           (siteUiController.settings[enableTorLog] as ToggleSetting).value;
-      enableZeroNetAddTrackers =
-          (siteUiController.settings[enableAdditionalTrackers] as ToggleSetting)
-              .value;
       vibrateonZeroNetStart =
           (siteUiController.settings[vibrateOnZeroNetStart] as ToggleSetting)
               .value;
       printOut('runBgIsolate() > runZeroNet()');
-      runZeroNet();
+      runZeroNet(serviceInstance);
       setZeroNetRunningNotification();
     }
   });
 }
 
-void onBgServiceDataReceivedForIsolate(Map<String, dynamic>? data) {
+void onBgServiceDataReceivedForIsolate(
+  ServiceInstance instance,
+  Map<String, dynamic>? data,
+) {
   if (data!.keys.first == 'cmd') {
     switch (data.values.first) {
       case 'runZeroNet':
         printOut('onBgServiceDataReceivedForIsolate() > runZeroNet()');
-        runZeroNet();
+        runZeroNet(instance);
         break;
       case 'shutDownZeronet':
         service.stop();
@@ -283,7 +284,6 @@ void onBgServiceDataReceivedForIsolate(Map<String, dynamic>? data) {
     enableTorLogConsole = initMap['enableTorLog'];
     zeroNetStartedFromBoot = initMap['zeroNetStartedFromBoot'];
     vibrateonZeroNetStart = initMap['vibrateOnZeroNetStart'];
-    enableZeroNetAddTrackers = initMap['enableAdditionalTrackers'];
     setBgServiceRunningNotification();
   } else if (data.keys.first == 'notification') {
     if (data.values.first == 'ZeroNetStatus.RUNNING') {

@@ -39,7 +39,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.jeppeman.locallydynamic'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -52,7 +52,7 @@ android {
     defaultConfig {
         applicationId "in.canews.zeronetmobile"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -116,7 +116,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:17.6.0'
     
     //Duplicate Classes Issue https://stackoverflow.com/a/60492942
-    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
+    // implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
     debugImplementation 'com.jeppeman.locallydynamic:locallydynamic-debug:0.3'
     releaseImplementation 'com.jeppeman.locallydynamic:locallydynamic:0.3'

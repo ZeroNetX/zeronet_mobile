@@ -14,7 +14,7 @@ export 'package:device_info_plus/device_info_plus.dart';
 export 'package:diff_match_patch/diff_match_patch.dart';
 export 'package:equatable/equatable.dart';
 export 'package:file_picker/file_picker.dart';
-export 'package:flutter_absolute_path/flutter_absolute_path.dart';
+// export 'package:flutter_absolute_path/flutter_absolute_path.dart';
 export 'package:flutter_background_service/flutter_background_service.dart';
 export 'package:flutter_downloader/flutter_downloader.dart';
 export 'package:get/get.dart' hide HeaderValue, MultipartFile, Response;

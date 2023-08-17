@@ -61,7 +61,7 @@ initDownloadParams() async {
   FlutterDownloader.registerCallback(handleDownloads);
 }
 
-handleDownloads(String id, DownloadTaskStatus status, dynamic progress) {
+handleDownloads(String id, int status, dynamic progress) {
   final SendPort send =
       IsolateNameServer.lookupPortByName(isolateDownloadPort)!;
   send.send([id, status, progress]);
@@ -79,7 +79,7 @@ bindDownloadIsolate() {
   }
   _downloadPort.listen((data) {
     String? id = data[0];
-    DownloadTaskStatus? status = data[1];
+    DownloadTaskStatus? status = (data[1] as int).intoDownloadTaskStatus;
     int? progress = data[2];
     for (var item in downloadsMap.keys) {
       if (downloadsMap[item] == id) {

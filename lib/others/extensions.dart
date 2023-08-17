@@ -32,3 +32,27 @@ extension PlatformExt on Platform {
 
   static get isSupported => (isSupportedDesktop || isSupportedMobile);
 }
+
+extension DownloadTaskkExt on int {
+  /// Creates a new [DownloadTaskStatus] from an [int].
+  DownloadTaskStatus get intoDownloadTaskStatus {
+    switch (this) {
+      case 0:
+        return DownloadTaskStatus.undefined;
+      case 1:
+        return DownloadTaskStatus.enqueued;
+      case 2:
+        return DownloadTaskStatus.running;
+      case 3:
+        return DownloadTaskStatus.complete;
+      case 4:
+        return DownloadTaskStatus.failed;
+      case 5:
+        return DownloadTaskStatus.canceled;
+      case 6:
+        return DownloadTaskStatus.paused;
+      default:
+        throw ArgumentError('Invalid value: $this');
+    }
+  }
+}

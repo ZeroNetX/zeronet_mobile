@@ -1,8 +1,8 @@
 import '../imports.dart';
 
-final strController = Get.put(StrController());
+final strController = Get.put(StringController());
 
-class StrController extends GetxController {
+class StringController extends GetxController {
   final statusNotRunningStr = 'Not Running'.obs;
   final statusInitializingStr = 'Initializing..'.obs;
   final statusStartingStr = 'Starting'.obs;
