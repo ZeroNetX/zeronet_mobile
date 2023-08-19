@@ -85,3 +85,4 @@ flutter:
     - assets/developers/
     - assets/icons/
     - assets/filters/
+    - shorebird.yaml
