@@ -174,7 +174,11 @@ void runZeroNet(ServiceInstance instance) {
   }
 }
 
+bool isInitialised = false;
+
 void runZeroNetService({bool autoStart = false}) async {
+  if (isInitialised) return;
+  isInitialised = true;
   printOut('runZeroNetService()');
   bool? autoStartService = autoStart
       ? true
@@ -204,12 +208,14 @@ void runZeroNetService({bool autoStart = false}) async {
         if (zeroNetNativeDir!.isNotEmpty) saveDataFile();
         if (Platform.isAndroid) {
           uiStore.setZeroNetStatus(ZeroNetStatus.INITIALISING);
-          service.sendData({'cmd': 'runZeroNet'});
-          service.start();
+          // service.sendData({'cmd': 'runZeroNet'});
+          // service.start();
         } else {
+          // service.start();
+        }
+        if (!(autoStartService ?? true)) {
           service.start();
         }
-        service.start();
       }
     },
   );
@@ -345,6 +351,7 @@ void onBgServiceDataReceived(Map<String, dynamic>? data) {
         break;
       case 'ERROR':
         uiStore.setZeroNetStatus(ZeroNetStatus.ERROR);
+        isInitialised = false;
         break;
       default:
     }

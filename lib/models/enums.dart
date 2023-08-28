@@ -70,6 +70,7 @@ extension ZeroNetStatusExt on ZeroNetStatus {
         // if (PlatformExt.isMobile()) flutterWebViewPlugin.close();
         // FlutterBackgroundService().stopBackgroundService();
         manuallyStoppedZeroNet = true;
+        isInitialised = false;
         break;
       case ZeroNetStatus.ERROR:
         dashboard.siteUiController.updateCurrentAppRoute(AppRoute.LogPage);
