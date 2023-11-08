@@ -20,7 +20,7 @@ dependencies:
     git:
       url: https://github.com/canewsin/flutter_absolute_path.git
       # ref: android-v2
-  flutter_downloader: ^1.8.0+1
+  flutter_downloader: 1.8.0+1
   # flutter_mobx: ^1.1.0+2
   http: ^0.13.4
   # mobx: ^1.2.1+4
@@ -63,7 +63,8 @@ dependencies:
   bitsdojo_window: ^0.1.5
   system_tray: #^0.0.9
     git:
-        url: https://github.com/antler119/system_tray.git
+      url: https://github.com/antler119/system_tray.git
+      ref: 31a5a9ce817d820d883bfbf0f6cd600cb9df406f
   msix: ^3.0.1
   flutter_inappwebview: ^5.4.1+1
     # path: ../zeronet_ws
