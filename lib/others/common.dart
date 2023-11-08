@@ -145,12 +145,12 @@ Future<void> initSystemTray() async {
     path = 'AppIcon';
   }
 
-  List<MenuItemBase> popularSites = [];
+  List<MenuItem> popularSites = [];
   Utils.initialSites.forEach((key, value) {
     popularSites.add(
       MenuItemLabel(
         label: key,
-        onClicked: (MenuItemBase item) {
+        onClicked: (MenuItem item) {
           zeroNetUrl = defZeroNetUrl + value['url']!;
           launchUrl(Uri.parse(zeroNetUrl));
         },

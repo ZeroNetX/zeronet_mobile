@@ -64,7 +64,8 @@ dependencies:
   bitsdojo_window: ^0.1.5
   system_tray: #^0.0.9
     git:
-        url: https://github.com/antler119/system_tray.git
+      url: https://github.com/antler119/system_tray.git
+      ref: 31a5a9ce817d820d883bfbf0f6cd600cb9df406f
   msix: 3.16.1
   flutter_inappwebview: 5.7.2+3
     # path: ../zeronet_ws
