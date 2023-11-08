@@ -11,7 +11,7 @@ class UnzipParams {
   });
 }
 
-enum state {
+enum ZNBinaryState {
   NOT_DOWNLOADED,
   DOWNLOADING,
   NOT_INSTALLED,

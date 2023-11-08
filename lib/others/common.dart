@@ -1,5 +1,3 @@
-import 'package:purchases_flutter/purchases_flutter.dart';
-
 import '../dashboard/imports.dart' hide strController;
 import '../imports.dart';
 
@@ -33,7 +31,7 @@ Map downloadStatusMap = {};
 late PackageInfo packageInfo;
 String appVersion = '';
 late String buildNumber;
-var zeroNetState = state.NONE;
+var zeroNetState = ZNBinaryState.NONE;
 Client client = Client();
 String? arch;
 String zeroNetUrl = '';

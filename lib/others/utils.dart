@@ -211,7 +211,7 @@ unzip() async {
     File f = File(tempDir!.path + '/$item.zip');
     File f2 = File(tempDir!.path + '/$item.installing');
     File f3 = File(tempDir!.path + '/$item.installed');
-    zeroNetState = state.INSTALLING;
+    zeroNetState = ZNBinaryState.INSTALLING;
     if (!(f2.existsSync() && f3.existsSync())) {
       if (f.path.contains('usr'))
         unzipBytes(
@@ -238,7 +238,7 @@ unZipinBg() async {
     for (var item in files(arch)) {
       File f = File(tempDir!.path + '/$item.zip');
       File f2 = File(installingMetaDir(tempDir!.path, item, sesionKey));
-      zeroNetState = state.INSTALLING;
+      zeroNetState = ZNBinaryState.INSTALLING;
       if (!(f2.existsSync())) {
         f2.createSync(recursive: true);
         if (f.path.contains('usr') || f.path.contains('tor')) {
@@ -288,7 +288,7 @@ unZipinBgWin() async {
   bindUnZipIsolate();
   File item = File(dataDir + sep + 'ZeroNet-win.zip');
   var name = item.path.split(sep).last;
-  zeroNetState = state.INSTALLING;
+  zeroNetState = ZNBinaryState.INSTALLING;
   if (item.existsSync())
     await compute(
       _unzipBytesAsyncWin,
