@@ -88,7 +88,7 @@ Future<File?> getUserJsonFile() async {
     String path = await (_channel.invokeMethod(
       'readJsonFromUri',
       uri,
-    ) as FutureOr<String>);
+    ));
     return File(path);
   } catch (e) {
     if (e is PlatformException && e.code == '526') {
