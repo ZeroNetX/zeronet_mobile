@@ -107,9 +107,15 @@ class MyApp extends StatelessWidget {
                   )
                 : appContent();
             if (siteUiController.currentTheme.value == AppTheme.Light) {
-              return Theme(data: ThemeData.light(), child: child);
+              return Theme(
+                data: ThemeData.light(useMaterial3: false),
+                child: child,
+              );
             } else {
-              return Theme(data: ThemeData.dark(), child: child);
+              return Theme(
+                data: ThemeData.dark(useMaterial3: false),
+                child: child,
+              );
             }
           },
         ),
