@@ -39,6 +39,11 @@ class Loading extends StatelessWidget {
               warning,
               style: TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
             ),
+            Padding(padding: EdgeInsets.all(12.0)),
+            Text(
+              '${appVersion}(${buildNumber})',
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
